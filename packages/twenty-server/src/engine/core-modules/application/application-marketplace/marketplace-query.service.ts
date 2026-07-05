@@ -9,6 +9,7 @@ import {
   ApplicationRegistrationExceptionCode,
 } from 'src/engine/core-modules/application/application-registration/application-registration.exception';
 import { ApplicationRegistrationVariableService } from 'src/engine/core-modules/application/application-registration-variable/application-registration-variable.service';
+import { toGalleryImagePaths } from 'src/engine/core-modules/application/application-registration/utils/to-gallery-image-paths.util';
 import {
   type ApplicationRegistrationCatalogCard,
   ApplicationRegistrationService,
@@ -108,6 +109,10 @@ export class MarketplaceQueryService {
   private toMarketplaceAppDetailDTO(
     registration: ApplicationRegistrationEntity,
   ): MarketplaceAppDetailDTO {
+    const galleryImagePaths = isNonEmptyArray(registration.screenshots)
+      ? registration.screenshots
+      : toGalleryImagePaths(registration.manifest?.application);
+
     return {
       id: registration.id,
       universalIdentifier: registration.universalIdentifier,
@@ -150,9 +155,8 @@ export class MarketplaceQueryService {
         registration.issueReportUrl ??
         registration.manifest?.application?.issueReportUrl ??
         undefined,
-      screenshots: isNonEmptyArray(registration.screenshots)
-        ? registration.screenshots
-        : (registration.manifest?.application?.screenshots ?? []),
+      screenshots: galleryImagePaths,
+      galleryImages: galleryImagePaths,
       defaultRoleUniversalIdentifier:
         registration.manifest?.application?.defaultRoleUniversalIdentifier,
       roles: registration.manifest?.roles?.map((role) =>
