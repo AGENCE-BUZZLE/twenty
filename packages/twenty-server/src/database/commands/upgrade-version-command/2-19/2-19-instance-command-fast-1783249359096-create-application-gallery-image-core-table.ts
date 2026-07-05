@@ -33,9 +33,16 @@ export class CreateApplicationGalleryImageCoreTableFastInstanceCommand
       `CREATE INDEX IF NOT EXISTS "IDX_APPLICATION_GALLERY_IMAGE_APPLICATION_REGISTRATION_ID"
         ON "core"."applicationGalleryImage" ("applicationRegistrationId")`,
     );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_APPLICATION_GALLERY_IMAGE_FILE_ID"
+        ON "core"."applicationGalleryImage" ("fileId")`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "core"."IDX_APPLICATION_GALLERY_IMAGE_FILE_ID"`,
+    );
     await queryRunner.query(
       `DROP INDEX IF EXISTS "core"."IDX_APPLICATION_GALLERY_IMAGE_APPLICATION_REGISTRATION_ID"`,
     );

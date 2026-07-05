@@ -19,14 +19,25 @@ export class ApplicationGalleryImageService {
     applicationId: string;
     fileIds: string[];
   }): Promise<void> {
-    await this.applicationGalleryImageRepository.delete({ applicationId });
+    await this.applicationGalleryImageRepository.manager.transaction(
+      async (entityManager) => {
+        await entityManager.delete(ApplicationGalleryImageEntity, {
+          applicationId,
+        });
 
-    if (fileIds.length === 0) {
-      return;
-    }
+        if (fileIds.length === 0) {
+          return;
+        }
 
-    await this.applicationGalleryImageRepository.insert(
-      fileIds.map((fileId, position) => ({ fileId, position, applicationId })),
+        await entityManager.insert(
+          ApplicationGalleryImageEntity,
+          fileIds.map((fileId, position) => ({
+            fileId,
+            position,
+            applicationId,
+          })),
+        );
+      },
     );
   }
 
@@ -37,20 +48,25 @@ export class ApplicationGalleryImageService {
     applicationRegistrationId: string;
     fileIds: string[];
   }): Promise<void> {
-    await this.applicationGalleryImageRepository.delete({
-      applicationRegistrationId,
-    });
+    await this.applicationGalleryImageRepository.manager.transaction(
+      async (entityManager) => {
+        await entityManager.delete(ApplicationGalleryImageEntity, {
+          applicationRegistrationId,
+        });
 
-    if (fileIds.length === 0) {
-      return;
-    }
+        if (fileIds.length === 0) {
+          return;
+        }
 
-    await this.applicationGalleryImageRepository.insert(
-      fileIds.map((fileId, position) => ({
-        fileId,
-        position,
-        applicationRegistrationId,
-      })),
+        await entityManager.insert(
+          ApplicationGalleryImageEntity,
+          fileIds.map((fileId, position) => ({
+            fileId,
+            position,
+            applicationRegistrationId,
+          })),
+        );
+      },
     );
   }
 }

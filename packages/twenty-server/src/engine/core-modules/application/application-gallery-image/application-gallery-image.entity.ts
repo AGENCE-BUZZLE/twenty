@@ -18,11 +18,15 @@ import { FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
 import { WasIntroducedInUpgrade } from 'src/engine/core-modules/upgrade/decorators/was-introduced-in-upgrade.decorator';
 
 @Entity({ name: 'applicationGalleryImage', schema: 'core' })
+@WasIntroducedInUpgrade({
+  upgradeCommandName:
+    '2.19.0_CreateApplicationGalleryImageCoreTableFastInstanceCommand_1783249359096',
+})
+@Index('IDX_APPLICATION_GALLERY_IMAGE_FILE_ID', ['fileId'])
 @Index('IDX_APPLICATION_GALLERY_IMAGE_APPLICATION_ID', ['applicationId'])
-@Index(
-  'IDX_APPLICATION_GALLERY_IMAGE_APPLICATION_REGISTRATION_ID',
-  ['applicationRegistrationId'],
-)
+@Index('IDX_APPLICATION_GALLERY_IMAGE_APPLICATION_REGISTRATION_ID', [
+  'applicationRegistrationId',
+])
 @Check(
   'CHK_APPLICATION_GALLERY_IMAGE_SINGLE_OWNER',
   `("applicationId" IS NOT NULL AND "applicationRegistrationId" IS NULL) OR ("applicationId" IS NULL AND "applicationRegistrationId" IS NOT NULL)`,
@@ -32,10 +36,6 @@ export class ApplicationGalleryImageEntity {
   id: string;
 
   @Column({ nullable: false, type: 'uuid' })
-  @WasIntroducedInUpgrade({
-    upgradeCommandName:
-      '2.19.0_CreateApplicationGalleryImageCoreTableFastInstanceCommand_1783249359096',
-  })
   fileId: string;
 
   @ManyToOne(() => FileEntity, { onDelete: 'CASCADE', nullable: false })
@@ -48,10 +48,14 @@ export class ApplicationGalleryImageEntity {
   @Column({ nullable: true, type: 'uuid' })
   applicationId: string | null;
 
-  @ManyToOne(() => ApplicationEntity, (application) => application.galleryImages, {
-    onDelete: 'CASCADE',
-    nullable: true,
-  })
+  @ManyToOne(
+    () => ApplicationEntity,
+    (application) => application.galleryImages,
+    {
+      onDelete: 'CASCADE',
+      nullable: true,
+    },
+  )
   @JoinColumn({ name: 'applicationId' })
   application: Relation<ApplicationEntity> | null;
 
