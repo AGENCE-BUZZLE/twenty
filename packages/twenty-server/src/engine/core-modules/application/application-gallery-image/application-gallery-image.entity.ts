@@ -34,7 +34,7 @@ export class ApplicationGalleryImageEntity {
   @Column({ nullable: false, type: 'uuid' })
   @WasIntroducedInUpgrade({
     upgradeCommandName:
-      '2.19.0_CreateApplicationGalleryImageCoreTableFastInstanceCommand_1783090000001',
+      '2.19.0_CreateApplicationGalleryImageCoreTableFastInstanceCommand_1783249359096',
   })
   fileId: string;
 
