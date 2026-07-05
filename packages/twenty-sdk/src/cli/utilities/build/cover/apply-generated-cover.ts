@@ -18,9 +18,9 @@ export const applyGeneratedCover = async ({
   appPath: string;
   manifest: Manifest;
 }): Promise<{ manifest: Manifest; generatedAssets: GeneratedAsset[] }> => {
-  const { logoPath, galleryImages } = manifest.application;
+  const { logo, galleryImages } = manifest.application;
 
-  if (!isDefined(logoPath) || isAbsoluteUrl(logoPath)) {
+  if (!isDefined(logo) || isAbsoluteUrl(logo)) {
     return { manifest, generatedAssets: [] };
   }
 
@@ -28,7 +28,7 @@ export const applyGeneratedCover = async ({
     return { manifest, generatedAssets: [] };
   }
 
-  const logoAbsolutePath = join(appPath, logoPath);
+  const logoAbsolutePath = join(appPath, logo);
 
   if (!(await pathExists(logoAbsolutePath))) {
     return { manifest, generatedAssets: [] };
@@ -56,7 +56,7 @@ export const applyGeneratedCover = async ({
       ...manifest,
       application: {
         ...manifest.application,
-        galleryImages: [{ path: GENERATED_COVER_PATH, position: 0 }],
+        galleryImages: [GENERATED_COVER_PATH],
       },
       publicAssets,
     },

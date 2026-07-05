@@ -585,26 +585,25 @@ export class ApplicationInstallService {
     applicationUniversalIdentifier: string;
     workspaceId: string;
   }): Promise<string | null> {
-    const logoPath =
-      manifest.application.logoPath ?? manifest.application.logoUrl;
+    const logo = manifest.application.logo ?? manifest.application.logoUrl;
 
     if (
-      !isDefined(logoPath) ||
-      logoPath.startsWith('http://') ||
-      logoPath.startsWith('https://')
+      !isDefined(logo) ||
+      logo.startsWith('http://') ||
+      logo.startsWith('https://')
     ) {
       return null;
     }
 
-    if (!isImageFilePath(logoPath)) {
+    if (!isImageFilePath(logo)) {
       this.logger.warn(
-        `Logo "${logoPath}" is not a supported image type; skipping logo import for ${applicationUniversalIdentifier}`,
+        `Logo "${logo}" is not a supported image type; skipping logo import for ${applicationUniversalIdentifier}`,
       );
 
       return null;
     }
 
-    const absolutePath = this.resolveWithinDirOrThrow(extractedDir, logoPath);
+    const absolutePath = this.resolveWithinDirOrThrow(extractedDir, logo);
 
     let content: Buffer;
 
@@ -612,7 +611,7 @@ export class ApplicationInstallService {
       content = await fs.readFile(absolutePath);
     } catch {
       this.logger.warn(
-        `Logo "${logoPath}" declared in manifest but not found in package for ${applicationUniversalIdentifier}; skipping logo import`,
+        `Logo "${logo}" declared in manifest but not found in package for ${applicationUniversalIdentifier}; skipping logo import`,
       );
 
       return null;
@@ -623,7 +622,7 @@ export class ApplicationInstallService {
       fileFolder: FileFolder.PublicAsset,
       applicationUniversalIdentifier,
       workspaceId,
-      resourcePath: logoPath,
+      resourcePath: logo,
       settings: { isTemporaryFile: false, toDelete: false },
     });
 

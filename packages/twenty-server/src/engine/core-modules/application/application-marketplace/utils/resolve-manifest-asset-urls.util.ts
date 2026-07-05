@@ -17,16 +17,11 @@ export const resolveManifestAssetUrls = (
       logoUrl: manifest.application.logoUrl
         ? resolveUrl(manifest.application.logoUrl)
         : undefined,
-      logoPath: manifest.application.logoPath
-        ? resolveUrl(manifest.application.logoPath)
+      logo: manifest.application.logo
+        ? resolveUrl(manifest.application.logo)
         : undefined,
       screenshots: (manifest.application.screenshots ?? []).map(resolveUrl),
-      galleryImages: (manifest.application.galleryImages ?? []).map(
-        (galleryImage) => ({
-          ...galleryImage,
-          path: resolveUrl(galleryImage.path),
-        }),
-      ),
+      galleryImages: (manifest.application.galleryImages ?? []).map(resolveUrl),
     },
   };
 };

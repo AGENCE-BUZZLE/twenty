@@ -1,5 +1,4 @@
 import { type ApplicationVariables } from './applicationVariablesType';
-import { type GalleryImageManifest } from './galleryImageManifestType';
 import { type ServerVariables } from './server-variables.type';
 import { type SyncableEntityOptions } from './syncableEntityOptionsType';
 import { type PostInstallLogicFunctionApplicationManifest } from '@/application/postInstallLogicFunctionApplicationType';
@@ -14,15 +13,15 @@ export type ApplicationManifest = SyncableEntityOptions & {
   author?: string;
   category?: string;
   /**
-   * @deprecated Use `logoPath` instead.
+   * @deprecated Use `logo` instead.
    */
   logoUrl?: string;
-  logoPath?: string;
+  logo?: string;
   /**
    * @deprecated Use `galleryImages` instead.
    */
   screenshots?: string[];
-  galleryImages?: GalleryImageManifest[];
+  galleryImages?: string[];
   aboutDescription?: string;
   websiteUrl?: string;
   termsUrl?: string;

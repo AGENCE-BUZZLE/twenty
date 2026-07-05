@@ -1,5 +1,3 @@
-import { type GalleryImageManifest } from 'twenty-shared/application';
-
 import { type ApplicationConfig } from '@/sdk/define';
 
 const isAbsoluteUrl = (value: string): boolean =>
@@ -8,31 +6,31 @@ const isAbsoluteUrl = (value: string): boolean =>
 export const normalizeApplicationAssets = (
   application: ApplicationConfig,
 ): {
-  logoPath?: string;
-  galleryImages: GalleryImageManifest[];
+  logo?: string;
+  galleryImages: string[];
   warnings: string[];
 } => {
   const warnings: string[] = [];
 
-  let logoPath = application.logoPath;
+  let logo = application.logo;
 
-  if (logoPath && isAbsoluteUrl(logoPath)) {
+  if (logo && isAbsoluteUrl(logo)) {
     warnings.push(
-      `Application logoPath "${logoPath}" is an external URL. External asset URLs are no longer supported and are ignored. Bundle the image in your public/ folder instead.`,
+      `Application logo "${logo}" is an external URL. External asset URLs are no longer supported and are ignored. Bundle the image in your public/ folder instead.`,
     );
-    logoPath = undefined;
+    logo = undefined;
   }
 
-  if (!logoPath && application.logoUrl) {
+  if (!logo && application.logoUrl) {
     if (isAbsoluteUrl(application.logoUrl)) {
       warnings.push(
-        `Application logoUrl "${application.logoUrl}" is an external URL. External asset URLs are no longer supported and are ignored. Bundle the image in your public/ folder and reference it via logoPath.`,
+        `Application logoUrl "${application.logoUrl}" is an external URL. External asset URLs are no longer supported and are ignored. Bundle the image in your public/ folder and reference it via logo.`,
       );
     } else {
       warnings.push(
-        '`logoUrl` is deprecated. Use `logoPath` to reference an image bundled in your public/ folder.',
+        '`logoUrl` is deprecated. Use `logo` to reference an image bundled in your public/ folder.',
       );
-      logoPath = application.logoUrl;
+      logo = application.logoUrl;
     }
   }
 
@@ -41,21 +39,17 @@ export const normalizeApplicationAssets = (
 
   if (usesDeprecatedScreenshots) {
     warnings.push(
-      '`screenshots` is deprecated. Use `galleryImages` ({ path, position }[]) referencing images bundled in your public/ folder.',
+      '`screenshots` is deprecated. Use `galleryImages` referencing images bundled in your public/ folder.',
     );
   }
 
-  const rawGalleryImages: GalleryImageManifest[] =
-    application.galleryImages ??
-    (application.screenshots ?? []).map((path, index) => ({
-      path,
-      position: index,
-    }));
+  const rawGalleryImages =
+    application.galleryImages ?? application.screenshots ?? [];
 
-  const galleryImages = rawGalleryImages.filter((image) => {
-    if (isAbsoluteUrl(image.path)) {
+  const galleryImages = rawGalleryImages.filter((galleryImage) => {
+    if (isAbsoluteUrl(galleryImage)) {
       warnings.push(
-        `Gallery image "${image.path}" is an external URL. External asset URLs are no longer supported and are ignored.`,
+        `Gallery image "${galleryImage}" is an external URL. External asset URLs are no longer supported and are ignored.`,
       );
 
       return false;
@@ -64,5 +58,5 @@ export const normalizeApplicationAssets = (
     return true;
   });
 
-  return { logoPath, galleryImages, warnings };
+  return { logo, galleryImages, warnings };
 };

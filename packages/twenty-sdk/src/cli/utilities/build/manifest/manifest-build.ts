@@ -580,8 +580,6 @@ export const buildManifest = async (
   const application: ApplicationManifest | undefined =
     applicationConfig && resolvedDefaultRoleUniversalIdentifier
       ? (() => {
-          // Drop the deprecated asset fields from the spread — they are
-          // replaced by the normalized `logoPath` / `galleryImages`.
           const {
             logoUrl: _logoUrl,
             screenshots: _screenshots,
@@ -590,7 +588,7 @@ export const buildManifest = async (
 
           return {
             ...applicationConfigRest,
-            logoPath: assetNormalization?.logoPath,
+            logo: assetNormalization?.logo,
             galleryImages: assetNormalization?.galleryImages ?? [],
             defaultRoleUniversalIdentifier:
               resolvedDefaultRoleUniversalIdentifier,

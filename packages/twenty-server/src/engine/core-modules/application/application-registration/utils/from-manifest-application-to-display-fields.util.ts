@@ -5,7 +5,7 @@ import { toGalleryImagePaths } from 'src/engine/core-modules/application/applica
 export const fromManifestApplicationToDisplayFields = (
   application: ApplicationManifest | undefined,
 ) => ({
-  logo: application?.logoPath ?? application?.logoUrl ?? null,
+  logo: application?.logo ?? application?.logoUrl ?? null,
   description: application?.description ?? null,
   author: application?.author ?? null,
   category: application?.category ?? null,

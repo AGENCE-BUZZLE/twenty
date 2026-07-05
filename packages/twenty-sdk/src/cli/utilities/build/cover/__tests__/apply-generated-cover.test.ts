@@ -43,13 +43,13 @@ describe('applyGeneratedCover', () => {
 
   it('generates a cover when a local logo exists and no gallery images are set', async () => {
     await writeLogo('public/logo.png');
-    const manifest = buildManifest({ logoPath: 'public/logo.png' });
+    const manifest = buildManifest({ logo: 'public/logo.png' });
 
     const result = await applyGeneratedCover({ appPath, manifest });
 
     expect(mockedGenerateCoverImage).toHaveBeenCalledTimes(1);
     expect(result.manifest.application.galleryImages).toEqual([
-      { path: GENERATED_COVER_PATH, position: 0 },
+      GENERATED_COVER_PATH,
     ]);
     expect(
       result.manifest.publicAssets.some(
@@ -74,8 +74,8 @@ describe('applyGeneratedCover', () => {
   it('does nothing when gallery images are already provided', async () => {
     await writeLogo('public/logo.png');
     const manifest = buildManifest({
-      logoPath: 'public/logo.png',
-      galleryImages: [{ path: 'public/shot.png', position: 0 }],
+      logo: 'public/logo.png',
+      galleryImages: ['public/shot.png'],
     });
 
     const result = await applyGeneratedCover({ appPath, manifest });
@@ -83,13 +83,13 @@ describe('applyGeneratedCover', () => {
     expect(mockedGenerateCoverImage).not.toHaveBeenCalled();
     expect(result.generatedAssets).toEqual([]);
     expect(result.manifest.application.galleryImages).toEqual([
-      { path: 'public/shot.png', position: 0 },
+      'public/shot.png',
     ]);
   });
 
   it('does nothing when the logo is an absolute url', async () => {
     const manifest = buildManifest({
-      logoPath: 'https://example.com/logo.png',
+      logo: 'https://example.com/logo.png',
     });
 
     const result = await applyGeneratedCover({ appPath, manifest });
@@ -99,7 +99,7 @@ describe('applyGeneratedCover', () => {
   });
 
   it('does nothing when the logo file is missing', async () => {
-    const manifest = buildManifest({ logoPath: 'public/missing.png' });
+    const manifest = buildManifest({ logo: 'public/missing.png' });
 
     const result = await applyGeneratedCover({ appPath, manifest });
 

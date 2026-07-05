@@ -220,7 +220,7 @@ export class ApplicationRegistrationEntity {
   get logoUrl(): string | null {
     return (
       this.logo ??
-      this.manifest?.application?.logoPath ??
+      this.manifest?.application?.logo ??
       this.manifest?.application?.logoUrl ??
       null
     );
