@@ -12,13 +12,19 @@ export class AddLogoFileIdToApplicationRegistrationFastInstanceCommand
       'ALTER TABLE "core"."applicationRegistration" ADD COLUMN IF NOT EXISTS "logoFileId" uuid',
     );
     await queryRunner.query(
-      'ALTER TABLE "core"."applicationRegistration" ADD CONSTRAINT "FK_APPLICATION_REGISTRATION_LOGO_FILE_ID" FOREIGN KEY ("logoFileId") REFERENCES "core"."file"("id") ON DELETE SET NULL ON UPDATE NO ACTION',
+      'ALTER TABLE "core"."applicationRegistration" ADD CONSTRAINT "UQ_796819fb23559c233e6ebd49f34" UNIQUE ("logoFileId")',
+    );
+    await queryRunner.query(
+      'ALTER TABLE "core"."applicationRegistration" ADD CONSTRAINT "FK_796819fb23559c233e6ebd49f34" FOREIGN KEY ("logoFileId") REFERENCES "core"."file"("id") ON DELETE SET NULL ON UPDATE NO ACTION',
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      'ALTER TABLE "core"."applicationRegistration" DROP CONSTRAINT "FK_APPLICATION_REGISTRATION_LOGO_FILE_ID"',
+      'ALTER TABLE "core"."applicationRegistration" DROP CONSTRAINT "FK_796819fb23559c233e6ebd49f34"',
+    );
+    await queryRunner.query(
+      'ALTER TABLE "core"."applicationRegistration" DROP CONSTRAINT "UQ_796819fb23559c233e6ebd49f34"',
     );
     await queryRunner.query(
       'ALTER TABLE "core"."applicationRegistration" DROP COLUMN "logoFileId"',
