@@ -1,0 +1,58 @@
+name: Build Buzzle CRM full image (with fork source mods)
+
+# Rebuilds Twenty from source (with our fork mods in packages/twenty-front, twenty-server, etc.)
+# then applies the Buzzle overlay on top.
+#
+# Trigger MANUAL for now — this build is heavy (~15-20 min).
+# Once we start making source-level fork mods, we'll switch this to run on push.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Version tag to publish (e.g. v1.1.0)'
+        required: true
+        default: 'v1.1.0-dev'
+      push_to_registry:
+        description: 'Push to ghcr.io'
+        type: boolean
+        default: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: agence-buzzle/crm-full
+
+jobs:
+  build-full-from-source:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: ${{ inputs.push_to_registry }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Twenty from source (with Buzzle fork mods)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: packages/twenty-docker/twenty/Dockerfile
+          push: ${{ inputs.push_to_registry }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.version_tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
