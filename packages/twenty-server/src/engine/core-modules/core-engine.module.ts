@@ -5,6 +5,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WorkspaceQueryRunnerModule } from 'src/engine/api/graphql/workspace-query-runner/workspace-query-runner.module';
 import { ActorModule } from 'src/engine/core-modules/actor/actor.module';
 import { AdminPanelModule } from 'src/engine/core-modules/admin-panel/admin-panel.module';
+import { BuzzleAdminModule } from 'src/engine/core-modules/buzzle-admin/buzzle-admin.module';
 import { ApiKeyModule } from 'src/engine/core-modules/api-key/api-key.module';
 import { AppTokenModule } from 'src/engine/core-modules/app-token/app-token.module';
 import { ApplicationDevelopmentModule } from 'src/engine/core-modules/application/application-development/application-development.module';
@@ -125,6 +126,7 @@ import { FileModule } from './file/file.module';
     ActorModule,
     TelemetryModule,
     AdminPanelModule,
+    BuzzleAdminModule,
     LabModule,
     RoleModule,
     RedisClientModule,
