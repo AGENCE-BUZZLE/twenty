@@ -27,6 +27,7 @@ import { Section } from 'twenty-ui/layout';
 import {
   type ApplicationRegistrationListItemFragment,
   FindManyApplicationRegistrationsDocument,
+  PermissionFlagType,
 } from '~/generated-metadata/graphql';
 import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
 import { useMarketplaceApps } from '~/modules/marketplace/hooks/useMarketplaceApps';
@@ -37,6 +38,8 @@ import {
 import { getApplicationDescriptionSummary } from '~/pages/settings/applications/utils/getApplicationDescriptionSummary';
 import { ApplicationDisplay } from '@/applications/components/ApplicationDisplay';
 import { useIsFeatureEnabled } from '@/workspace/hooks/useIsFeatureEnabled';
+import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
+import { SettingsClaimApplicationSection } from '~/pages/settings/applications/components/SettingsClaimApplicationSection';
 
 const StyledButtonContainer = styled.div`
   display: flex;
@@ -68,6 +71,10 @@ export const SettingsApplicationsDeveloperTab = () => {
 
   const isMarketplaceSettingTabVisible = useIsFeatureEnabled(
     FeatureFlagKey.IS_MARKETPLACE_SETTING_TAB_VISIBLE,
+  );
+
+  const canClaimApplications = useHasPermissionFlag(
+    PermissionFlagType.APPLICATIONS,
   );
 
   const [marketplaceAppSearchTerm, setMarketplaceAppSearchTerm] = useState('');
@@ -146,6 +153,8 @@ export const SettingsApplicationsDeveloperTab = () => {
           />
         </StyledButtonContainer>
       </Section>
+
+      {canClaimApplications && <SettingsClaimApplicationSection />}
 
       {registrations.length > 0 && (
         <Section>
