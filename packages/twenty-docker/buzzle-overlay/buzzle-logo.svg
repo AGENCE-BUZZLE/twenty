@@ -1,0 +1,23 @@
+<svg viewBox="0 0 420 96" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0, 8)">
+    <path d="
+      M 16,0
+      L 26,0
+      A 8,8 0 0 1 42,0
+      L 52,0
+      A 10,10 0 0 1 62,10
+      L 62,20
+      A 8,8 0 0 1 62,36
+      L 62,46
+      A 10,10 0 0 1 52,56
+      L 16,56
+      A 10,10 0 0 1 6,46
+      L 6,10
+      A 10,10 0 0 1 16,0
+      Z"
+      fill="#111111"/>
+    <path d="M 38 18 L 29 33 L 35 33 L 31 44 L 45 27 L 38 27 Z" fill="#faf7f2"/>
+  </g>
+
+  <text x="92" y="68" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="58" letter-spacing="-2" fill="#111111">Buzzle</text>
+</svg>
