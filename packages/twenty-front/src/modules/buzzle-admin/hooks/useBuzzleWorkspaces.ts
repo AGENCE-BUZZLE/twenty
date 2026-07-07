@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 
 import { BUZZLE_LIST_ALL_WORKSPACES_WITH_STATS } from '@/buzzle-admin/graphql/queries/listAllWorkspacesWithStats';
 import {
