@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { ApplicationRegistrationClaimEntity } from 'src/engine/core-modules/application/application-registration/application-registration-claim.entity';
+import { ApplicationRegistrationClaimService } from 'src/engine/core-modules/application/application-registration/application-registration-claim.service';
 import { ApplicationRegistrationEntity } from 'src/engine/core-modules/application/application-registration/application-registration.entity';
 import { ApplicationRegistrationResolver } from 'src/engine/core-modules/application/application-registration/application-registration.resolver';
 import { ApplicationRegistrationService } from 'src/engine/core-modules/application/application-registration/application-registration.service';
@@ -23,6 +25,7 @@ import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/
   imports: [
     TypeOrmModule.forFeature([
       ApplicationRegistrationEntity,
+      ApplicationRegistrationClaimEntity,
       ApplicationEntity,
       WorkspaceEntity,
     ]),
@@ -39,12 +42,14 @@ import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/
   ],
   providers: [
     ApplicationRegistrationService,
+    ApplicationRegistrationClaimService,
     ApplicationRegistrationResolver,
     ApplicationTarballService,
     ManifestAssetUrlResolverService,
   ],
   exports: [
     ApplicationRegistrationService,
+    ApplicationRegistrationClaimService,
     ApplicationRegistrationVariableModule,
     ManifestAssetUrlResolverService,
   ],

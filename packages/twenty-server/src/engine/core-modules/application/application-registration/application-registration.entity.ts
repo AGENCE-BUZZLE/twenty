@@ -20,6 +20,7 @@ import {
 import { UUIDScalarType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars';
 import { type Manifest } from 'twenty-shared/application';
 import { ApplicationRegistrationVariableEntity } from 'src/engine/core-modules/application/application-registration-variable/application-registration-variable.entity';
+import { ApplicationRegistrationListingRequestStatus } from 'src/engine/core-modules/application/application-registration/enums/application-registration-listing-request-status.enum';
 import { ApplicationRegistrationSourceType } from 'src/engine/core-modules/application/application-registration/enums/application-registration-source-type.enum';
 import { FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
 import { WasIntroducedInUpgrade } from 'src/engine/core-modules/upgrade/decorators/was-introduced-in-upgrade.decorator';
@@ -203,6 +204,27 @@ export class ApplicationRegistrationEntity {
       '2.19.0_AddDisplayFieldsToApplicationRegistrationFastInstanceCommand_1783073776590',
   })
   screenshots: string[];
+
+  // Marketplace listing request lifecycle. Catalog-synced apps start unlisted;
+  // the owner requests a listing and a server admin approves it.
+  @Field(() => ApplicationRegistrationListingRequestStatus)
+  @Column({
+    type: 'text',
+    default: ApplicationRegistrationListingRequestStatus.NONE,
+  })
+  @WasIntroducedInUpgrade({
+    upgradeCommandName:
+      '2.20.0_AddListingRequestFieldsToApplicationRegistrationFastInstanceCommand_1783200100000',
+  })
+  listingRequestStatus: ApplicationRegistrationListingRequestStatus;
+
+  @Field(() => Date, { nullable: true })
+  @Column({ nullable: true, type: 'timestamptz' })
+  @WasIntroducedInUpgrade({
+    upgradeCommandName:
+      '2.20.0_AddListingRequestFieldsToApplicationRegistrationFastInstanceCommand_1783200100000',
+  })
+  listingRequestedAt: Date | null;
 
   @Field(() => String, { nullable: true })
   get logoUrl(): string | null {
