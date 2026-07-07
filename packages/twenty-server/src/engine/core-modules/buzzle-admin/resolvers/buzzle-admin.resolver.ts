@@ -1,13 +1,17 @@
-import { Query } from '@nestjs/graphql';
+import { Args, Mutation, Query } from '@nestjs/graphql';
 
 import { AdminResolver } from 'src/engine/api/graphql/graphql-config/decorators/admin-resolver.decorator';
+import { BuzzleCreateWorkspaceFromTemplateInput } from 'src/engine/core-modules/buzzle-admin/dtos/buzzle-create-workspace.input';
+import { BuzzleCreatedWorkspaceDTO } from 'src/engine/core-modules/buzzle-admin/dtos/buzzle-created-workspace.dto';
 import { BuzzleWorkspaceStatsDTO } from 'src/engine/core-modules/buzzle-admin/dtos/buzzle-workspace-stats.dto';
+import { BuzzleWorkspaceProvisioningService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-provisioning.service';
 import { BuzzleWorkspaceStatsService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-stats.service';
 
 @AdminResolver()
 export class BuzzleAdminResolver {
   constructor(
     private readonly buzzleWorkspaceStatsService: BuzzleWorkspaceStatsService,
+    private readonly buzzleWorkspaceProvisioningService: BuzzleWorkspaceProvisioningService,
   ) {}
 
   @Query(() => [BuzzleWorkspaceStatsDTO], {
@@ -16,5 +20,17 @@ export class BuzzleAdminResolver {
   })
   async buzzleListAllWorkspacesWithStats(): Promise<BuzzleWorkspaceStatsDTO[]> {
     return this.buzzleWorkspaceStatsService.listAllWorkspacesWithStats();
+  }
+
+  @Mutation(() => BuzzleCreatedWorkspaceDTO, {
+    description:
+      'Provisions a new workspace + applies a template (Prospect object, statuses, view, OCT webhook). Buzzle super admin only.',
+  })
+  async buzzleCreateWorkspaceFromTemplate(
+    @Args('input') input: BuzzleCreateWorkspaceFromTemplateInput,
+  ): Promise<BuzzleCreatedWorkspaceDTO> {
+    return this.buzzleWorkspaceProvisioningService.createWorkspaceFromTemplate(
+      input,
+    );
   }
 }
