@@ -26,4 +26,11 @@ RUN sed -i \
   sed -i 's|<meta charset="UTF-8" />|<meta charset="UTF-8" />\n    <title>Buzzle CRM</title>|' \
     /app/packages/twenty-server/dist/front/index.html
 
+# 5) Patch compiled JS bundle to rebrand runtime strings (tab title, workspace default)
+# Only targets very specific patterns from title-utils and DefaultWorkspaceName sources
+RUN find /app/packages/twenty-server/dist/front/assets -maxdepth 2 -name "*.js" -exec sed -i \
+  -e 's|default:return"Twenty"|default:return"Buzzle CRM"|g' \
+  -e 's|return"Twenty-Refresh"|return"Buzzle-Refresh"|g' \
+  {} +
+
 # Keep original entrypoint from base image
