@@ -25,6 +25,10 @@ export enum AppPath {
   RecordShowPage = '/object/:objectNameSingular/:objectRecordId',
   PageLayoutPage = '/page/:pageLayoutId',
 
+  // Buzzle SuperAdmin cockpit
+  BuzzleAdmin = 'buzzle-admin',
+  BuzzleAdminCatchAll = '/buzzle-admin/*',
+
   Settings = `settings`,
   SettingsCatchAll = `/${Settings}/*`,
   Developers = `developers`,

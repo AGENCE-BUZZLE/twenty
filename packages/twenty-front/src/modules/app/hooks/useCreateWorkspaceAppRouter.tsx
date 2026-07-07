@@ -9,6 +9,8 @@ import { AppPath, SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
 
 import { LazyRoute } from '@/app/components/LazyRoute';
+import { BuzzleCockpit } from '@/buzzle-admin/pages/BuzzleCockpit';
+import { BuzzleCreateWorkspace } from '@/buzzle-admin/pages/BuzzleCreateWorkspace';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { WorkspaceAppProviders } from '@/app/components/WorkspaceAppProviders';
 import { VerifyEmail } from '@/auth/components/VerifyEmail';
@@ -165,6 +167,14 @@ const createWorkspaceAppRouter = (
                     <StandalonePageLayoutPage />
                   </LazyRoute>
                 }
+              />
+              <Route
+                path={AppPath.BuzzleAdmin}
+                element={<BuzzleCockpit />}
+              />
+              <Route
+                path={AppPath.BuzzleAdminCatchAll}
+                element={<BuzzleCreateWorkspace />}
               />
               <Route
                 path={AppPath.SettingsCatchAll}
