@@ -1,4 +1,5 @@
 import { styled } from '@linaria/react';
+import { useNavigate } from 'react-router-dom';
 
 import { useBuzzleWorkspaces } from '@/buzzle-admin/hooks/useBuzzleWorkspaces';
 
@@ -98,6 +99,7 @@ const EmptyState = styled.div`
 
 export const BuzzleCockpit = () => {
   const { workspaces, loading, error, refetch } = useBuzzleWorkspaces();
+  const navigate = useNavigate();
 
   return (
     <Container>
@@ -106,7 +108,7 @@ export const BuzzleCockpit = () => {
           <Subtitle>Cockpit · Agence Buzzle</Subtitle>
           <Title>Mes workspaces clients</Title>
         </div>
-        <CreateButton onClick={() => alert('Sprint S4 part 2 — création workspace à venir')}>
+        <CreateButton onClick={() => navigate('/buzzle-admin/new')}>
           + Nouveau workspace
         </CreateButton>
       </Header>
