@@ -1,6 +1,9 @@
+import { useMutation } from '@apollo/client/react';
 import { styled } from '@linaria/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { BUZZLE_CREATE_WORKSPACE_FROM_TEMPLATE } from '@/buzzle-admin/graphql/mutations/createWorkspaceFromTemplate';
 
 const Container = styled.div`
   padding: 32px 40px;
@@ -157,7 +160,12 @@ export const BuzzleCreateWorkspace = () => {
   const [subdomain, setSubdomain] = useState('');
   const [templateId, setTemplateId] = useState('leads-google-ads');
   const [subdomainTouched, setSubdomainTouched] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [createWorkspaceFromTemplate, { loading: submitting }] = useMutation(
+    BUZZLE_CREATE_WORKSPACE_FROM_TEMPLATE,
+    { context: { headers: { 'X-Schema-Scope': 'admin' } } },
+  );
 
   const handleNameChange = (value: string) => {
     setDisplayName(value);
@@ -172,13 +180,34 @@ export const BuzzleCreateWorkspace = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!canSubmit) return;
-    setSubmitting(true);
-    // TODO S4 part 2: call buzzleCreateWorkspaceFromTemplate mutation
-    // via Apollo useMutation. For now we show a friendly stub message.
-    alert(
-      `Workspace "${displayName}" (${subdomain}.crm.agence-buzzle.com) — template "${templateId}"\n\nBackend provisioning: en attente Sprint S4 part 2.`,
-    );
-    setSubmitting(false);
+    setErrorMessage(null);
+    try {
+      const result = await createWorkspaceFromTemplate({
+        variables: {
+          input: {
+            displayName: displayName.trim(),
+            subdomain: subdomain.trim(),
+            templateId,
+          },
+        },
+      });
+      const created = (result.data as {
+        buzzleCreateWorkspaceFromTemplate?: {
+          appliedSteps: string[];
+          url: string;
+        };
+      } | null | undefined)?.buzzleCreateWorkspaceFromTemplate;
+      if (created) {
+        alert(
+          `Workspace créé (stage 1 validation OK).\n\nURL : ${created.url}\n\nÉtapes appliquées :\n- ${created.appliedSteps.join('\n- ')}\n\nStage 2 (création workspace complète + template applier) en cours de développement.`,
+        );
+        navigate('/buzzle-admin');
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Erreur inconnue lors de la création';
+      setErrorMessage(message);
+    }
   };
 
   return (
@@ -248,12 +277,16 @@ export const BuzzleCreateWorkspace = () => {
           </Helper>
         </Field>
 
+        {errorMessage && (
+          <InfoBox style={{ borderColor: '#c94a4a', background: '#fbe5e5' }}>
+            <strong>Erreur backend :</strong> {errorMessage}
+          </InfoBox>
+        )}
+
         <InfoBox>
-          Backend en cours de développement (Sprint S4 part 2). Pour l'instant
-          ce form montre la maquette d'onboarding — la mutation
-          <code> buzzleCreateWorkspaceFromTemplate </code> renverra une erreur
-          <code> NotImplemented </code> tant que le template applier n'est pas
-          câblé aux services metadata Twenty.
+          Backend Sprint S4 stage 1 actif : validation subdomain + template.
+          La création workspace complète (schéma Postgres, objet Prospect,
+          statuts, webhook OCT) arrive en Stage 2.
         </InfoBox>
 
         <Actions>
