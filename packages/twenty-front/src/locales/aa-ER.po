@@ -15640,7 +15640,7 @@ msgstr "crwdns64790:0crwdne64790:0"
 #. js-lingui-id: nTuObL
 #: src/pages/auth/SignInUp.tsx
 msgid "Welcome to Twenty"
-msgstr "crwdns106300:0crwdne106300:0"
+msgstr "Welcome to Buzzle CRM"
 
 #. js-lingui-id: t8ZvkC
 #: src/pages/auth/SignInUp.tsx
