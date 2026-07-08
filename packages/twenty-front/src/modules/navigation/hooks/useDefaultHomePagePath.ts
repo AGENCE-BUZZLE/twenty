@@ -90,6 +90,12 @@ export const useDefaultHomePagePath = () => {
       return AppPath.SignInUp;
     }
 
+    // Buzzle super admins land on /buzzle-admin cockpit instead of
+    // the first workspace object (which would be Companies by default).
+    if (currentUser.canAccessFullAdminPanel === true) {
+      return `/${AppPath.BuzzleAdmin}`;
+    }
+
     if (isEmpty(readableNonSystemObjectMetadataItems)) {
       // Object metadata may legitimately be empty for a user with no readable
       // objects, in which case /settings/profile is the intended fallback.
