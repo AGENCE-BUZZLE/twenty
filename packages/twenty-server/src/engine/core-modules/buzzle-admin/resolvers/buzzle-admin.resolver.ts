@@ -7,7 +7,7 @@ import { BuzzleCreatedWorkspaceDTO } from 'src/engine/core-modules/buzzle-admin/
 import { BuzzleWorkspaceStatsDTO } from 'src/engine/core-modules/buzzle-admin/dtos/buzzle-workspace-stats.dto';
 import { BuzzleWorkspaceProvisioningService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-provisioning.service';
 import { BuzzleWorkspaceStatsService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-stats.service';
-import { ServerLevelImpersonateGuard } from 'src/engine/guards/server-level-impersonate.guard';
+import { BuzzleSuperAdminGuard } from 'src/engine/core-modules/buzzle-admin/guards/buzzle-super-admin.guard';
 
 @AdminResolver()
 export class BuzzleAdminResolver {
@@ -16,7 +16,7 @@ export class BuzzleAdminResolver {
     private readonly buzzleWorkspaceProvisioningService: BuzzleWorkspaceProvisioningService,
   ) {}
 
-  @UseGuards(ServerLevelImpersonateGuard)
+  @UseGuards(BuzzleSuperAdminGuard)
   @Query(() => [BuzzleWorkspaceStatsDTO], {
     description:
       'Lists all workspaces on the instance with per-workspace stats. Buzzle super admin cockpit query.',
@@ -25,7 +25,7 @@ export class BuzzleAdminResolver {
     return this.buzzleWorkspaceStatsService.listAllWorkspacesWithStats();
   }
 
-  @UseGuards(ServerLevelImpersonateGuard)
+  @UseGuards(BuzzleSuperAdminGuard)
   @Mutation(() => BuzzleCreatedWorkspaceDTO, {
     description:
       'Provisions a new workspace + applies a template (Prospect object, statuses, view, OCT webhook). Buzzle super admin only.',
