@@ -2508,7 +2508,7 @@ msgstr "crwdns107790:0{author}crwdne107790:0"
 #. js-lingui-id: 8Pfllj
 #: src/modules/auth/sign-in-up/components/FooterNote.tsx
 msgid "By using Twenty, you agree to the"
-msgstr "crwdns155:0crwdne155:0"
+msgstr "By using Buzzle CRM, you agree to the"
 
 #. js-lingui-id: Yx41df
 #: src/modules/auth/sign-in-up/components/FooterNote.tsx
@@ -2843,7 +2843,7 @@ msgstr "crwdns65960:0crwdne65960:0"
 #. js-lingui-id: SxwQE8
 #: src/modules/settings/billing/hooks/useHandleCheckoutSession.ts
 msgid "Checkout session error. Please retry or contact Twenty team"
-msgstr "crwdns6450:0crwdne6450:0"
+msgstr "Checkout session error. Please retry or contact Buzzle support"
 
 #. js-lingui-id: SviKkE
 #: src/pages/settings/profile/appearance/components/LocalePicker.tsx
@@ -5950,7 +5950,7 @@ msgstr "crwdns7928:0crwdne7928:0"
 #. js-lingui-id: QmR+2U
 #: src/modules/settings/billing/hooks/useEndSubscriptionTrialPeriod.ts
 msgid "Error while ending trial period. Please contact Twenty team."
-msgstr "crwdns5802:0crwdne5802:0"
+msgstr "Error while ending trial period. Please contact Buzzle support."
 
 #. js-lingui-id: 5g78zo
 #: src/pages/settings/members/SettingsWorkspaceMember.tsx
@@ -10724,7 +10724,7 @@ msgstr "crwdns108024:0crwdne108024:0"
 #. js-lingui-id: NRvxzv
 #: src/pages/not-found/NotFound.tsx
 msgid "Page Not Found | Twenty"
-msgstr "crwdns66282:0crwdne66282:0"
+msgstr "Page Not Found | Buzzle CRM"
 
 #. js-lingui-id: sF+Xp9
 #: src/pages/settings/security/event-logs/components/EventLogTableSelector.tsx
@@ -13676,7 +13676,7 @@ msgstr "crwdns63894:0crwdne63894:0"
 #. js-lingui-id: +9x4tK
 #: src/pages/onboarding/SyncEmails.tsx
 msgid "Sync your Emails and Calendar with Twenty. Choose your privacy settings."
-msgstr "crwdns66416:0crwdne66416:0"
+msgstr "Sync your Emails and Calendar with Buzzle CRM. Choose your privacy settings."
 
 #. js-lingui-id: N2FcBE
 #: src/modules/settings/accounts/components/SettingsAccountsConnectedAccountsRowRightContainer.tsx
