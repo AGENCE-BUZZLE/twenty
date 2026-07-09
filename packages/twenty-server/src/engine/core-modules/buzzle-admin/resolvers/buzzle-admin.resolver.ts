@@ -8,6 +8,7 @@ import { BuzzleCreatedWorkspaceDTO } from 'src/engine/core-modules/buzzle-admin/
 import { BuzzleWorkspaceStatsDTO } from 'src/engine/core-modules/buzzle-admin/dtos/buzzle-workspace-stats.dto';
 import { BuzzleSuperAdminGuard } from 'src/engine/core-modules/buzzle-admin/guards/buzzle-super-admin.guard';
 import { BuzzleImpersonationService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-impersonation.service';
+import { BuzzleTemplateApplierService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-template-applier.service';
 import { BuzzleWorkspaceProvisioningService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-provisioning.service';
 import { BuzzleWorkspaceStatsService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-stats.service';
 import { AuthUser } from 'src/engine/decorators/auth/auth-user.decorator';
@@ -20,6 +21,7 @@ export class BuzzleAdminResolver {
     private readonly buzzleWorkspaceStatsService: BuzzleWorkspaceStatsService,
     private readonly buzzleWorkspaceProvisioningService: BuzzleWorkspaceProvisioningService,
     private readonly buzzleImpersonationService: BuzzleImpersonationService,
+    private readonly buzzleTemplateApplierService: BuzzleTemplateApplierService,
   ) {}
 
   @UseGuards(BuzzleSuperAdminGuard)
@@ -65,5 +67,22 @@ export class BuzzleAdminResolver {
       workspaceId,
       impersonatorUserWorkspaceId,
     );
+  }
+
+  @UseGuards(BuzzleSuperAdminGuard)
+  @Mutation(() => String, {
+    description:
+      'Applies the given Buzzle template to an existing workspace. Idempotent-ish: field/object creation errors are logged per-step and the report JSON is returned as a stringified summary.',
+  })
+  async buzzleApplyTemplateToWorkspace(
+    @Args('workspaceId') workspaceId: string,
+    @Args('templateId') templateId: string,
+  ): Promise<string> {
+    const report = await this.buzzleTemplateApplierService.applyTemplate(
+      templateId,
+      workspaceId,
+    );
+
+    return JSON.stringify(report);
   }
 }
