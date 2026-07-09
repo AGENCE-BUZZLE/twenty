@@ -6,10 +6,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 // all default objects). Renders a fixed set of Buzzle-specific pages that
 // every workspace has: Contacts, Pipeline, Rapports + user account.
 //
-// NOTE: The routes below don't all resolve yet — /contacts, /pipeline,
-// /reports are planned pages that consume the Contact object once Sprint
-// S4 stage 3 provisions it. For now, "Vue d'ensemble" is the only
-// functional entry; the others are visual placeholders.
+// NOTE: Linaria's runtime conditional interpolation is not supported by
+// lightningcss (crashes at build time). We use static styled components
+// + inline style overrides for dynamic states like isActive.
 
 const Section = styled.div`
   display: flex;
@@ -30,7 +29,7 @@ const Label = styled.div`
   margin-bottom: 4px;
 `;
 
-const Item = styled.div<{ isActive: boolean }>`
+const Item = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -39,11 +38,9 @@ const Item = styled.div<{ isActive: boolean }>`
   font-size: 13px;
   cursor: pointer;
   color: #14141c;
-  ${({ isActive }) => isActive && `
+  &:hover {
     background: #efede6;
-    font-weight: 500;
-  `}
-  &:hover { background: #efede6; }
+  }
 `;
 
 const Icon = styled.span`
@@ -53,15 +50,8 @@ const Icon = styled.span`
   text-align: center;
 `;
 
-const Count = styled.span`
-  margin-left: auto;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  opacity: 0.5;
-`;
-
 const items = [
-  { label: 'Vue d\'ensemble', icon: '◉', path: '/' },
+  { label: "Vue d'ensemble", icon: '◉', path: '/' },
   { label: 'Contacts', icon: '☰', path: '/contacts' },
   { label: 'Pipeline', icon: '⚡', path: '/pipeline' },
   { label: 'Rapports', icon: '📊', path: '/reports' },
@@ -69,8 +59,17 @@ const items = [
 
 const accountItems = [
   { label: 'Mon profil', icon: '👤', path: '/settings/profile' },
-  { label: 'Contacter Buzzle', icon: '💬', path: 'mailto:contact@agence-buzzle.com' },
+  {
+    label: 'Contacter Buzzle',
+    icon: '💬',
+    path: 'mailto:contact@agence-buzzle.com',
+  },
 ];
+
+const activeStyle: React.CSSProperties = {
+  background: '#efede6',
+  fontWeight: 500,
+};
 
 export const BuzzleWorkspaceNav = () => {
   const navigate = useNavigate();
@@ -85,33 +84,30 @@ export const BuzzleWorkspaceNav = () => {
     navigate(path);
   };
 
+  const renderItem = (item: { label: string; icon: string; path: string }) => {
+    const isActive = location.pathname === item.path;
+
+    return (
+      <Item
+        key={item.path}
+        style={isActive ? activeStyle : undefined}
+        onClick={() => handleClick(item.path)}
+      >
+        <Icon>{item.icon}</Icon>
+        {item.label}
+      </Item>
+    );
+  };
+
   return (
     <>
       <Section>
         <Label>Espace</Label>
-        {items.map((item) => (
-          <Item
-            key={item.path}
-            isActive={location.pathname === item.path}
-            onClick={() => handleClick(item.path)}
-          >
-            <Icon>{item.icon}</Icon>
-            {item.label}
-          </Item>
-        ))}
+        {items.map(renderItem)}
       </Section>
       <Section>
         <Label>Compte</Label>
-        {accountItems.map((item) => (
-          <Item
-            key={item.path}
-            isActive={location.pathname === item.path}
-            onClick={() => handleClick(item.path)}
-          >
-            <Icon>{item.icon}</Icon>
-            {item.label}
-          </Item>
-        ))}
+        {accountItems.map(renderItem)}
       </Section>
     </>
   );
