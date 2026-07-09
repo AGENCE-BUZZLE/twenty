@@ -6,6 +6,7 @@ import { ImpersonationModule } from 'src/engine/core-modules/impersonation/imper
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserModule } from 'src/engine/core-modules/user/user.module';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { BuzzleAdminResolver } from 'src/engine/core-modules/buzzle-admin/resolvers/buzzle-admin.resolver';
 import { BuzzleImpersonationService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-impersonation.service';
 import { BuzzleTemplateApplierService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-template-applier.service';
@@ -17,7 +18,11 @@ import { WebhookModule } from 'src/engine/metadata-modules/webhook/webhook.modul
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([WorkspaceEntity, UserWorkspaceEntity]),
+    TypeOrmModule.forFeature([
+      WorkspaceEntity,
+      UserWorkspaceEntity,
+      ObjectMetadataEntity,
+    ]),
     ImpersonationModule,
     AuthModule,
     UserModule,

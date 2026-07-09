@@ -24,4 +24,7 @@ export class BuzzleWorkspaceStatsDTO {
 
   @Field(() => Date, { nullable: true })
   lastActivityAt?: Date;
+
+  @Field({ nullable: true })
+  hasContactObject?: boolean;
 }

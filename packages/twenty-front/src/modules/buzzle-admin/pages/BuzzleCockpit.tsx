@@ -358,6 +358,7 @@ export const BuzzleCockpit = () => {
               <Th>Nom</Th>
               <Th>Sous-domaine</Th>
               <Th>Statut</Th>
+              <Th>Template</Th>
               <Th>Users</Th>
               <Th>Créé le</Th>
               <Th></Th>
@@ -366,7 +367,7 @@ export const BuzzleCockpit = () => {
           <tbody>
             {loading && workspaces.length === 0 && (
               <tr>
-                <Td colSpan={6}>
+                <Td colSpan={7}>
                   <EmptyState>Chargement…</EmptyState>
                 </Td>
               </tr>
@@ -385,6 +386,17 @@ export const BuzzleCockpit = () => {
                 </Td>
                 <Td>
                   <Badge status={w.activationStatus}>{w.activationStatus}</Badge>
+                </Td>
+                <Td>
+                  {w.hasContactObject === true ? (
+                    <Badge status="templated" title="Contact object provisionné">
+                      ✓ Contact
+                    </Badge>
+                  ) : (
+                    <Badge status="empty" title="Applique le template">
+                      — vide
+                    </Badge>
+                  )}
                 </Td>
                 <Td>{w.totalUsers}</Td>
                 <Td>{new Date(w.createdAt).toLocaleDateString('fr-FR')}</Td>

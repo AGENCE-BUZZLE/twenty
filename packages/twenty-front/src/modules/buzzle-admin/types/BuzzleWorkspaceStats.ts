@@ -6,6 +6,7 @@ export type BuzzleWorkspaceStats = {
   totalUsers: number;
   createdAt: string;
   lastActivityAt?: string | null;
+  hasContactObject?: boolean | null;
 };
 
 export type BuzzleListAllWorkspacesWithStatsQueryResult = {

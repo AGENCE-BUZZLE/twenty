@@ -10,6 +10,7 @@ export const BUZZLE_LIST_ALL_WORKSPACES_WITH_STATS = gql`
       totalUsers
       createdAt
       lastActivityAt
+      hasContactObject
     }
   }
 `;
