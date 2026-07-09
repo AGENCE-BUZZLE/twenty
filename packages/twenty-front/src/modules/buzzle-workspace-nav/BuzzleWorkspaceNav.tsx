@@ -1,5 +1,13 @@
 import { styled } from '@linaria/react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  IconChartBar,
+  IconHome,
+  IconMail,
+  IconTrendingUp,
+  IconUser,
+  IconUsers,
+} from 'twenty-ui/icon';
 
 // Hardcoded Buzzle navigation shown at the top of the workspace nav drawer.
 // Replaces Twenty's dynamic object-driven nav (which is filtered to hide
@@ -43,25 +51,33 @@ const Item = styled.div`
   }
 `;
 
-const Icon = styled.span`
-  opacity: 0.55;
-  font-size: 12px;
+const IconWrap = styled.span`
+  opacity: 0.6;
+  display: inline-flex;
   width: 16px;
-  text-align: center;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
 `;
 
-const items = [
-  { label: "Vue d'ensemble", icon: '◉', path: '/' },
-  { label: 'Contacts', icon: '☰', path: '/contacts' },
-  { label: 'Pipeline', icon: '⚡', path: '/pipeline' },
-  { label: 'Rapports', icon: '📊', path: '/reports' },
+type NavItem = {
+  label: string;
+  Icon: (props: { size?: number }) => JSX.Element;
+  path: string;
+};
+
+const items: NavItem[] = [
+  { label: "Vue d'ensemble", Icon: IconHome, path: '/' },
+  { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
+  { label: 'Pipeline', Icon: IconTrendingUp, path: '/pipeline' },
+  { label: 'Rapports', Icon: IconChartBar, path: '/reports' },
 ];
 
-const accountItems = [
-  { label: 'Mon profil', icon: '👤', path: '/settings/profile' },
+const accountItems: NavItem[] = [
+  { label: 'Mon profil', Icon: IconUser, path: '/settings/profile' },
   {
     label: 'Contacter Buzzle',
-    icon: '💬',
+    Icon: IconMail,
     path: 'mailto:contact@agence-buzzle.com',
   },
 ];
@@ -84,8 +100,9 @@ export const BuzzleWorkspaceNav = () => {
     navigate(path);
   };
 
-  const renderItem = (item: { label: string; icon: string; path: string }) => {
+  const renderItem = (item: NavItem) => {
     const isActive = location.pathname === item.path;
+    const IconCmp = item.Icon;
 
     return (
       <Item
@@ -93,7 +110,9 @@ export const BuzzleWorkspaceNav = () => {
         style={isActive ? activeStyle : undefined}
         onClick={() => handleClick(item.path)}
       >
-        <Icon>{item.icon}</Icon>
+        <IconWrap>
+          <IconCmp size={15} />
+        </IconWrap>
         {item.label}
       </Item>
     );
