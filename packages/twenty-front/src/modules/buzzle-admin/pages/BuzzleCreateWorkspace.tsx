@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { BUZZLE_CREATE_WORKSPACE_FROM_TEMPLATE } from '@/buzzle-admin/graphql/mutations/createWorkspaceFromTemplate';
+import { useApolloAdminClient } from '@/settings/admin-panel/apollo/hooks/useApolloAdminClient';
 
 const Container = styled.div`
   padding: 32px 40px;
@@ -162,9 +163,10 @@ export const BuzzleCreateWorkspace = () => {
   const [subdomainTouched, setSubdomainTouched] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const apolloAdminClient = useApolloAdminClient();
   const [createWorkspaceFromTemplate, { loading: submitting }] = useMutation(
     BUZZLE_CREATE_WORKSPACE_FROM_TEMPLATE,
-    { context: { headers: { 'X-Schema-Scope': 'admin' } } },
+    { client: apolloAdminClient },
   );
 
   const handleNameChange = (value: string) => {

@@ -5,25 +5,25 @@ import {
   type BuzzleListAllWorkspacesWithStatsQueryResult,
   type BuzzleWorkspaceStats,
 } from '@/buzzle-admin/types/BuzzleWorkspaceStats';
+import { useApolloAdminClient } from '@/settings/admin-panel/apollo/hooks/useApolloAdminClient';
 
-// The Buzzle admin query lives on the /admin-panel GraphQL endpoint,
-// same schema scope as Twenty's native admin panel queries.
-// The default Apollo client points at /graphql; we need to target
-// the admin endpoint explicitly. For now we use the same client and
-// rely on twenty-front's admin schema link (see apollo.factory.ts —
-// admin queries are routed by the resolver schema scope, not URL).
-
+// Query lives on the /admin-panel GraphQL endpoint (via @AdminResolver).
+// Must use apolloAdminClient which points at /admin-panel, not the
+// default apolloClient (which targets /graphql and doesn't know about
+// admin queries).
 export const useBuzzleWorkspaces = (): {
   workspaces: BuzzleWorkspaceStats[];
   loading: boolean;
   error?: Error;
   refetch: () => void;
 } => {
+  const apolloAdminClient = useApolloAdminClient();
+
   const { data, loading, error, refetch } =
     useQuery<BuzzleListAllWorkspacesWithStatsQueryResult>(
       BUZZLE_LIST_ALL_WORKSPACES_WITH_STATS,
       {
-        context: { headers: { 'X-Schema-Scope': 'admin' } },
+        client: apolloAdminClient,
         fetchPolicy: 'cache-and-network',
       },
     );

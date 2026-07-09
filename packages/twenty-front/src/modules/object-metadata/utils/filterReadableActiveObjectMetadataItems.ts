@@ -10,7 +10,9 @@ export const filterReadableActiveObjectMetadataItems = (
     ObjectPermissions & { objectMetadataId: string }
   >,
   options?: {
-    isBuzzleSuperAdmin?: boolean;
+    // When true, keep Twenty demo objects (Companies/People/etc.) visible.
+    // Default false — hide them across the whole app.
+    showTwentyDefaults?: boolean;
   },
 ): EnrichedObjectMetadataItem[] =>
   objectMetadataItems.filter((objectMetadataItem) => {
@@ -18,13 +20,17 @@ export const filterReadableActiveObjectMetadataItems = (
       return false;
     }
 
-    // Buzzle: hide standard Twenty objects from client workspaces.
-    // Super admins still see them (isBuzzleSuperAdmin default true so
-    // existing callers that don't pass the option don't regress).
-    const isBuzzleSuperAdmin = options?.isBuzzleSuperAdmin ?? true;
+    // Buzzle: hide standard Twenty demo objects from EVERYONE by
+    // default (Companies, People, Deals, Notes, Tasks, Pets, Rockets,
+    // Opportunities, Dashboards, Workflows...). This is a lead-focused
+    // CRM — those objects don't fit the narrative.
+    //
+    // Callers that legitimately need to see them (e.g. record table
+    // settings admin dropdown) pass options.showTwentyDefaults=true.
+    const showTwentyDefaults = options?.showTwentyDefaults ?? false;
 
     if (
-      !isBuzzleSuperAdmin &&
+      !showTwentyDefaults &&
       BUZZLE_HIDDEN_TWENTY_OBJECTS_FOR_CLIENTS.includes(
         objectMetadataItem.nameSingular,
       )
