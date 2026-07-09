@@ -10,7 +10,9 @@ import { BuzzleSuperAdminGuard } from 'src/engine/core-modules/buzzle-admin/guar
 import { BuzzleImpersonationService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-impersonation.service';
 import { BuzzleWorkspaceProvisioningService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-provisioning.service';
 import { BuzzleWorkspaceStatsService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-stats.service';
+import { AuthUser } from 'src/engine/decorators/auth/auth-user.decorator';
 import { AuthUserWorkspaceId } from 'src/engine/decorators/auth/auth-user-workspace-id.decorator';
+import { type AuthContextUser } from 'src/engine/core-modules/auth/types/auth-context-user.type';
 
 @AdminResolver()
 export class BuzzleAdminResolver {
@@ -36,9 +38,11 @@ export class BuzzleAdminResolver {
   })
   async buzzleCreateWorkspaceFromTemplate(
     @Args('input') input: BuzzleCreateWorkspaceFromTemplateInput,
+    @AuthUser() currentUser: AuthContextUser | undefined,
   ): Promise<BuzzleCreatedWorkspaceDTO> {
     return this.buzzleWorkspaceProvisioningService.createWorkspaceFromTemplate(
       input,
+      currentUser?.id,
     );
   }
 

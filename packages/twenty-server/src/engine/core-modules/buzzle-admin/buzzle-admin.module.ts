@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AuthModule } from 'src/engine/core-modules/auth/auth.module';
 import { ImpersonationModule } from 'src/engine/core-modules/impersonation/impersonation.module';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
+import { UserModule } from 'src/engine/core-modules/user/user.module';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { BuzzleAdminResolver } from 'src/engine/core-modules/buzzle-admin/resolvers/buzzle-admin.resolver';
 import { BuzzleImpersonationService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-impersonation.service';
@@ -14,6 +16,8 @@ import { BuzzleWorkspaceStatsService } from 'src/engine/core-modules/buzzle-admi
   imports: [
     TypeOrmModule.forFeature([WorkspaceEntity, UserWorkspaceEntity]),
     ImpersonationModule,
+    AuthModule,
+    UserModule,
   ],
   providers: [
     BuzzleAdminResolver,

@@ -174,6 +174,10 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
     RefreshTokenService,
     CreateMessageChannelService,
     CreateCalendarChannelService,
+    // Buzzle: expose SignInUpService so BuzzleWorkspaceProvisioningService
+    // can call signUpOnNewWorkspace() for programmatic workspace creation
+    // from the super admin cockpit.
+    SignInUpService,
   ],
 })
 export class AuthModule {}
