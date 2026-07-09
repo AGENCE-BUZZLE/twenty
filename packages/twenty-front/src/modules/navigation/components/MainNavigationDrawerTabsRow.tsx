@@ -227,6 +227,8 @@ export const MainNavigationDrawerTabsRow = ({
               />
             </StyledTabIcon>
           </StyledTabWrapper>
+          {/* Buzzle: AI chat hidden — lead CRM, no AI chat use case */}
+          {false && (
           <StyledTabWrapper
             isActive={
               navigationDrawerActiveTab ===
@@ -257,8 +259,11 @@ export const MainNavigationDrawerTabsRow = ({
               />
             </StyledTabIcon>
           </StyledTabWrapper>
+          )}
         </StyledTabsPill>
       </NavigationDrawerAnimatedCollapseWrapper>
+      {/* Buzzle: New chat button hidden */}
+      {false && (
       <StyledNewChatButtonWrapper isExpanded={isExpanded}>
         <StyledNewChatButton
           role="button"
@@ -273,6 +278,7 @@ export const MainNavigationDrawerTabsRow = ({
           {isExpanded && <OverflowingTextWithTooltip text={t`New chat`} />}
         </StyledNewChatButton>
       </StyledNewChatButtonWrapper>
+      )}
     </StyledRow>
   );
 };
