@@ -1,7 +1,12 @@
 import { styled } from '@linaria/react';
+import { Navigate } from 'react-router-dom';
 
-// Buzzle Pipeline page — kanban view scaffold.
-// Real kanban wired to Contact object comes in Sprint S4 stage 3.
+import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
+
+// Buzzle Pipeline page — routes to the Contact object record list once
+// it exists. Kanban-by-status view registration is S4-stage-4 material;
+// until then the user lands on the default table view and can switch to
+// kanban from Twenty's own view menu.
 
 const Container = styled.div`
   padding: 32px 40px;
@@ -121,6 +126,15 @@ const stages = [
 ];
 
 export const BuzzlePipelinePage = () => {
+  const { findActiveObjectMetadataItemByNamePlural } =
+    useFilteredObjectMetadataItems();
+
+  const contactObject = findActiveObjectMetadataItemByNamePlural('contacts');
+
+  if (contactObject) {
+    return <Navigate to="/objects/contacts" replace />;
+  }
+
   return (
     <Container>
       <Head>

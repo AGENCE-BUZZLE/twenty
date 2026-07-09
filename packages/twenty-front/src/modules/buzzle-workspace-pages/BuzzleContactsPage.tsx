@@ -1,9 +1,12 @@
 import { styled } from '@linaria/react';
+import { Navigate } from 'react-router-dom';
 
-// Buzzle Contacts page — visible in every client workspace.
-// Currently a static "coming soon" scaffold. Will be wired to the
-// Contact custom object once Sprint S4 stage 3 provisions it in
-// each workspace.
+import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
+
+// Buzzle Contacts entry — routes to Twenty's native record index for the
+// Contact object once the template applier has provisioned it. Before
+// that (or if the object is missing for any reason), shows a "Bientôt
+// disponible" scaffold so the sidebar link never dead-ends.
 
 const Container = styled.div`
   padding: 32px 40px;
@@ -78,6 +81,15 @@ const Tag = styled.span`
 `;
 
 export const BuzzleContactsPage = () => {
+  const { findActiveObjectMetadataItemByNamePlural } =
+    useFilteredObjectMetadataItems();
+
+  const contactObject = findActiveObjectMetadataItemByNamePlural('contacts');
+
+  if (contactObject) {
+    return <Navigate to="/objects/contacts" replace />;
+  }
+
   return (
     <Container>
       <Head>
