@@ -97,16 +97,14 @@ export const useDefaultHomePagePath = () => {
     }
 
     if (isEmpty(readableNonSystemObjectMetadataItems)) {
-      // Object metadata may legitimately be empty for a user with no readable
-      // objects, in which case /settings/profile is the intended fallback.
-      // It can also be transiently empty during the post-login window before
-      // workspace metadata has finished loading. Defer to AppPath.Index in
-      // that case so the user isn't stranded on /settings/profile once
-      // metadata becomes available.
+      // Buzzle: workspaces with no readable custom objects land on
+      // /contacts (the Buzzle scaffold page) instead of settings/profile.
+      // Once metadata finishes loading and a Contact object appears,
+      // the normal navigation flow below takes over.
       if (!areObjectMetadataItemsLoaded) {
         return AppPath.Index;
       }
-      return getSettingsPath(SettingsPath.ProfilePage);
+      return '/contacts';
     }
 
     // The navigation menu drives the redirect and loads after the minimal-
