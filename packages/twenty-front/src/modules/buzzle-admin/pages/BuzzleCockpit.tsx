@@ -1,8 +1,10 @@
 import { styled } from '@linaria/react';
 import { useNavigate } from 'react-router-dom';
 
+import { useBuzzleApplyTemplate } from '@/buzzle-admin/hooks/useBuzzleApplyTemplate';
 import { useBuzzleImpersonateWorkspace } from '@/buzzle-admin/hooks/useBuzzleImpersonateWorkspace';
 import { useBuzzleWorkspaces } from '@/buzzle-admin/hooks/useBuzzleWorkspaces';
+import { useState } from 'react';
 
 // Buzzle SuperAdmin Cockpit — landing page for Clément
 // as agency owner. Lists all workspaces + basic stats, entry
@@ -141,6 +143,43 @@ const OpenButton = styled.button`
   }
 `;
 
+const RowActions = styled.div`
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+`;
+
+const ApplyButton = styled.button`
+  background: transparent;
+  color: #5b4bff;
+  border: 1px solid #5b4bff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: rgba(91, 75, 255, 0.06); }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const ReportPanel = styled.div`
+  padding: 12px 14px;
+  border: 1px solid #d6d2c7;
+  background: #ffffff;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  white-space: pre-wrap;
+`;
+
 const ImpersonateError = styled.div`
   padding: 10px 14px;
   border: 1px solid #c94a4a;
@@ -195,6 +234,34 @@ export const BuzzleCockpit = () => {
     error: impersonateError,
     pendingWorkspaceId,
   } = useBuzzleImpersonateWorkspace();
+  const {
+    apply: applyTemplate,
+    error: applyError,
+    pendingWorkspaceId: applyPending,
+  } = useBuzzleApplyTemplate();
+  const [lastReport, setLastReport] = useState<string | null>(null);
+
+  const handleApply = async (workspaceId: string) => {
+    setLastReport(null);
+    const report = await applyTemplate(workspaceId, 'leads-google-ads');
+
+    if (report) {
+      const ok = report.steps.filter((s) => s.status === 'ok').length;
+      const skipped = report.steps.filter((s) => s.status === 'skipped').length;
+      const failed = report.steps.filter((s) => s.status === 'failed').length;
+
+      setLastReport(
+        `Template leads-google-ads → workspace ${report.workspaceId}\n` +
+          `${ok} ok / ${skipped} skipped / ${failed} failed\n\n` +
+          report.steps
+            .map(
+              (s) =>
+                `[${s.status.padEnd(7)}] ${s.step}${s.detail ? ` — ${s.detail}` : ''}`,
+            )
+            .join('\n'),
+      );
+    }
+  };
 
   const activeCount = workspaces.filter(
     (w) => w.activationStatus === 'ACTIVE',
@@ -227,6 +294,14 @@ export const BuzzleCockpit = () => {
           Ouverture workspace : {impersonateError.message}
         </ImpersonateError>
       )}
+
+      {applyError && (
+        <ImpersonateError>
+          Application template : {applyError.message}
+        </ImpersonateError>
+      )}
+
+      {lastReport && <ReportPanel>{lastReport}</ReportPanel>}
 
       {!error && !loading && workspaces.length > 0 && (
         <StatsBar>
@@ -314,12 +389,21 @@ export const BuzzleCockpit = () => {
                 <Td>{w.totalUsers}</Td>
                 <Td>{new Date(w.createdAt).toLocaleDateString('fr-FR')}</Td>
                 <Td>
-                  <OpenButton
-                    onClick={() => openWorkspace(w.id)}
-                    disabled={pendingWorkspaceId !== null}
-                  >
-                    {pendingWorkspaceId === w.id ? 'Ouverture…' : 'Ouvrir →'}
-                  </OpenButton>
+                  <RowActions>
+                    <ApplyButton
+                      onClick={() => handleApply(w.id)}
+                      disabled={applyPending !== null}
+                      title="Applique le template leads-google-ads (crée Contact + fields + webhook OCT)"
+                    >
+                      {applyPending === w.id ? 'Application…' : 'Template'}
+                    </ApplyButton>
+                    <OpenButton
+                      onClick={() => openWorkspace(w.id)}
+                      disabled={pendingWorkspaceId !== null}
+                    >
+                      {pendingWorkspaceId === w.id ? 'Ouverture…' : 'Ouvrir →'}
+                    </OpenButton>
+                  </RowActions>
                 </Td>
               </tr>
             ))}
