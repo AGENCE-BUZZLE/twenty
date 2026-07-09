@@ -7,6 +7,14 @@ import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { type BuzzleWorkspaceStatsDTO } from 'src/engine/core-modules/buzzle-admin/dtos/buzzle-workspace-stats.dto';
 
+// Subdomains that identify Buzzle admin containers (not real client
+// workspaces). Excluded from the cockpit "Mes workspaces clients" list
+// so Clément only sees his actual clients.
+const BUZZLE_ADMIN_WORKSPACE_SUBDOMAINS: readonly string[] = [
+  'gestion',
+  'agence-buzzle',
+];
+
 @Injectable()
 export class BuzzleWorkspaceStatsService {
   constructor(
@@ -22,8 +30,14 @@ export class BuzzleWorkspaceStatsService {
       order: { createdAt: 'DESC' },
     });
 
+    const clientWorkspaces = workspaces.filter(
+      (workspace) =>
+        workspace.subdomain === undefined ||
+        !BUZZLE_ADMIN_WORKSPACE_SUBDOMAINS.includes(workspace.subdomain),
+    );
+
     const stats = await Promise.all(
-      workspaces.map(async (workspace) => {
+      clientWorkspaces.map(async (workspace) => {
         const totalUsers = await this.userWorkspaceRepository.count({
           where: { workspaceId: workspace.id, deletedAt: IsNull() },
         });
