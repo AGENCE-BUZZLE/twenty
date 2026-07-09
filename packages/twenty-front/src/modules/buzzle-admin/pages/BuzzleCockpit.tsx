@@ -98,6 +98,32 @@ const EmptyState = styled.div`
   opacity: 0.6;
 `;
 
+const EmptyStateBig = styled.div`
+  text-align: center;
+  padding: 64px 24px;
+  border: 1px dashed #d6d2c7;
+  border-radius: 8px;
+  background: #efede6;
+`;
+
+const EmptyStateTitle = styled.div`
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+`;
+
+const EmptyStateSub = styled.div`
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+`;
+
 const OpenButton = styled.button`
   background: transparent;
   color: #14141c;
@@ -125,6 +151,42 @@ const ImpersonateError = styled.div`
   margin-bottom: 20px;
 `;
 
+const StatsBar = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+`;
+
+const StatCard = styled.div`
+  padding: 14px 16px;
+  border: 1px solid #d6d2c7;
+  border-radius: 6px;
+  background: #ffffff;
+`;
+
+const StatLabel = styled.div`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 6px;
+`;
+
+const StatValue = styled.div`
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+`;
+
+const StatSub = styled.div`
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 2px;
+`;
+
 export const BuzzleCockpit = () => {
   const { workspaces, loading, error, refetch } = useBuzzleWorkspaces();
   const navigate = useNavigate();
@@ -133,6 +195,20 @@ export const BuzzleCockpit = () => {
     error: impersonateError,
     pendingWorkspaceId,
   } = useBuzzleImpersonateWorkspace();
+
+  const activeCount = workspaces.filter(
+    (w) => w.activationStatus === 'ACTIVE',
+  ).length;
+  const totalUsers = workspaces.reduce((sum, w) => sum + w.totalUsers, 0);
+  const createdThisMonth = workspaces.filter((w) => {
+    const created = new Date(w.createdAt);
+    const now = new Date();
+
+    return (
+      created.getMonth() === now.getMonth() &&
+      created.getFullYear() === now.getFullYear()
+    );
+  }).length;
 
   return (
     <Container>
@@ -152,6 +228,33 @@ export const BuzzleCockpit = () => {
         </ImpersonateError>
       )}
 
+      {!error && !loading && workspaces.length > 0 && (
+        <StatsBar>
+          <StatCard>
+            <StatLabel>Clients</StatLabel>
+            <StatValue>{workspaces.length}</StatValue>
+            <StatSub>{activeCount} actif{activeCount > 1 ? 's' : ''}</StatSub>
+          </StatCard>
+          <StatCard>
+            <StatLabel>Users cumulés</StatLabel>
+            <StatValue>{totalUsers}</StatValue>
+            <StatSub>tous workspaces confondus</StatSub>
+          </StatCard>
+          <StatCard>
+            <StatLabel>Nouveaux ce mois</StatLabel>
+            <StatValue>{createdThisMonth}</StatValue>
+            <StatSub>
+              {createdThisMonth === 0 ? 'aucun encore' : 'workspace(s) créé(s)'}
+            </StatSub>
+          </StatCard>
+          <StatCard>
+            <StatLabel>Leads 30j</StatLabel>
+            <StatValue>—</StatValue>
+            <StatSub>agrégation à venir (V2)</StatSub>
+          </StatCard>
+        </StatsBar>
+      )}
+
       {error && (
         <EmptyState>
           Erreur chargement workspaces: {error.message}
@@ -160,7 +263,20 @@ export const BuzzleCockpit = () => {
         </EmptyState>
       )}
 
-      {!error && (
+      {!error && !loading && workspaces.length === 0 && (
+        <EmptyStateBig>
+          <EmptyStateTitle>Aucun workspace client pour l'instant</EmptyStateTitle>
+          <EmptyStateSub>
+            Crée ton premier workspace client. Chaque workspace = un client Buzzle
+            avec son propre sous-domaine et son pipeline de leads.
+          </EmptyStateSub>
+          <CreateButton onClick={() => navigate('/buzzle-admin/new')}>
+            + Créer mon premier workspace
+          </CreateButton>
+        </EmptyStateBig>
+      )}
+
+      {!error && (loading || workspaces.length > 0) && (
         <Table>
           <thead>
             <tr>
@@ -177,13 +293,6 @@ export const BuzzleCockpit = () => {
               <tr>
                 <Td colSpan={6}>
                   <EmptyState>Chargement…</EmptyState>
-                </Td>
-              </tr>
-            )}
-            {!loading && workspaces.length === 0 && (
-              <tr>
-                <Td colSpan={6}>
-                  <EmptyState>Aucun workspace pour l'instant.</EmptyState>
                 </Td>
               </tr>
             )}
