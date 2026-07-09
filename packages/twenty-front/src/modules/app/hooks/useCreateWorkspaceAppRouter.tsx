@@ -10,6 +10,8 @@ import { getSettingsPath } from 'twenty-shared/utils';
 
 import { LazyRoute } from '@/app/components/LazyRoute';
 import { BuzzleCockpit } from '@/buzzle-admin/pages/BuzzleCockpit';
+import { BuzzleContactsPage } from '@/buzzle-workspace-pages/BuzzleContactsPage';
+import { BuzzleReportsPage } from '@/buzzle-workspace-pages/BuzzleReportsPage';
 import { BuzzleCreateWorkspace } from '@/buzzle-admin/pages/BuzzleCreateWorkspace';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { WorkspaceAppProviders } from '@/app/components/WorkspaceAppProviders';
@@ -176,6 +178,9 @@ const createWorkspaceAppRouter = (
                 path={AppPath.BuzzleAdminCatchAll}
                 element={<BuzzleCreateWorkspace />}
               />
+              <Route path="/contacts" element={<BuzzleContactsPage />} />
+              <Route path="/pipeline" element={<BuzzleContactsPage />} />
+              <Route path="/reports" element={<BuzzleReportsPage />} />
               <Route
                 path={AppPath.SettingsCatchAll}
                 element={
