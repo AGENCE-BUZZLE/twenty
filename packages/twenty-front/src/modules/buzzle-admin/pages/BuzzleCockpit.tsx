@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react';
 import { useNavigate } from 'react-router-dom';
 
+import { useBuzzleImpersonateWorkspace } from '@/buzzle-admin/hooks/useBuzzleImpersonateWorkspace';
 import { useBuzzleWorkspaces } from '@/buzzle-admin/hooks/useBuzzleWorkspaces';
 
 // Buzzle SuperAdmin Cockpit — landing page for Clément
@@ -97,9 +98,41 @@ const EmptyState = styled.div`
   opacity: 0.6;
 `;
 
+const OpenButton = styled.button`
+  background: transparent;
+  color: #14141c;
+  border: 1px solid #d6d2c7;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: #efede6; }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const ImpersonateError = styled.div`
+  padding: 10px 14px;
+  border: 1px solid #c94a4a;
+  background: #fbe5e5;
+  color: #5a1010;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 20px;
+`;
+
 export const BuzzleCockpit = () => {
   const { workspaces, loading, error, refetch } = useBuzzleWorkspaces();
   const navigate = useNavigate();
+  const {
+    openWorkspace,
+    error: impersonateError,
+    pendingWorkspaceId,
+  } = useBuzzleImpersonateWorkspace();
 
   return (
     <Container>
@@ -112,6 +145,12 @@ export const BuzzleCockpit = () => {
           + Nouveau workspace
         </CreateButton>
       </Header>
+
+      {impersonateError && (
+        <ImpersonateError>
+          Ouverture workspace : {impersonateError.message}
+        </ImpersonateError>
+      )}
 
       {error && (
         <EmptyState>
@@ -130,19 +169,20 @@ export const BuzzleCockpit = () => {
               <Th>Statut</Th>
               <Th>Users</Th>
               <Th>Créé le</Th>
+              <Th></Th>
             </tr>
           </thead>
           <tbody>
             {loading && workspaces.length === 0 && (
               <tr>
-                <Td colSpan={5}>
+                <Td colSpan={6}>
                   <EmptyState>Chargement…</EmptyState>
                 </Td>
               </tr>
             )}
             {!loading && workspaces.length === 0 && (
               <tr>
-                <Td colSpan={5}>
+                <Td colSpan={6}>
                   <EmptyState>Aucun workspace pour l'instant.</EmptyState>
                 </Td>
               </tr>
@@ -164,6 +204,14 @@ export const BuzzleCockpit = () => {
                 </Td>
                 <Td>{w.totalUsers}</Td>
                 <Td>{new Date(w.createdAt).toLocaleDateString('fr-FR')}</Td>
+                <Td>
+                  <OpenButton
+                    onClick={() => openWorkspace(w.id)}
+                    disabled={pendingWorkspaceId !== null}
+                  >
+                    {pendingWorkspaceId === w.id ? 'Ouverture…' : 'Ouvrir →'}
+                  </OpenButton>
+                </Td>
               </tr>
             ))}
           </tbody>
