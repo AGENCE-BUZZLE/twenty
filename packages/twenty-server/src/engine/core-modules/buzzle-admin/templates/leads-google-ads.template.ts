@@ -13,12 +13,12 @@ export const leadsGoogleAdsTemplate: BuzzleWorkspaceTemplate = {
   version: '1.0.0',
   objects: [
     {
-      nameSingular: 'prospect',
-      namePlural: 'prospects',
-      labelSingular: 'Prospect',
-      labelPlural: 'Prospects',
+      nameSingular: 'contact',
+      namePlural: 'contacts',
+      labelSingular: 'Contact',
+      labelPlural: 'Contacts',
       icon: 'IconUserPlus',
-      description: 'Prospects entrants depuis Google Ads',
+      description: 'Contacts entrants depuis Google Ads',
       fields: [
         {
           name: 'fullName',
@@ -127,7 +127,7 @@ export const leadsGoogleAdsTemplate: BuzzleWorkspaceTemplate = {
   ],
   views: [
     {
-      objectNameSingular: 'prospect',
+      objectNameSingular: 'contact',
       name: 'Mes prospects',
       type: 'table',
       visibleFields: [
@@ -140,7 +140,7 @@ export const leadsGoogleAdsTemplate: BuzzleWorkspaceTemplate = {
       ],
     },
     {
-      objectNameSingular: 'prospect',
+      objectNameSingular: 'contact',
       name: 'Pipeline',
       type: 'kanban',
       groupByFieldName: 'status',
@@ -152,7 +152,7 @@ export const leadsGoogleAdsTemplate: BuzzleWorkspaceTemplate = {
       name: 'OCT push to n8n',
       urlTemplate: 'https://n8n.agence-buzzle.com/webhook/crm-oct/{{workspaceId}}',
       operation: 'update',
-      objectNameSingular: 'prospect',
+      objectNameSingular: 'contact',
       onlyIfFieldChanged: 'status',
     },
   ],
@@ -174,14 +174,14 @@ export const leadsGoogleAdsTemplate: BuzzleWorkspaceTemplate = {
       name: 'buzzle-client-viewer',
       label: 'Client Buzzle',
       description:
-        'Rôle client : voit ses prospects, peut mettre à jour statut/notes/montant, ne peut pas créer ni supprimer.',
+        'Rôle client : voit ses contacts, peut mettre à jour statut/notes/montant, ne peut pas créer ni supprimer.',
       canReadAllRecords: true,
       canUpdateAllRecords: false,
       canDeleteAllRecords: false,
       canCreateRecords: false,
       canAccessSettings: false,
       fieldRestrictions: {
-        prospect: {
+        contact: {
           updatable: ['status', 'notes', 'quoteAmount'],
           visible: [
             'fullName',

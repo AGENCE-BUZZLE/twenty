@@ -11,6 +11,7 @@ import { IsNull, Repository } from 'typeorm';
 
 import { SignInUpService } from 'src/engine/core-modules/auth/services/sign-in-up.service';
 import { getBuzzleTemplate } from 'src/engine/core-modules/buzzle-admin/templates';
+import { BuzzleTemplateApplierService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-template-applier.service';
 import { type BuzzleCreatedWorkspaceDTO } from 'src/engine/core-modules/buzzle-admin/dtos/buzzle-created-workspace.dto';
 import { type BuzzleCreateWorkspaceFromTemplateInput } from 'src/engine/core-modules/buzzle-admin/dtos/buzzle-create-workspace.input';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
@@ -37,6 +38,7 @@ export class BuzzleWorkspaceProvisioningService {
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     private readonly signInUpService: SignInUpService,
     private readonly userService: UserService,
+    private readonly templateApplierService: BuzzleTemplateApplierService,
   ) {}
 
   async createWorkspaceFromTemplate(
@@ -101,14 +103,36 @@ export class BuzzleWorkspaceProvisioningService {
     appliedSteps.push(`membership:${creator.email}`);
     appliedSteps.push('standard-application:created');
 
-    // TODO Sprint S4 stage 3:
-    // - templateApplierService.applyTemplate(workspace.id, templateId)
-    //   creates Prospect object, fields, statuses, view via
-    //   ObjectMetadataService + FieldMetadataService
-    // - webhookService.create() with n8n OCT URL
-    appliedSteps.push(`template:${templateId}:objects:${template.objects.length}:pending-stage-3`);
-    appliedSteps.push(`template:${templateId}:webhooks:${template.webhooks.length}:pending-stage-3`);
-    appliedSteps.push(`template:${templateId}:roles:${template.roles.length}:pending-stage-3`);
+    // Sprint S4 stage 3: apply the Buzzle template. On failure we do NOT
+    // roll back the workspace — Clément can retry the applier or edit the
+    // schema by hand from the Twenty settings UI. Log the outcome instead.
+    try {
+      const templateReport = await this.templateApplierService.applyTemplate(
+        templateId,
+        workspace.id,
+      );
+
+      for (const step of templateReport.steps) {
+        appliedSteps.push(
+          `template:${step.step}:${step.status}${
+            step.detail ? `:${step.detail.slice(0, 80)}` : ''
+          }`,
+        );
+      }
+
+      if (!templateReport.ok) {
+        this.logger.warn(
+          `Template ${templateId} applied with failures on workspace ${workspace.id}`,
+        );
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown error';
+
+      this.logger.error(
+        `Template application crashed for workspace ${workspace.id}: ${message}`,
+      );
+      appliedSteps.push(`template:${templateId}:crashed:${message.slice(0, 120)}`);
+    }
 
     return {
       id: workspace.id,

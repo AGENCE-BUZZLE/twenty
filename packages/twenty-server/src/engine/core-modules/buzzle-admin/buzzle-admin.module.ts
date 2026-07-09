@@ -11,6 +11,9 @@ import { BuzzleImpersonationService } from 'src/engine/core-modules/buzzle-admin
 import { BuzzleTemplateApplierService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-template-applier.service';
 import { BuzzleWorkspaceProvisioningService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-provisioning.service';
 import { BuzzleWorkspaceStatsService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-workspace-stats.service';
+import { FieldMetadataModule } from 'src/engine/metadata-modules/field-metadata/field-metadata.module';
+import { ObjectMetadataModule } from 'src/engine/metadata-modules/object-metadata/object-metadata.module';
+import { WebhookModule } from 'src/engine/metadata-modules/webhook/webhook.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { BuzzleWorkspaceStatsService } from 'src/engine/core-modules/buzzle-admi
     ImpersonationModule,
     AuthModule,
     UserModule,
+    ObjectMetadataModule,
+    FieldMetadataModule,
+    WebhookModule,
   ],
   providers: [
     BuzzleAdminResolver,
