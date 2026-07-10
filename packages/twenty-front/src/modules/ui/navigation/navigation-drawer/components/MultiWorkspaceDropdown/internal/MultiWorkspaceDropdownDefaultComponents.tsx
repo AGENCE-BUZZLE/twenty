@@ -2,54 +2,100 @@ import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/consta
 
 import { useAuth } from '@/auth/hooks/useAuth';
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
+import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { countAvailableWorkspaces } from '@/auth/utils/availableWorkspacesUtils';
-import { supportChatState } from '@/client-config/states/supportChatState';
-import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
 import { useRedirectToDefaultDomain } from '@/domain-manager/hooks/useRedirectToDefaultDomain';
 import { useRedirectToWorkspaceDomain } from '@/domain-manager/hooks/useRedirectToWorkspaceDomain';
-import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
+import { useInvalidateMetadataStore } from '@/metadata-store/hooks/useInvalidateMetadataStore';
+import { useOpenSettingsMenu } from '@/navigation/hooks/useOpenSettings';
+import { useUpdateWorkspaceMemberSettings } from '@/settings/profile/hooks/useUpdateWorkspaceMemberSettings';
+import { getDateFnsLocale } from '@/ui/field/display/utils/getDateFnsLocale';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuHeader } from '@/ui/layout/dropdown/components/DropdownMenuHeader/DropdownMenuHeader';
 import { DropdownMenuHeaderLeftComponent } from '@/ui/layout/dropdown/components/DropdownMenuHeader/internal/DropdownMenuHeaderLeftComponent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { DropdownMenuSeparator } from '@/ui/layout/dropdown/components/DropdownMenuSeparator';
 import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
-import { useOpenSettingsMenu } from '@/navigation/hooks/useOpenSettings';
 import { MULTI_WORKSPACE_DROPDOWN_ID } from '@/ui/navigation/navigation-drawer/constants/MultiWorkspaceDropdownId';
 import { multiWorkspaceDropdownState } from '@/ui/navigation/navigation-drawer/states/multiWorkspaceDropdownState';
+import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
+import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
-import { isNonEmptyString } from '@sniptt/guards';
+import { enUS } from 'date-fns/locale';
+import { useStore } from 'jotai';
+import { APP_LOCALES } from 'twenty-shared/translations';
 import { AppPath, SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
 import { Avatar } from 'twenty-ui/data-display';
 import {
-  IconDotsVertical,
   IconLogout,
-  IconMessage,
   IconPlus,
   IconSettings,
   IconSwitchHorizontal,
   IconUserPlus,
+  IconWorldWww,
 } from 'twenty-ui/icon';
-import { LightIconButton } from 'twenty-ui/input';
 import {
   MenuItem,
   MenuItemSelectAvatar,
   UndecoratedLink,
 } from 'twenty-ui/navigation';
 import { type AvailableWorkspace } from '~/generated-metadata/graphql';
+import { dateLocaleState } from '~/localization/states/dateLocaleState';
+import { dynamicActivate } from '~/utils/i18n/dynamicActivate';
 import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
+import { logError } from '~/utils/logError';
+
+// Buzzle: workspace dropdown menu. Anchored to the bottom pill in the
+// sidebar. Renders inside a FloatingPortal so it lives outside the dark
+// drawer wrapper — the palette here is our Schemata Light (paper
+// background, ink text) regardless of what the drawer looks like.
+//
+// Top-level items:
+//   - Connecter un autre workspace     (creates / joins another)
+//   - Ajouter un utilisateur           (workspace members > invite)
+//   - Paramètres                       (profile settings)
+//   - Français / English toggle
+//   - separator
+//   - Déconnexion
+
+const ForceLightSurface = styled.div`
+  background: #ffffff;
+  color: #14141c;
+  border-radius: 8px;
+  overflow: hidden;
+
+  --t-background-primary: #ffffff;
+  --t-background-secondary: #ffffff;
+  --t-background-tertiary: #efede6;
+  --t-background-transparent-light: rgba(20, 20, 28, 0.04);
+  --t-background-transparent-lighter: rgba(20, 20, 28, 0.02);
+  --t-background-transparent-medium: rgba(20, 20, 28, 0.06);
+  --t-background-transparent-strong: rgba(20, 20, 28, 0.1);
+
+  --t-gray-scale-gray2: #efede6;
+  --t-color-gray2: #efede6;
+  --t-gray-scale-gray3: #f5f2ea;
+  --t-color-gray3: #f5f2ea;
+
+  --t-font-color-primary: #14141c;
+  --t-font-color-secondary: rgba(20, 20, 28, 0.72);
+  --t-font-color-tertiary: rgba(20, 20, 28, 0.55);
+  --t-font-color-light: rgba(20, 20, 28, 0.6);
+  --t-font-color-extra-light: rgba(20, 20, 28, 0.42);
+
+  --t-border-color-light: rgba(20, 20, 28, 0.08);
+  --t-border-color-medium: rgba(20, 20, 28, 0.14);
+  --t-border-color-strong: rgba(20, 20, 28, 0.2);
+`;
 
 export const MultiWorkspaceDropdownDefaultComponents = () => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
-  const isMultiWorkspaceEnabled = useAtomStateValue(
-    isMultiWorkspaceEnabledState,
-  );
   const { t } = useLingui();
   const { redirectToWorkspaceDomain } = useRedirectToWorkspaceDomain();
   const availableWorkspaces = useAtomStateValue(availableWorkspacesState);
@@ -59,13 +105,6 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
   const { redirectToDefaultDomain } = useRedirectToDefaultDomain();
   const { closeDropdown } = useCloseDropdown();
   const { signOut } = useAuth();
-  // Buzzle: colorScheme picker removed from this dropdown. Kept the
-  // hook call commented so future re-enable is a one-liner.
-  // const { colorScheme, colorSchemeList } = useColorScheme();
-  const supportChat = useAtomStateValue(supportChatState);
-  const isSupportChatConfigured =
-    supportChat?.supportDriver === 'FRONT' &&
-    isNonEmptyString(supportChat.supportFrontChatId);
 
   const setMultiWorkspaceDropdown = useSetAtomState(
     multiWorkspaceDropdownState,
@@ -73,10 +112,20 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
 
   const { openSettingsMenu } = useOpenSettingsMenu();
 
-  const handleSupport = () => {
-    window.FrontChat?.('show');
-    closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
-  };
+  const [currentWorkspaceMember, setCurrentWorkspaceMember] = useAtomState(
+    currentWorkspaceMemberState,
+  );
+  const { updateWorkspaceMemberSettings } = useUpdateWorkspaceMemberSettings();
+  const { invalidateMetadataStore } = useInvalidateMetadataStore();
+  const store = useStore();
+
+  const currentLocale = currentWorkspaceMember?.locale ?? APP_LOCALES.en;
+  const nextLocale =
+    currentLocale === APP_LOCALES['fr-FR']
+      ? APP_LOCALES.en
+      : APP_LOCALES['fr-FR'];
+  const toggleLabel =
+    currentLocale === APP_LOCALES['fr-FR'] ? 'English' : 'Français';
 
   const handleChange = async (availableWorkspace: AvailableWorkspace) => {
     redirectToWorkspaceDomain(
@@ -91,128 +140,142 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
     });
   };
 
+  const toggleLocale = async () => {
+    if (!currentWorkspaceMember?.id) return;
+    try {
+      setCurrentWorkspaceMember({
+        ...currentWorkspaceMember,
+        locale: nextLocale,
+      });
+      await updateWorkspaceMemberSettings({
+        workspaceMemberId: currentWorkspaceMember.id,
+        update: { locale: nextLocale },
+      });
+      const dateFnsLocale = await getDateFnsLocale(nextLocale);
+      store.set(dateLocaleState.atom, {
+        locale: nextLocale,
+        localeCatalog: dateFnsLocale || enUS,
+      });
+      await dynamicActivate(nextLocale);
+      try {
+        localStorage.setItem('locale', nextLocale);
+      } catch {
+        // ignore
+      }
+      invalidateMetadataStore();
+    } catch (error) {
+      logError(error);
+    }
+    closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
+  };
+
   return (
-    <DropdownContent>
-      <DropdownMenuHeader
-        StartComponent={
-          <DropdownMenuHeaderLeftComponent
-            Avatar={
-              <Avatar
-                placeholder={currentWorkspace?.displayName || ''}
-                avatarUrl={getAbsoluteImageUrl(
-                  currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
-                )}
-              />
-            }
-          />
-        }
-        EndComponent={
-          <Dropdown
-            clickableComponent={
-              <LightIconButton
-                Icon={IconDotsVertical}
-                size="small"
-                accent="tertiary"
-              />
-            }
-            dropdownId="multi-workspace-dropdown-context-menu"
-            dropdownComponents={
-              <DropdownContent>
-                <DropdownMenuItemsContainer>
-                  {isMultiWorkspaceEnabled && (
-                    <MenuItem
-                      LeftIcon={IconPlus}
-                      text={t`Create Workspace`}
-                      onClick={createWorkspace}
+    <ForceLightSurface>
+      <DropdownContent>
+        <DropdownMenuHeader
+          StartComponent={
+            <DropdownMenuHeaderLeftComponent
+              Avatar={
+                <Avatar
+                  placeholder={currentWorkspace?.displayName || ''}
+                  avatarUrl={getAbsoluteImageUrl(
+                    currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
+                  )}
+                />
+              }
+            />
+          }
+        >
+          {currentWorkspace?.displayName}
+        </DropdownMenuHeader>
+
+        {availableWorkspacesCount > 1 && (
+          <>
+            <DropdownMenuItemsContainer>
+              {[
+                ...availableWorkspaces.availableWorkspacesForSignIn,
+                ...availableWorkspaces.availableWorkspacesForSignUp,
+              ]
+                .filter(({ id }) => id !== currentWorkspace?.id)
+                .slice(0, 3)
+                .map((availableWorkspace) => (
+                  <UndecoratedLink
+                    key={availableWorkspace.id}
+                    to={buildWorkspaceUrl(
+                      getWorkspaceUrl(availableWorkspace.workspaceUrls),
+                    )}
+                    onClick={(event) => {
+                      event?.preventDefault();
+                      handleChange(availableWorkspace);
+                    }}
+                  >
+                    <MenuItemSelectAvatar
+                      text={availableWorkspace.displayName ?? t`(No name)`}
+                      avatar={
+                        <Avatar
+                          placeholder={availableWorkspace.displayName || ''}
+                          avatarUrl={getAbsoluteImageUrl(
+                            availableWorkspace.logo ?? DEFAULT_WORKSPACE_LOGO,
+                          )}
+                        />
+                      }
+                      selected={false}
                     />
-                  )}
-                  <MenuItem
-                    LeftIcon={IconLogout}
-                    text={t`Log out`}
-                    onClick={signOut}
-                  />
-                </DropdownMenuItemsContainer>
-              </DropdownContent>
-            }
-          />
-        }
-      >
-        {currentWorkspace?.displayName}
-      </DropdownMenuHeader>
-      {availableWorkspacesCount > 1 && (
-        <>
-          <DropdownMenuItemsContainer>
-            {[
-              ...availableWorkspaces.availableWorkspacesForSignIn,
-              ...availableWorkspaces.availableWorkspacesForSignUp,
-            ]
-              .filter(({ id }) => id !== currentWorkspace?.id)
-              .slice(0, 3)
-              .map((availableWorkspace) => (
-                <UndecoratedLink
-                  key={availableWorkspace.id}
-                  to={buildWorkspaceUrl(
-                    getWorkspaceUrl(availableWorkspace.workspaceUrls),
-                  )}
-                  onClick={(event) => {
-                    event?.preventDefault();
-                    handleChange(availableWorkspace);
-                  }}
-                >
-                  <MenuItemSelectAvatar
-                    text={availableWorkspace.displayName ?? t`(No name)`}
-                    avatar={
-                      <Avatar
-                        placeholder={availableWorkspace.displayName || ''}
-                        avatarUrl={getAbsoluteImageUrl(
-                          availableWorkspace.logo ?? DEFAULT_WORKSPACE_LOGO,
-                        )}
-                      />
-                    }
-                    selected={false}
-                  />
-                </UndecoratedLink>
-              ))}
-            {availableWorkspacesCount > 4 && (
-              <MenuItem
-                LeftIcon={IconSwitchHorizontal}
-                text={t`Other workspaces`}
-                onClick={() => setMultiWorkspaceDropdown('workspaces-list')}
-                hasSubMenu={true}
-              />
-            )}
-          </DropdownMenuItemsContainer>
-          <DropdownMenuSeparator />
-        </>
-      )}
-      <DropdownMenuItemsContainer>
-        {/* Buzzle: theme picker removed. The app runs in a single Schemata
-            theme so switching Light/Dark/System does nothing. */}
-        <UndecoratedLink
-          to={`${getSettingsPath(SettingsPath.WorkspaceMembersPage)}#invite`}
-          onClick={() => {
-            closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
-          }}
-        >
-          <MenuItem LeftIcon={IconUserPlus} text={t`Invite user`} />
-        </UndecoratedLink>
-        {isSupportChatConfigured && (
-          <MenuItem
-            LeftIcon={IconMessage}
-            text={t`Support`}
-            onClick={handleSupport}
-          />
+                  </UndecoratedLink>
+                ))}
+              {availableWorkspacesCount > 4 && (
+                <MenuItem
+                  LeftIcon={IconSwitchHorizontal}
+                  text={t`Autres workspaces`}
+                  onClick={() => setMultiWorkspaceDropdown('workspaces-list')}
+                  hasSubMenu={true}
+                />
+              )}
+            </DropdownMenuItemsContainer>
+            <DropdownMenuSeparator />
+          </>
         )}
-        <UndecoratedLink
-          to={getSettingsPath(SettingsPath.ProfilePage)}
-          onClick={() => {
-            openSettingsMenu();
-            closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
-          }}
-        >
-          <MenuItem LeftIcon={IconSettings} text={t`Settings`} />
-        </UndecoratedLink>
-      </DropdownMenuItemsContainer>
-    </DropdownContent>
+
+        <DropdownMenuItemsContainer>
+          <MenuItem
+            LeftIcon={IconPlus}
+            text={t`Connecter un autre workspace`}
+            onClick={createWorkspace}
+          />
+          <UndecoratedLink
+            to={`${getSettingsPath(SettingsPath.WorkspaceMembersPage)}#invite`}
+            onClick={() => {
+              closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
+            }}
+          >
+            <MenuItem LeftIcon={IconUserPlus} text={t`Ajouter un utilisateur`} />
+          </UndecoratedLink>
+          <UndecoratedLink
+            to={getSettingsPath(SettingsPath.ProfilePage)}
+            onClick={() => {
+              openSettingsMenu();
+              closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
+            }}
+          >
+            <MenuItem LeftIcon={IconSettings} text={t`Paramètres`} />
+          </UndecoratedLink>
+          <MenuItem
+            LeftIcon={IconWorldWww}
+            text={toggleLabel}
+            onClick={toggleLocale}
+          />
+        </DropdownMenuItemsContainer>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItemsContainer>
+          <MenuItem
+            LeftIcon={IconLogout}
+            text={t`Déconnexion`}
+            onClick={signOut}
+          />
+        </DropdownMenuItemsContainer>
+      </DropdownContent>
+    </ForceLightSurface>
   );
 };
