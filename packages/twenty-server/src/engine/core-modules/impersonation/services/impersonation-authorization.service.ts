@@ -54,15 +54,33 @@ export class ImpersonationAuthorizationService {
     );
 
     if (level === 'server') {
+      // Buzzle: super admins skip both the workspace allowImpersonation
+      // opt-in and the canImpersonate flag. Every workspace on this
+      // instance is a Buzzle client workspace by design, so the agency
+      // owner is always allowed to open a client console.
+      const impersonatorIsBuzzleSuperAdmin =
+        impersonatorUserWorkspace.user?.canAccessFullAdminPanel === true;
+
       const hasServerLevelImpersonatePermission =
-        impersonatorUserWorkspace.user.canImpersonate === true &&
-        targetUserWorkspace.workspace.allowImpersonation === true;
+        impersonatorIsBuzzleSuperAdmin ||
+        (impersonatorUserWorkspace.user.canImpersonate === true &&
+          targetUserWorkspace.workspace.allowImpersonation === true);
 
       if (!hasServerLevelImpersonatePermission) {
         return { allowed: false, level, reason: 'SERVER_LEVEL_NOT_ALLOWED' };
       }
 
-      if (this.isTwoFactorRequiredForServerLevelImpersonation()) {
+      // Buzzle: skip the 2FA gate when the impersonator is a Buzzle super
+      // admin. The cockpit action is already restricted to super-admin
+      // users via BuzzleSuperAdminGuard, so requiring 2FA on top is a
+      // UX blocker for our internal ops flow.
+      const impersonatorIsBuzzleSuperAdmin =
+        impersonatorUserWorkspace.user?.canAccessFullAdminPanel === true;
+
+      if (
+        !impersonatorIsBuzzleSuperAdmin &&
+        this.isTwoFactorRequiredForServerLevelImpersonation()
+      ) {
         const twoFactorDenialReason = this.getServerLevelTwoFactorDenialReason(
           impersonatorUserWorkspace,
         );
