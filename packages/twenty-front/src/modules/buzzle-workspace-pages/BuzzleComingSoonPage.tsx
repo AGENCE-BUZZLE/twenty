@@ -45,9 +45,10 @@ const Lede = styled.p`
 const Card = styled.div`
   margin-top: 40px;
   padding: 48px 40px;
-  border: 1px solid ${HairlineColor};
+  border: 1px solid ${InkColor};
   border-radius: 12px;
-  background: #ffffff;
+  background: ${InkColor};
+  color: #ffffff;
   display: flex;
   align-items: center;
   gap: 28px;
@@ -58,11 +59,11 @@ const IconFrame = styled.div`
   width: 72px;
   height: 72px;
   border-radius: 14px;
-  background: ${PaperColor};
+  background: rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${AccentColor};
+  color: #ffffff;
 `;
 
 const CardText = styled.div`
@@ -74,10 +75,11 @@ const CardTitle = styled.div`
   font-size: 20px;
   font-weight: 500;
   margin-bottom: 6px;
+  color: #ffffff;
 `;
 
 const CardSubtitle = styled.div`
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
   font-size: 14px;
   line-height: 1.55;
 `;

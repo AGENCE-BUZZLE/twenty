@@ -22,9 +22,10 @@ const DangerColor = '#c94a4a';
 const DangerSoft = '#fbe5e5';
 
 const Card = styled.div`
-  border: 1px solid ${HairlineColor};
+  border: 1px solid ${InkColor};
   border-radius: 12px;
-  background: ${SurfaceColor};
+  background: ${InkColor};
+  color: ${SurfaceColor};
   padding: 24px 28px;
   margin-bottom: 24px;
 `;
@@ -40,11 +41,11 @@ const CardTitle = styled.div`
   font-family: 'Inter Tight', sans-serif;
   font-size: 17px;
   font-weight: 500;
-  color: ${InkColor};
+  color: ${SurfaceColor};
 `;
 
 const CardSub = styled.div`
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
   margin-top: 2px;
 `;
@@ -58,7 +59,7 @@ const InviteRow = styled.div`
 const EmailInput = styled.input`
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid ${HairlineColor};
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 6px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
@@ -66,14 +67,14 @@ const EmailInput = styled.input`
   background: ${SurfaceColor};
   &:focus {
     outline: none;
-    border-color: ${InkColor};
+    border-color: ${SurfaceColor};
   }
 `;
 
 const InviteButton = styled.button`
-  background: ${InkColor};
-  color: ${SurfaceColor};
-  border: 1px solid ${InkColor};
+  background: ${SurfaceColor};
+  color: ${InkColor};
+  border: 1px solid ${SurfaceColor};
   padding: 0 20px;
   border-radius: 6px;
   font-size: 13px;

@@ -15,9 +15,10 @@ const AccentColor = '#5b4bff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Card = styled.div`
-  border: 1px solid ${HairlineColor};
+  border: 1px solid ${InkColor};
   border-radius: 12px;
-  background: ${SurfaceColor};
+  background: ${InkColor};
+  color: ${SurfaceColor};
   padding: 28px 32px;
 `;
 
@@ -32,11 +33,11 @@ const SectionTitle = styled.div`
   font-family: 'Inter Tight', sans-serif;
   font-size: 17px;
   font-weight: 500;
-  color: ${InkColor};
+  color: ${SurfaceColor};
 `;
 
 const SectionSubtitle = styled.div`
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
   margin-top: 2px;
 `;
@@ -64,12 +65,12 @@ const Label = styled.label`
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
 `;
 
 const Input = styled.input`
   padding: 11px 14px;
-  border: 1px solid ${HairlineColor};
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 6px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
@@ -77,11 +78,11 @@ const Input = styled.input`
   background: ${SurfaceColor};
   &:focus {
     outline: none;
-    border-color: ${InkColor};
+    border-color: ${SurfaceColor};
   }
   &:disabled {
-    background: ${PaperColor};
-    color: ${MutedColor};
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.55);
     cursor: not-allowed;
   }
 `;
@@ -94,9 +95,9 @@ const Actions = styled.div`
 `;
 
 const SubmitButton = styled.button`
-  background: ${InkColor};
-  color: ${SurfaceColor};
-  border: 1px solid ${InkColor};
+  background: ${SurfaceColor};
+  color: ${InkColor};
+  border: 1px solid ${SurfaceColor};
   padding: 10px 20px;
   border-radius: 6px;
   font-size: 13px;
