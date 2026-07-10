@@ -1,6 +1,8 @@
 import { styled } from '@linaria/react';
 import { type ReactNode, useState } from 'react';
 
+import { BuzzleLogoHeader } from '@/buzzle-workspace-nav/BuzzleLogoHeader';
+import { BuzzleWorkspaceSwitcherFooter } from '@/buzzle-workspace-nav/BuzzleWorkspaceSwitcherFooter';
 import { useNavigationDrawerExpanded } from '@/navigation/hooks/useNavigationDrawerExpanded';
 import { useIsSettingsDrawer } from '@/navigation/hooks/useIsSettingsDrawer';
 import { tableWidthResizeIsActiveState } from '@/object-record/record-table/states/tableWidthResizeIsActivedState';
@@ -122,13 +124,24 @@ export const NavigationDrawer = ({
       >
         <StyledContainer isExpanded={isExpanded}>
           {!isMobile && isSettingsDrawer && title ? (
-            <NavigationDrawerBackButton title={title} />
+            <>
+              <NavigationDrawerBackButton title={title} />
+              {children}
+            </>
           ) : (
-            // Buzzle: no collapse button on desktop; the drawer is
-            // permanently expanded so we don't want the toggle affordance.
-            <NavigationDrawerHeader showCollapseButton={isMobile} />
+            <>
+              {/* Buzzle: brand mark on top, workspace switcher at the
+                  bottom. Twenty's NavigationDrawerHeader is retained on
+                  mobile because it also handles the drawer-close button. */}
+              {isMobile ? (
+                <NavigationDrawerHeader showCollapseButton={true} />
+              ) : (
+                <BuzzleLogoHeader />
+              )}
+              {children}
+              {!isMobile && <BuzzleWorkspaceSwitcherFooter />}
+            </>
           )}
-          {children}
         </StyledContainer>
 
         {isNavigationDrawerExpanded && !isMobile && !isSettingsDrawer && (
