@@ -70,13 +70,9 @@ export class ImpersonationAuthorizationService {
         return { allowed: false, level, reason: 'SERVER_LEVEL_NOT_ALLOWED' };
       }
 
-      // Buzzle: skip the 2FA gate when the impersonator is a Buzzle super
-      // admin. The cockpit action is already restricted to super-admin
-      // users via BuzzleSuperAdminGuard, so requiring 2FA on top is a
-      // UX blocker for our internal ops flow.
-      const impersonatorIsBuzzleSuperAdmin =
-        impersonatorUserWorkspace.user?.canAccessFullAdminPanel === true;
-
+      // The 2FA gate is skipped for Buzzle super admins for the same
+      // reason: the cockpit action is already restricted to super-admin
+      // users via BuzzleSuperAdminGuard.
       if (
         !impersonatorIsBuzzleSuperAdmin &&
         this.isTwoFactorRequiredForServerLevelImpersonation()
