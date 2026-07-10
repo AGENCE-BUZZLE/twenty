@@ -150,4 +150,76 @@ export class BuzzleZohoInvoiceService {
       downloadUrl: undefined,
     }));
   }
+
+  // Streams the Zoho-generated PDF for a single invoice. The caller must
+  // have already validated that the invoice belongs to the workspace
+  // (via ownsInvoice) so no additional check is done here.
+  async downloadInvoicePdf(
+    invoiceId: string,
+  ): Promise<{ buffer: Buffer; number: string }> {
+    const orgId = process.env.ZOHO_ORGANIZATION_ID;
+    const apiHost = process.env.ZOHO_API_HOST || 'www.zohoapis.com';
+
+    if (!orgId) {
+      throw new Error('ZOHO_ORGANIZATION_ID missing on server');
+    }
+
+    const token = await this.getAccessToken();
+
+    // Fetch metadata first so we can name the file with the invoice number.
+    const metaRes = await fetch(
+      `https://${apiHost}/invoice/v3/invoices/${invoiceId}?organization_id=${orgId}`,
+      { headers: { Authorization: `Zoho-oauthtoken ${token}` } },
+    );
+
+    if (!metaRes.ok) {
+      throw new Error(`Zoho invoice meta fetch failed: ${metaRes.status}`);
+    }
+
+    const meta = (await metaRes.json()) as {
+      invoice?: { invoice_number?: string };
+    };
+    const number = meta.invoice?.invoice_number ?? invoiceId;
+
+    const pdfRes = await fetch(
+      `https://${apiHost}/invoice/v3/invoices/${invoiceId}?organization_id=${orgId}&accept=pdf`,
+      { headers: { Authorization: `Zoho-oauthtoken ${token}` } },
+    );
+
+    if (!pdfRes.ok) {
+      throw new Error(`Zoho invoice pdf fetch failed: ${pdfRes.status}`);
+    }
+
+    const arrayBuffer = await pdfRes.arrayBuffer();
+
+    return { buffer: Buffer.from(arrayBuffer), number };
+  }
+
+  async ownsInvoice(
+    invoiceId: string,
+    workspaceId: string,
+  ): Promise<boolean> {
+    const zohoCustomerId = this.workspaceMap[workspaceId];
+
+    if (!zohoCustomerId) return false;
+
+    const orgId = process.env.ZOHO_ORGANIZATION_ID;
+    const apiHost = process.env.ZOHO_API_HOST || 'www.zohoapis.com';
+
+    if (!orgId) return false;
+
+    const token = await this.getAccessToken();
+    const res = await fetch(
+      `https://${apiHost}/invoice/v3/invoices/${invoiceId}?organization_id=${orgId}`,
+      { headers: { Authorization: `Zoho-oauthtoken ${token}` } },
+    );
+
+    if (!res.ok) return false;
+
+    const body = (await res.json()) as {
+      invoice?: { customer_id?: string };
+    };
+
+    return body.invoice?.customer_id === zohoCustomerId;
+  }
 }

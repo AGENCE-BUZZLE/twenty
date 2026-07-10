@@ -1,8 +1,11 @@
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
+import { useState } from 'react';
 
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
+import { REACT_APP_SERVER_BASE_URL } from '~/config';
+import { getTokenPair } from '@/apollo/utils/getTokenPair';
 
 // Real /invoices page: pulls Zoho-backed invoices for the current workspace
 // through the myWorkspaceInvoices query. When a workspace is not yet linked
@@ -111,7 +114,7 @@ const Table = styled.div`
 
 const TableHead = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr 1fr 1.2fr;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr 1.2fr 90px;
   gap: 16px;
   padding: 14px 22px;
   border-bottom: 1px solid ${InkColor};
@@ -125,7 +128,7 @@ const TableHead = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr 1fr 1.2fr;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr 1.2fr 90px;
   gap: 16px;
   padding: 16px 22px;
   border-bottom: 1px solid ${HairlineColor};
@@ -164,6 +167,68 @@ const EmptyState = styled.div`
   font-size: 14px;
   line-height: 1.6;
 `;
+
+const DownloadCell = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const DownloadButton = styled.button`
+  background: transparent;
+  color: ${InkColor};
+  border: 1px solid ${HairlineColor};
+  padding: 7px 9px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, border-color 0.12s;
+  &:hover {
+    background: ${InkColor};
+    border-color: ${InkColor};
+    color: ${SurfaceColor};
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: wait;
+  }
+`;
+
+const IconDownload = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+);
+
+const IconSpin = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    style={{ animation: 'buzzleBtnSpin 0.9s linear infinite' }}
+  >
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </svg>
+);
 
 // 4-circle spinner shown alone while the Zoho fetch is in flight, so the
 // user does not see empty header rows and stale skeletons.
@@ -254,11 +319,40 @@ const formatDate = (raw: string | null | undefined): string => {
 
 export const BuzzleInvoicesPage = () => {
   const apolloCoreClient = useApolloCoreClient();
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const { data, loading, error } = useQuery<{ myWorkspaceInvoices: Invoice[] }>(
     MY_WORKSPACE_INVOICES,
     { client: apolloCoreClient, fetchPolicy: 'cache-and-network' },
   );
+
+  const handleDownload = async (invoice: Invoice) => {
+    if (downloadingId) return;
+    setDownloadingId(invoice.id);
+    try {
+      const tokenPair = getTokenPair();
+      const token = tokenPair?.accessOrWorkspaceAgnosticToken?.token;
+      const res = await fetch(
+        `${REACT_APP_SERVER_BASE_URL}/rest/buzzle/invoices/${invoice.id}/pdf`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${invoice.number}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Invoice download failed', err);
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const invoices = data?.myWorkspaceInvoices ?? [];
 
@@ -337,7 +431,9 @@ export const BuzzleInvoicesPage = () => {
           <div>Echeance</div>
           <div>Montant</div>
           <div>Statut</div>
+          <div style={{ textAlign: 'right' }}>PDF</div>
         </TableHead>
+        <style>{`@keyframes buzzleBtnSpin { to { transform: rotate(360deg); } }`}</style>
         {!loading && invoices.length === 0 && !error && (
           <EmptyState>
             Aucune facture pour le moment.
@@ -350,6 +446,8 @@ export const BuzzleInvoicesPage = () => {
             STATUS_META[inv.status] ??
             { label: inv.status, bg: '#efede6', fg: '#5a5540' };
 
+          const isDownloading = downloadingId === inv.id;
+
           return (
             <TableRow key={inv.id}>
               <InvoiceNumber>{inv.number}</InvoiceNumber>
@@ -361,6 +459,16 @@ export const BuzzleInvoicesPage = () => {
                   {meta.label}
                 </StatusPill>
               </div>
+              <DownloadCell>
+                <DownloadButton
+                  aria-label={`Telecharger ${inv.number}`}
+                  title={`Telecharger ${inv.number}`}
+                  onClick={() => handleDownload(inv)}
+                  disabled={isDownloading}
+                >
+                  {isDownloading ? <IconSpin /> : <IconDownload />}
+                </DownloadButton>
+              </DownloadCell>
             </TableRow>
           );
         })}

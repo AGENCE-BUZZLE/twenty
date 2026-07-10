@@ -11,6 +11,7 @@ import { FieldMetadataEntity } from 'src/engine/metadata-modules/field-metadata/
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { ViewEntity } from 'src/engine/metadata-modules/view/entities/view.entity';
 import { ViewModule } from 'src/engine/metadata-modules/view/view.module';
+import { BuzzleInvoicesController } from 'src/engine/core-modules/buzzle-admin/controllers/buzzle-invoices.controller';
 import { BuzzleAdminResolver } from 'src/engine/core-modules/buzzle-admin/resolvers/buzzle-admin.resolver';
 import { BuzzleWorkspaceInvoicesResolver } from 'src/engine/core-modules/buzzle-admin/resolvers/buzzle-workspace-invoices.resolver';
 import { BuzzleImpersonationService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-impersonation.service';
@@ -40,6 +41,7 @@ import { WebhookModule } from 'src/engine/metadata-modules/webhook/webhook.modul
     ViewModule,
     WorkspaceDomainsModule,
   ],
+  controllers: [BuzzleInvoicesController],
   providers: [
     BuzzleAdminResolver,
     BuzzleWorkspaceInvoicesResolver,
