@@ -8,10 +8,7 @@ import { countAvailableWorkspaces } from '@/auth/utils/availableWorkspacesUtils'
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
 import { useRedirectToDefaultDomain } from '@/domain-manager/hooks/useRedirectToDefaultDomain';
 import { useRedirectToWorkspaceDomain } from '@/domain-manager/hooks/useRedirectToWorkspaceDomain';
-import { useInvalidateMetadataStore } from '@/metadata-store/hooks/useInvalidateMetadataStore';
 import { useOpenSettingsMenu } from '@/navigation/hooks/useOpenSettings';
-import { useUpdateWorkspaceMemberSettings } from '@/settings/profile/hooks/useUpdateWorkspaceMemberSettings';
-import { getDateFnsLocale } from '@/ui/field/display/utils/getDateFnsLocale';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuHeader } from '@/ui/layout/dropdown/components/DropdownMenuHeader/DropdownMenuHeader';
 import { DropdownMenuHeaderLeftComponent } from '@/ui/layout/dropdown/components/DropdownMenuHeader/internal/DropdownMenuHeaderLeftComponent';
@@ -20,13 +17,10 @@ import { DropdownMenuSeparator } from '@/ui/layout/dropdown/components/DropdownM
 import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { MULTI_WORKSPACE_DROPDOWN_ID } from '@/ui/navigation/navigation-drawer/constants/MultiWorkspaceDropdownId';
 import { multiWorkspaceDropdownState } from '@/ui/navigation/navigation-drawer/states/multiWorkspaceDropdownState';
-import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
-import { enUS } from 'date-fns/locale';
-import { useStore } from 'jotai';
 import { APP_LOCALES } from 'twenty-shared/translations';
 import { AppPath, SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
@@ -45,11 +39,19 @@ import {
   UndecoratedLink,
 } from 'twenty-ui/navigation';
 import { type AvailableWorkspace } from '~/generated-metadata/graphql';
-import { dateLocaleState } from '~/localization/states/dateLocaleState';
-import { dynamicActivate } from '~/utils/i18n/dynamicActivate';
 import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
-import { logError } from '~/utils/logError';
+
+const buildLocaleLabel = (locale: string): string => {
+  try {
+    const inSelf = new Intl.DisplayNames([locale], { type: 'language' }).of(
+      locale,
+    );
+    return inSelf ? `${inSelf[0].toUpperCase()}${inSelf.slice(1)}` : locale;
+  } catch {
+    return locale;
+  }
+};
 
 // Buzzle: workspace dropdown menu. Anchored to the bottom pill in the
 // sidebar. Renders inside a FloatingPortal so it lives outside the dark
@@ -112,20 +114,9 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
 
   const { openSettingsMenu } = useOpenSettingsMenu();
 
-  const [currentWorkspaceMember, setCurrentWorkspaceMember] = useAtomState(
-    currentWorkspaceMemberState,
-  );
-  const { updateWorkspaceMemberSettings } = useUpdateWorkspaceMemberSettings();
-  const { invalidateMetadataStore } = useInvalidateMetadataStore();
-  const store = useStore();
-
+  const currentWorkspaceMember = useAtomStateValue(currentWorkspaceMemberState);
   const currentLocale = currentWorkspaceMember?.locale ?? APP_LOCALES.en;
-  const nextLocale =
-    currentLocale === APP_LOCALES['fr-FR']
-      ? APP_LOCALES.en
-      : APP_LOCALES['fr-FR'];
-  const toggleLabel =
-    currentLocale === APP_LOCALES['fr-FR'] ? 'English' : 'Français';
+  const currentLocaleLabel = buildLocaleLabel(currentLocale);
 
   const handleChange = async (availableWorkspace: AvailableWorkspace) => {
     redirectToWorkspaceDomain(
@@ -138,35 +129,6 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
       pathname: AppPath.SignInUp,
       searchParams: { action: 'create-new-workspace' },
     });
-  };
-
-  const toggleLocale = async () => {
-    if (!currentWorkspaceMember?.id) return;
-    try {
-      setCurrentWorkspaceMember({
-        ...currentWorkspaceMember,
-        locale: nextLocale,
-      });
-      await updateWorkspaceMemberSettings({
-        workspaceMemberId: currentWorkspaceMember.id,
-        update: { locale: nextLocale },
-      });
-      const dateFnsLocale = await getDateFnsLocale(nextLocale);
-      store.set(dateLocaleState.atom, {
-        locale: nextLocale,
-        localeCatalog: dateFnsLocale || enUS,
-      });
-      await dynamicActivate(nextLocale);
-      try {
-        localStorage.setItem('locale', nextLocale);
-      } catch {
-        // ignore
-      }
-      invalidateMetadataStore();
-    } catch (error) {
-      logError(error);
-    }
-    closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
   };
 
   return (
@@ -261,8 +223,9 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
           </UndecoratedLink>
           <MenuItem
             LeftIcon={IconWorldWww}
-            text={toggleLabel}
-            onClick={toggleLocale}
+            text={`${t`Langue`} · ${currentLocaleLabel}`}
+            hasSubMenu={true}
+            onClick={() => setMultiWorkspaceDropdown('languages')}
           />
         </DropdownMenuItemsContainer>
 
