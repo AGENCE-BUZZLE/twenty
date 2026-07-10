@@ -233,14 +233,24 @@ export class BuzzleTemplateApplierService {
         const message =
           error instanceof Error ? error.message : 'unknown error';
 
+        const detailFromReport =
+          error &&
+          typeof error === 'object' &&
+          'failedWorkspaceMigrationBuildResult' in error
+            ? JSON.stringify(
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (error as any).failedWorkspaceMigrationBuildResult?.report,
+              ).slice(0, 500)
+            : '';
+
         this.logger.warn(
-          `Failed to create field ${objectDef.nameSingular}.${fieldDef.name} in ${workspaceId}: ${message}`,
+          `Failed to create field ${objectDef.nameSingular}.${fieldDef.name} in ${workspaceId}: ${message} ${detailFromReport}`,
         );
 
         steps.push({
           step: `field:${objectDef.nameSingular}.${fieldDef.name}`,
           status: 'failed',
-          detail: message,
+          detail: detailFromReport ? `${message}. ${detailFromReport}` : message,
         });
       }
     }
@@ -265,15 +275,25 @@ export class BuzzleTemplateApplierService {
     };
 
     if (twentyType === FieldMetadataType.SELECT && fieldDef.options) {
+      const options = fieldDef.options.map((opt) => ({
+        id: randomUUID(),
+        value: opt.value,
+        label: opt.label,
+        color: opt.color,
+        position: opt.position,
+      }));
+      // Twenty stores SELECT defaults as a SQL-quoted string, e.g. "'new'".
+      // If the field is required we default to the first option; if
+      // nullable we don't set a default so a record can be created without
+      // choosing a status.
+      const defaultValue =
+        fieldDef.required && options.length > 0
+          ? `'${options[0].value}'`
+          : undefined;
       return {
         ...base,
-        options: fieldDef.options.map((opt) => ({
-          id: randomUUID(),
-          value: opt.value,
-          label: opt.label,
-          color: opt.color,
-          position: opt.position,
-        })),
+        options,
+        defaultValue,
       };
     }
 
