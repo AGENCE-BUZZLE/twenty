@@ -2,15 +2,17 @@ import { randomUUID } from 'node:crypto';
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
-import { FieldMetadataType } from 'twenty-shared/types';
+import { FieldMetadataType, ViewType } from 'twenty-shared/types';
 
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 import { FieldMetadataEntity } from 'src/engine/metadata-modules/field-metadata/field-metadata.entity';
 import { FieldMetadataService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata.service';
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { ObjectMetadataService } from 'src/engine/metadata-modules/object-metadata/object-metadata.service';
+import { ViewEntity } from 'src/engine/metadata-modules/view/entities/view.entity';
+import { ViewService } from 'src/engine/metadata-modules/view/services/view.service';
 import { WebhookService } from 'src/engine/metadata-modules/webhook/webhook.service';
 import { getBuzzleTemplate } from 'src/engine/core-modules/buzzle-admin/templates';
 import {
@@ -71,10 +73,13 @@ export class BuzzleTemplateApplierService {
     private readonly objectMetadataService: ObjectMetadataService,
     private readonly fieldMetadataService: FieldMetadataService,
     private readonly webhookService: WebhookService,
+    private readonly viewService: ViewService,
     @InjectRepository(ObjectMetadataEntity)
     private readonly objectMetadataRepository: Repository<ObjectMetadataEntity>,
     @InjectRepository(FieldMetadataEntity)
     private readonly fieldMetadataRepository: Repository<FieldMetadataEntity>,
+    @InjectRepository(ViewEntity)
+    private readonly viewRepository: Repository<ViewEntity>,
   ) {}
 
   async applyTemplate(
@@ -135,11 +140,7 @@ export class BuzzleTemplateApplierService {
     }
 
     for (const viewDef of template.views) {
-      steps.push({
-        step: `view:${viewDef.objectNameSingular}:${viewDef.name}`,
-        status: 'skipped',
-        detail: 'Twenty auto-creates default table view kanban view is S4-stage-4',
-      });
+      steps.push(await this.tryCreateView(workspaceId, viewDef));
     }
 
     for (const roleDef of template.roles) {
@@ -341,6 +342,100 @@ export class BuzzleTemplateApplierService {
     }
 
     return base;
+  }
+
+  private async tryCreateView(
+    workspaceId: string,
+    viewDef: BuzzleWorkspaceTemplate['views'][number],
+  ): Promise<TemplateApplicationStep> {
+    // Find the target object metadata id first.
+    const targetObject = await this.objectMetadataRepository.findOne({
+      where: {
+        workspaceId,
+        nameSingular: viewDef.objectNameSingular,
+        isActive: true,
+      },
+    });
+
+    if (!targetObject) {
+      return {
+        step: `view:${viewDef.objectNameSingular}:${viewDef.name}`,
+        status: 'skipped',
+        detail: 'target object not found',
+      };
+    }
+
+    // Idempotent: skip if a view with this exact name + type already exists
+    const viewType = viewDef.type === 'kanban' ? ViewType.KANBAN : ViewType.TABLE;
+    const existingView = await this.viewRepository.findOne({
+      where: {
+        workspaceId,
+        objectMetadataId: targetObject.id,
+        name: viewDef.name,
+        type: viewType,
+        deletedAt: IsNull(),
+      },
+    });
+    if (existingView) {
+      return {
+        step: `view:${viewDef.objectNameSingular}:${viewDef.name}`,
+        status: 'skipped',
+        detail: 'view already exists',
+      };
+    }
+
+    // Kanban needs mainGroupByFieldMetadataId. Resolve the group-by
+    // field id from the object's fields (skip creation if we cannot
+    // find it; better a table view than a broken kanban).
+    let mainGroupByFieldMetadataId: string | undefined;
+    if (viewType === ViewType.KANBAN && viewDef.groupByFieldName) {
+      const groupByField = await this.fieldMetadataRepository.findOne({
+        where: {
+          workspaceId,
+          objectMetadataId: targetObject.id,
+          name: viewDef.groupByFieldName,
+        },
+      });
+      if (!groupByField) {
+        return {
+          step: `view:${viewDef.objectNameSingular}:${viewDef.name}`,
+          status: 'skipped',
+          detail: `groupBy field ${viewDef.groupByFieldName} not found`,
+        };
+      }
+      mainGroupByFieldMetadataId = groupByField.id;
+    }
+
+    try {
+      await this.viewService.createOne({
+        createViewInput: {
+          name: viewDef.name,
+          objectMetadataId: targetObject.id,
+          type: viewType,
+          icon: viewType === ViewType.KANBAN ? 'IconLayoutKanban' : 'IconTable',
+          position: viewType === ViewType.KANBAN ? 1 : 0,
+          mainGroupByFieldMetadataId,
+        },
+        workspaceId,
+      });
+
+      return {
+        step: `view:${viewDef.objectNameSingular}:${viewDef.name}`,
+        status: 'ok',
+        detail: `type=${viewType}`,
+      };
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'unknown error';
+      this.logger.warn(
+        `Failed to create view ${viewDef.name}: ${message}`,
+      );
+      return {
+        step: `view:${viewDef.objectNameSingular}:${viewDef.name}`,
+        status: 'failed',
+        detail: message,
+      };
+    }
   }
 
   private async tryCreateWebhook(

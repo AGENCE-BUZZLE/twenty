@@ -8,6 +8,8 @@ import { UserModule } from 'src/engine/core-modules/user/user.module';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { FieldMetadataEntity } from 'src/engine/metadata-modules/field-metadata/field-metadata.entity';
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
+import { ViewEntity } from 'src/engine/metadata-modules/view/entities/view.entity';
+import { ViewModule } from 'src/engine/metadata-modules/view/view.module';
 import { BuzzleAdminResolver } from 'src/engine/core-modules/buzzle-admin/resolvers/buzzle-admin.resolver';
 import { BuzzleImpersonationService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-impersonation.service';
 import { BuzzleTemplateApplierService } from 'src/engine/core-modules/buzzle-admin/services/buzzle-template-applier.service';
@@ -24,6 +26,7 @@ import { WebhookModule } from 'src/engine/metadata-modules/webhook/webhook.modul
       UserWorkspaceEntity,
       ObjectMetadataEntity,
       FieldMetadataEntity,
+      ViewEntity,
     ]),
     ImpersonationModule,
     AuthModule,
@@ -31,6 +34,7 @@ import { WebhookModule } from 'src/engine/metadata-modules/webhook/webhook.modul
     ObjectMetadataModule,
     FieldMetadataModule,
     WebhookModule,
+    ViewModule,
   ],
   providers: [
     BuzzleAdminResolver,

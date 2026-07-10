@@ -2,6 +2,8 @@ import { styled } from '@linaria/react';
 import { Navigate } from 'react-router-dom';
 
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { viewsSelector } from '@/views/states/selectors/viewsSelector';
 
 // /pipeline entry. Once the Contact object exists we Navigate to the
 // native record list. Until then, a preview of the kanban stages helps
@@ -146,10 +148,20 @@ const stages = [
 export const BuzzlePipelinePage = () => {
   const { findActiveObjectMetadataItemByNamePlural } =
     useFilteredObjectMetadataItems();
+  const views = useAtomStateValue(viewsSelector);
 
   const contactObject = findActiveObjectMetadataItemByNamePlural('contacts');
   if (contactObject) {
-    return <Navigate to="/objects/contacts" replace />;
+    // Prefer the kanban view when the applier has created one, so
+    // /pipeline lands the user on a real pipeline instead of the
+    // default table.
+    const kanbanView = views.find(
+      (v) => v.objectMetadataId === contactObject.id && v.type === 'KANBAN',
+    );
+    const target = kanbanView
+      ? `/objects/contacts?viewId=${kanbanView.id}`
+      : '/objects/contacts';
+    return <Navigate to={target} replace />;
   }
 
   return (
