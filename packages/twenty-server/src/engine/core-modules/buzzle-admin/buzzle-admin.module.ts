@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from 'src/engine/core-modules/auth/auth.module';
+import { WorkspaceDomainsModule } from 'src/engine/core-modules/domain/workspace-domains/workspace-domains.module';
 import { ImpersonationModule } from 'src/engine/core-modules/impersonation/impersonation.module';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserModule } from 'src/engine/core-modules/user/user.module';
@@ -35,6 +36,7 @@ import { WebhookModule } from 'src/engine/metadata-modules/webhook/webhook.modul
     FieldMetadataModule,
     WebhookModule,
     ViewModule,
+    WorkspaceDomainsModule,
   ],
   providers: [
     BuzzleAdminResolver,

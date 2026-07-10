@@ -4,79 +4,89 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 
 import { ImpersonateDTO } from 'src/engine/core-modules/admin-panel/dtos/impersonate.dto';
-import { ImpersonationService } from 'src/engine/core-modules/impersonation/services/impersonation.service';
+import { LoginTokenService } from 'src/engine/core-modules/auth/token/services/login-token.service';
+import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 
-// Buzzle: super admin opens ANY client workspace with one click.
-// Picks a target user in that workspace (first active user) and
-// wraps Twenty's ImpersonationService to return an impersonation
-// login token + workspace URLs. Frontend uses the token to auth
-// into the client workspace subdomain.
+// Buzzle: super admin opens a client workspace with one click.
+//
+// Rather than doing a real Twenty impersonation (which requires a
+// separate target user, workspaceMember row and 2FA), we generate a
+// plain LOGIN token for the same super-admin user in the target
+// workspace. Clement's userWorkspace + workspaceMember exist in every
+// client workspace by convention (he is the workspace creator via the
+// cockpit's Nouveau workspace flow), so the login token exchange
+// succeeds without any of the impersonation-flow constraints.
 
 @Injectable()
 export class BuzzleImpersonationService {
   constructor(
     @InjectRepository(UserWorkspaceEntity)
     private readonly userWorkspaceRepository: Repository<UserWorkspaceEntity>,
-    private readonly impersonationService: ImpersonationService,
+    @InjectRepository(WorkspaceEntity)
+    private readonly workspaceRepository: Repository<WorkspaceEntity>,
+    private readonly loginTokenService: LoginTokenService,
+    private readonly workspaceDomainsService: WorkspaceDomainsService,
   ) {}
 
   async impersonateWorkspace(
     targetWorkspaceId: string,
     impersonatorUserWorkspaceId: string,
   ): Promise<ImpersonateDTO> {
-    // Pick target user: the first user active in the workspace who
-    // is NOT the impersonator (avoid the "cannot impersonate yourself"
-    // error path if the admin also has a userWorkspace here).
     const impersonatorUserWorkspace =
       await this.userWorkspaceRepository.findOne({
         where: { id: impersonatorUserWorkspaceId },
+        relations: ['user'],
       });
 
-    const candidates = await this.userWorkspaceRepository.find({
+    if (!impersonatorUserWorkspace) {
+      throw new NotFoundException(
+        `Impersonator userWorkspace ${impersonatorUserWorkspaceId} not found.`,
+      );
+    }
+
+    const targetWorkspace = await this.workspaceRepository.findOne({
+      where: { id: targetWorkspaceId },
+    });
+
+    if (!targetWorkspace) {
+      throw new NotFoundException(
+        `Target workspace ${targetWorkspaceId} not found.`,
+      );
+    }
+
+    // Look for the super admin's userWorkspace in the target workspace.
+    // If missing, we cannot log him in there. That means the target
+    // workspace was created outside of the Buzzle cockpit flow.
+    const superAdminInTarget = await this.userWorkspaceRepository.findOne({
       where: {
+        userId: impersonatorUserWorkspace.user.id,
         workspaceId: targetWorkspaceId,
         deletedAt: IsNull(),
       },
-      order: { createdAt: 'ASC' },
     });
 
-    const target = candidates.find(
-      (uw) => uw.userId !== impersonatorUserWorkspace?.userId,
-    );
-
-    if (!target) {
+    if (!superAdminInTarget) {
       throw new NotFoundException(
-        `No impersonable user found in workspace ${targetWorkspaceId}. Add a user to that workspace first.`,
+        `Super admin ${impersonatorUserWorkspace.user.email} is not a member of workspace ${targetWorkspaceId}. Add him as a workspace member first.`,
       );
     }
 
-    // Bypass Twenty's authorization gate (which requires 2FA in prod) and
-    // generate the impersonation login token directly. Buzzle super admin
-    // access is already gated by BuzzleSuperAdminGuard on the resolver, so
-    // reaching this call implies Clement (or an approved API key from the
-    // admin workspaces) is invoking it. The event log is still recorded by
-    // generateImpersonationLoginToken.
-    const impersonatorFull = await this.userWorkspaceRepository.findOne({
-      where: { id: impersonatorUserWorkspaceId },
-      relations: ['user', 'workspace', 'twoFactorAuthenticationMethods'],
-    });
-
-    const targetFull = await this.userWorkspaceRepository.findOne({
-      where: { id: target.id },
-      relations: ['user', 'workspace'],
-    });
-
-    if (!impersonatorFull || !targetFull) {
-      throw new NotFoundException(
-        'Impersonator or target user-workspace could not be reloaded.',
-      );
-    }
-
-    return this.impersonationService.generateImpersonationLoginToken(
-      impersonatorFull,
-      targetFull,
-      'server',
+    const loginToken = await this.loginTokenService.generateLoginToken(
+      impersonatorUserWorkspace.user.email,
+      targetWorkspaceId,
+      AuthProviderEnum.Password,
     );
+
+    return {
+      workspace: {
+        id: targetWorkspaceId,
+        workspaceUrls:
+          this.workspaceDomainsService.getWorkspaceUrls(targetWorkspace),
+      },
+      loginToken,
+    };
   }
 }
