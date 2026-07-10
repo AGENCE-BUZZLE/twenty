@@ -12,6 +12,7 @@ import { LazyRoute } from '@/app/components/LazyRoute';
 import { BuzzleCockpit } from '@/buzzle-admin/pages/BuzzleCockpit';
 import { BuzzleMembersSettings } from '@/buzzle-settings/BuzzleMembersSettings';
 import { BuzzleProfileSettings } from '@/buzzle-settings/BuzzleProfileSettings';
+import { BuzzleCallsPage } from '@/buzzle-workspace-pages/BuzzleCallsPage';
 import { BuzzleContactsPage } from '@/buzzle-workspace-pages/BuzzleContactsPage';
 import { BuzzleInvoicesPage } from '@/buzzle-workspace-pages/BuzzleInvoicesPage';
 import { BuzzleOverviewPage } from '@/buzzle-workspace-pages/BuzzleOverviewPage';
@@ -183,6 +184,7 @@ const createWorkspaceAppRouter = (
               />
               <Route path="/overview" element={<BuzzleOverviewPage />} />
               <Route path="/contacts" element={<BuzzleContactsPage />} />
+              <Route path="/calls" element={<BuzzleCallsPage />} />
               <Route path="/reports" element={<BuzzleReportsPage />} />
               <Route path="/invoices" element={<BuzzleInvoicesPage />} />
               {/* Buzzle: settings are limited to Profil + Membres. Any

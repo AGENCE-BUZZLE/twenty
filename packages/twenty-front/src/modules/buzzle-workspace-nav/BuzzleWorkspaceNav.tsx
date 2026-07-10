@@ -4,6 +4,7 @@ import {
   IconChartBar,
   IconFileText,
   IconHome,
+  IconPhone,
   IconUsers,
 } from 'twenty-ui/icon';
 
@@ -54,6 +55,7 @@ type NavItem = {
 const items: NavItem[] = [
   { label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
   { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
+  { label: 'Appels', Icon: IconPhone, path: '/calls' },
   { label: 'Rapports', Icon: IconChartBar, path: '/reports' },
   { label: 'Factures', Icon: IconFileText, path: '/invoices' },
 ];
