@@ -2,8 +2,8 @@ import { styled } from '@linaria/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconChartBar,
+  IconFileText,
   IconHome,
-  IconReceipt,
   IconUsers,
 } from 'twenty-ui/icon';
 
@@ -55,7 +55,7 @@ const items: NavItem[] = [
   { label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
   { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
   { label: 'Rapports', Icon: IconChartBar, path: '/reports' },
-  { label: 'Factures', Icon: IconReceipt, path: '/invoices' },
+  { label: 'Factures', Icon: IconFileText, path: '/invoices' },
 ];
 
 const activeStyle: React.CSSProperties = {
