@@ -3,19 +3,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconChartBar,
   IconHome,
-  IconTrendingUp,
-  IconUser,
+  IconReceipt,
   IconUsers,
 } from 'twenty-ui/icon';
 
-// Hardcoded Buzzle navigation shown at the top of the workspace nav drawer.
-// Replaces Twenty's dynamic object-driven nav (which is filtered to hide
-// all default objects). Renders a fixed set of Buzzle-specific pages that
-// every workspace has: Contacts, Pipeline, Rapports + user account.
-//
-// NOTE: Linaria's runtime conditional interpolation is not supported by
-// lightningcss (crashes at build time). We use static styled components
-// + inline style overrides for dynamic states like isActive.
+// Fixed Buzzle drawer nav (client-side). Pipeline and Mon profil are
+// intentionally absent: the pipeline lives inside the Contacts view via
+// status filtering, and profile settings live under the workspace
+// dropdown "Parametres" entry.
 
 const Section = styled.div`
   display: flex;
@@ -59,12 +54,8 @@ type NavItem = {
 const items: NavItem[] = [
   { label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
   { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
-  { label: 'Pipeline', Icon: IconTrendingUp, path: '/pipeline' },
   { label: 'Rapports', Icon: IconChartBar, path: '/reports' },
-];
-
-const accountItems: NavItem[] = [
-  { label: 'Mon profil', Icon: IconUser, path: '/settings/profile' },
+  { label: 'Factures', Icon: IconReceipt, path: '/invoices' },
 ];
 
 const activeStyle: React.CSSProperties = {
@@ -83,28 +74,20 @@ export const BuzzleWorkspaceNav = () => {
   const location = useLocation();
 
   const handleClick = (path: string) => {
-    if (path.startsWith('mailto:')) {
-      window.location.href = path;
-
-      return;
-    }
     navigate(path);
   };
 
   const renderItem = (item: NavItem) => {
     // Consider a nav item active when the current path starts with it,
-    // so /objects/contacts still keeps "Contacts" highlighted after
-    // BuzzleContactsPage redirects.
+    // so /objects/contacts still keeps "Contacts" highlighted when the
+    // scaffold redirects to the native record index (temporary during
+    // the migration to the custom BuzzleContactsPage).
     const isActive =
       item.path === '/overview'
         ? location.pathname === '/overview' || location.pathname === '/'
-        : item.path !== '/'
-          ? location.pathname.startsWith(item.path) ||
-            (item.path === '/contacts' &&
-              location.pathname.startsWith('/objects/contacts')) ||
-            (item.path === '/pipeline' &&
-              location.pathname.startsWith('/objects/contacts?viewId='))
-          : location.pathname === '/';
+        : location.pathname.startsWith(item.path) ||
+          (item.path === '/contacts' &&
+            location.pathname.startsWith('/objects/contacts'));
     const IconCmp = item.Icon;
 
     return (
@@ -122,9 +105,6 @@ export const BuzzleWorkspaceNav = () => {
   };
 
   return (
-    <>
-      <Section>{items.map(renderItem)}</Section>
-      <Section>{accountItems.map(renderItem)}</Section>
-    </>
+    <Section>{items.map(renderItem)}</Section>
   );
 };

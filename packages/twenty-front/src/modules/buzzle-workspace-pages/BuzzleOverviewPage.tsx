@@ -198,10 +198,12 @@ const IconClock = () => (
   </svg>
 );
 
-const IconTrending = () => (
+const IconReceipt = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-    <polyline points="17 6 23 6 23 12" />
+    <path d="M4 4v18l3-2 3 2 3-2 3 2 3-2 1 2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z" />
+    <line x1="8" y1="8" x2="16" y2="8" />
+    <line x1="8" y1="12" x2="16" y2="12" />
+    <line x1="8" y1="16" x2="12" y2="16" />
   </svg>
 );
 
@@ -232,7 +234,7 @@ export const BuzzleOverviewPage = () => {
       </Title>
       <Lede>
         Voici votre espace <b>{workspaceName}</b>. Retrouvez ici l'état de
-        votre pipeline, vos contacts et vos rapports de performance.
+        vos contacts, vos rapports de performance et vos factures.
       </Lede>
 
       <StatsGrid>
@@ -291,19 +293,6 @@ export const BuzzleOverviewPage = () => {
           </QuickLinkText>
         </QuickLink>
 
-        <QuickLink onClick={() => navigate('/pipeline')}>
-          <QuickLinkHead>
-            <QuickLinkIcon>
-              <IconTrending />
-            </QuickLinkIcon>
-            <QuickLinkTitle>Ouvrir le pipeline</QuickLinkTitle>
-          </QuickLinkHead>
-          <QuickLinkText>
-            Faites évoluer vos contacts d'un statut à l'autre pour informer
-            Google Ads et Meta.
-          </QuickLinkText>
-        </QuickLink>
-
         <QuickLink onClick={() => navigate('/reports')}>
           <QuickLinkHead>
             <QuickLinkIcon>
@@ -314,6 +303,18 @@ export const BuzzleOverviewPage = () => {
           <QuickLinkText>
             Suivez la performance de vos campagnes et les conversions
             remontées.
+          </QuickLinkText>
+        </QuickLink>
+
+        <QuickLink onClick={() => navigate('/invoices')}>
+          <QuickLinkHead>
+            <QuickLinkIcon>
+              <IconReceipt />
+            </QuickLinkIcon>
+            <QuickLinkTitle>Voir mes factures</QuickLinkTitle>
+          </QuickLinkHead>
+          <QuickLinkText>
+            Retrouvez vos factures et l'historique de vos abonnements Buzzle.
           </QuickLinkText>
         </QuickLink>
       </QuickLinksGrid>
