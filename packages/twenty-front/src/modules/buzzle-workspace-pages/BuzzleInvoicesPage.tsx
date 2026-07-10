@@ -2,6 +2,8 @@ import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
 
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
+
 // Real /invoices page: pulls Zoho-backed invoices for the current workspace
 // through the myWorkspaceInvoices query. When a workspace is not yet linked
 // to a Zoho customer, the resolver returns an empty list and we render a
@@ -212,9 +214,11 @@ const formatDate = (raw: string | null | undefined): string => {
 };
 
 export const BuzzleInvoicesPage = () => {
+  const apolloCoreClient = useApolloCoreClient();
+
   const { data, loading, error } = useQuery<{ myWorkspaceInvoices: Invoice[] }>(
     MY_WORKSPACE_INVOICES,
-    { fetchPolicy: 'cache-and-network' },
+    { client: apolloCoreClient, fetchPolicy: 'cache-and-network' },
   );
 
   const invoices = data?.myWorkspaceInvoices ?? [];
