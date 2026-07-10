@@ -156,7 +156,9 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       isSystem: true,
       isNullable: false,
       isUIEditable: false,
-      defaultValue: "'System'",
+      // Buzzle: default to Light so the Schemata theme renders on first
+      // impersonation without the client needing to toggle.
+      defaultValue: "'Light'",
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
