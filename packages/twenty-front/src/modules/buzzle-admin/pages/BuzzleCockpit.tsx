@@ -682,16 +682,22 @@ export const BuzzleCockpit = () => {
                   </Td>
                   <Td>
                     <RowActions>
-                      {w.hasContactObject !== true && (
-                        <AccentIconButton
-                          onClick={() => handleApply(w.id, w.displayName)}
-                          disabled={applyPending !== null}
-                          title="Applique le template leads-google-ads"
-                        >
-                          <IconTemplate />
-                          {applyPending === w.id ? 'Application…' : 'Appliquer template'}
-                        </AccentIconButton>
-                      )}
+                      <AccentIconButton
+                        onClick={() => handleApply(w.id, w.displayName)}
+                        disabled={applyPending !== null}
+                        title={
+                          w.hasContactObject === true
+                            ? 'Réapplique le template (idempotent : les objets/fields existants sont skippés)'
+                            : 'Applique le template leads-google-ads'
+                        }
+                      >
+                        <IconTemplate />
+                        {applyPending === w.id
+                          ? 'Application…'
+                          : w.hasContactObject === true
+                            ? 'Réappliquer'
+                            : 'Appliquer template'}
+                      </AccentIconButton>
                       <IconButton
                         onClick={() => openWorkspace(w.id)}
                         disabled={pendingWorkspaceId !== null}
