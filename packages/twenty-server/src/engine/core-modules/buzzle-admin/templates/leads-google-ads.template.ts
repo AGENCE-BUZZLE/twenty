@@ -65,11 +65,11 @@ export const leadsGoogleAdsTemplate: BuzzleWorkspaceTemplate = {
           required: true,
           clientPermission: 'update',
           options: [
-            { label: 'Nouveau', value: 'new', color: 'blue', position: 0 },
-            { label: 'À rappeler', value: 'contacted', color: 'orange', position: 1 },
-            { label: 'Devis envoyé', value: 'quoted', color: 'purple', position: 2 },
-            { label: 'Signé', value: 'won', color: 'green', position: 3 },
-            { label: 'Perdu', value: 'lost', color: 'gray', position: 4 },
+            { label: 'Nouveau', value: 'NEW', color: 'blue', position: 0 },
+            { label: 'À rappeler', value: 'CONTACTED', color: 'orange', position: 1 },
+            { label: 'Devis envoyé', value: 'QUOTED', color: 'purple', position: 2 },
+            { label: 'Signé', value: 'WON', color: 'green', position: 3 },
+            { label: 'Perdu', value: 'LOST', color: 'gray', position: 4 },
           ],
         },
         // Champs cachés - stockés pour OCT, invisibles côté client
