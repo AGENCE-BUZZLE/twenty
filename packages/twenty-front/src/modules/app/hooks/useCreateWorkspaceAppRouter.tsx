@@ -10,12 +10,13 @@ import { getSettingsPath } from 'twenty-shared/utils';
 
 import { LazyRoute } from '@/app/components/LazyRoute';
 import { BuzzleCockpit } from '@/buzzle-admin/pages/BuzzleCockpit';
+import { BuzzleMembersSettings } from '@/buzzle-settings/BuzzleMembersSettings';
+import { BuzzleProfileSettings } from '@/buzzle-settings/BuzzleProfileSettings';
 import { BuzzleContactsPage } from '@/buzzle-workspace-pages/BuzzleContactsPage';
 import { BuzzleInvoicesPage } from '@/buzzle-workspace-pages/BuzzleInvoicesPage';
 import { BuzzleOverviewPage } from '@/buzzle-workspace-pages/BuzzleOverviewPage';
 import { BuzzleReportsPage } from '@/buzzle-workspace-pages/BuzzleReportsPage';
 import { BuzzleCreateWorkspace } from '@/buzzle-admin/pages/BuzzleCreateWorkspace';
-import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { WorkspaceAppProviders } from '@/app/components/WorkspaceAppProviders';
 import { VerifyEmail } from '@/auth/components/VerifyEmail';
 import { MinimalMetadataGate } from '@/metadata-store/components/MinimalMetadataGate';
@@ -184,14 +185,23 @@ const createWorkspaceAppRouter = (
               <Route path="/contacts" element={<BuzzleContactsPage />} />
               <Route path="/reports" element={<BuzzleReportsPage />} />
               <Route path="/invoices" element={<BuzzleInvoicesPage />} />
+              {/* Buzzle: settings are limited to Profil + Membres. Any
+                  other Twenty settings URL is redirected to Profil. */}
+              <Route
+                path="/settings"
+                element={<Navigate to="/settings/profile" replace />}
+              />
+              <Route
+                path="/settings/profile"
+                element={<BuzzleProfileSettings />}
+              />
+              <Route
+                path="/settings/members"
+                element={<BuzzleMembersSettings />}
+              />
               <Route
                 path={AppPath.SettingsCatchAll}
-                element={
-                  <SettingsRoutes
-                    isFunctionSettingsEnabled={isFunctionSettingsEnabled}
-                    isAdminPageEnabled={isAdminPageEnabled}
-                  />
-                }
+                element={<Navigate to="/settings/profile" replace />}
               />
               <Route
                 path={AppPath.Dpa}

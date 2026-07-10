@@ -8,7 +8,6 @@ import { countAvailableWorkspaces } from '@/auth/utils/availableWorkspacesUtils'
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
 import { useRedirectToDefaultDomain } from '@/domain-manager/hooks/useRedirectToDefaultDomain';
 import { useRedirectToWorkspaceDomain } from '@/domain-manager/hooks/useRedirectToWorkspaceDomain';
-import { useOpenSettingsMenu } from '@/navigation/hooks/useOpenSettings';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuHeader } from '@/ui/layout/dropdown/components/DropdownMenuHeader/DropdownMenuHeader';
 import { DropdownMenuHeaderLeftComponent } from '@/ui/layout/dropdown/components/DropdownMenuHeader/internal/DropdownMenuHeaderLeftComponent';
@@ -22,8 +21,7 @@ import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomStat
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { APP_LOCALES } from 'twenty-shared/translations';
-import { AppPath, SettingsPath } from 'twenty-shared/types';
-import { getSettingsPath } from 'twenty-shared/utils';
+import { AppPath } from 'twenty-shared/types';
 import { Avatar } from 'twenty-ui/data-display';
 import {
   IconLogout,
@@ -111,8 +109,6 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
   const setMultiWorkspaceDropdown = useSetAtomState(
     multiWorkspaceDropdownState,
   );
-
-  const { openSettingsMenu } = useOpenSettingsMenu();
 
   const currentWorkspaceMember = useAtomStateValue(currentWorkspaceMemberState);
   const currentLocale = currentWorkspaceMember?.locale ?? APP_LOCALES.en;
@@ -205,7 +201,7 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
             onClick={createWorkspace}
           />
           <UndecoratedLink
-            to={`${getSettingsPath(SettingsPath.WorkspaceMembersPage)}#invite`}
+            to="/settings/members"
             onClick={() => {
               closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
             }}
@@ -213,9 +209,8 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
             <MenuItem LeftIcon={IconUserPlus} text={t`Ajouter un utilisateur`} />
           </UndecoratedLink>
           <UndecoratedLink
-            to={getSettingsPath(SettingsPath.ProfilePage)}
+            to="/settings/profile"
             onClick={() => {
-              openSettingsMenu();
               closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
             }}
           >
