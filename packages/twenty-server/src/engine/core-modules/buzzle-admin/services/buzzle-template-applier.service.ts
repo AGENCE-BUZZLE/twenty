@@ -104,9 +104,10 @@ export class BuzzleTemplateApplierService {
       const objectStep = await this.tryCreateObject(workspaceId, objectDef);
       steps.push(objectStep);
 
-      if (objectStep.status !== 'ok' || !objectStep.detail) {
-        // objectId is stored in `detail` on success. If create failed
-        // we skip its fields entirely.
+      // objectId is stored in `detail` on both 'ok' (freshly created)
+      // and 'skipped' (already existed on retry). If the object step
+      // failed we cannot resolve the id, so we skip its fields entirely.
+      if (objectStep.status === 'failed' || !objectStep.detail) {
         for (const fieldDef of objectDef.fields) {
           steps.push({
             step: `field:${objectDef.nameSingular}.${fieldDef.name}`,
