@@ -124,7 +124,9 @@ export const NavigationDrawer = ({
           {!isMobile && isSettingsDrawer && title ? (
             <NavigationDrawerBackButton title={title} />
           ) : (
-            <NavigationDrawerHeader showCollapseButton />
+            // Buzzle: no collapse button on desktop; the drawer is
+            // permanently expanded so we don't want the toggle affordance.
+            <NavigationDrawerHeader showCollapseButton={isMobile} />
           )}
           {children}
         </StyledContainer>

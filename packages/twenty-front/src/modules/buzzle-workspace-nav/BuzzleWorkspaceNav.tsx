@@ -31,8 +31,7 @@ const Label = styled.div`
   font-size: 9.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #14141c;
-  opacity: 0.5;
+  color: rgba(255, 255, 255, 0.42);
   padding: 6px 10px 4px;
 `;
 
@@ -40,19 +39,20 @@ const Item = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 10px;
+  padding: 8px 10px;
   border-radius: 6px;
   font-size: 13.5px;
   cursor: pointer;
-  color: #14141c;
-  transition: background 0.1s;
+  color: rgba(255, 255, 255, 0.82);
+  transition: background 0.1s, color 0.1s;
   &:hover {
-    background: #efede6;
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
   }
 `;
 
 const IconWrap = styled.span`
-  opacity: 0.6;
+  opacity: 0.72;
   display: inline-flex;
   width: 16px;
   height: 16px;
@@ -83,7 +83,7 @@ const accountItems: NavItem[] = [
 ];
 
 const activeStyle: React.CSSProperties = {
-  background: '#14141c',
+  background: 'rgba(255, 255, 255, 0.12)',
   color: '#ffffff',
   fontWeight: 500,
 };

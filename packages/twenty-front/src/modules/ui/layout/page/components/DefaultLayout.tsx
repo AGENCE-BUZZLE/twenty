@@ -51,8 +51,43 @@ const StyledPageContainer = styled.div`
   }
 `;
 
+// Buzzle: dark navigation rail. We scope Twenty's CSS custom
+// properties inside the drawer wrapper so every child component that
+// reads `themeCssVariables.grayScale.gray3` / font colors / hover
+// backgrounds resolves to Ink + white / white-transparents.
+// Nothing else in the app is affected because CSS variables cascade
+// scope-locally.
 const StyledNavigationDrawerWrapper = styled.div`
   flex-shrink: 0;
+
+  --t-gray-scale-gray3: #14141c;
+  --t-color-gray3: #14141c;
+  --t-gray-scale-gray2: #1c1c26;
+  --t-color-gray2: #1c1c26;
+  --t-gray-scale-gray4: #26262f;
+  --t-color-gray4: #26262f;
+
+  --t-font-color-primary: #ffffff;
+  --t-font-color-secondary: rgba(255, 255, 255, 0.72);
+  --t-font-color-tertiary: rgba(255, 255, 255, 0.5);
+  --t-font-color-light: rgba(255, 255, 255, 0.6);
+  --t-font-color-extra-light: rgba(255, 255, 255, 0.4);
+  --t-font-color-inverted-primary: #14141c;
+
+  --t-background-primary: #14141c;
+  --t-background-secondary: #1c1c26;
+  --t-background-tertiary: #26262f;
+  --t-background-transparent-light: rgba(255, 255, 255, 0.06);
+  --t-background-transparent-lighter: rgba(255, 255, 255, 0.03);
+  --t-background-transparent-medium: rgba(255, 255, 255, 0.1);
+  --t-background-transparent-strong: rgba(255, 255, 255, 0.16);
+
+  --t-border-color-light: rgba(255, 255, 255, 0.08);
+  --t-border-color-medium: rgba(255, 255, 255, 0.12);
+  --t-border-color-strong: rgba(255, 255, 255, 0.2);
+
+  background: #14141c;
+  color: #ffffff;
 
   @media print {
     display: none;
