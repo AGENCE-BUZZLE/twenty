@@ -21,20 +21,19 @@ import {
 const Section = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   padding: 0 8px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 `;
 
 const Label = styled.div`
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 9.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #14141c;
-  opacity: 0.55;
-  padding: 4px 10px;
-  margin-bottom: 4px;
+  opacity: 0.5;
+  padding: 6px 10px 4px;
 `;
 
 const Item = styled.div`
@@ -42,10 +41,11 @@ const Item = styled.div`
   align-items: center;
   gap: 10px;
   padding: 7px 10px;
-  border-radius: 4px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 13.5px;
   cursor: pointer;
   color: #14141c;
+  transition: background 0.1s;
   &:hover {
     background: #efede6;
   }
@@ -83,8 +83,14 @@ const accountItems: NavItem[] = [
 ];
 
 const activeStyle: React.CSSProperties = {
-  background: '#efede6',
+  background: '#14141c',
+  color: '#ffffff',
   fontWeight: 500,
+};
+
+const activeIconStyle: React.CSSProperties = {
+  opacity: 1,
+  color: '#ffffff',
 };
 
 export const BuzzleWorkspaceNav = () => {
@@ -101,7 +107,19 @@ export const BuzzleWorkspaceNav = () => {
   };
 
   const renderItem = (item: NavItem) => {
-    const isActive = location.pathname === item.path;
+    // Consider a nav item active when the current path starts with it,
+    // so /objects/contacts still keeps "Contacts" highlighted after
+    // BuzzleContactsPage redirects.
+    const isActive =
+      item.path === '/overview'
+        ? location.pathname === '/overview' || location.pathname === '/'
+        : item.path !== '/'
+          ? location.pathname.startsWith(item.path) ||
+            (item.path === '/contacts' &&
+              location.pathname.startsWith('/objects/contacts')) ||
+            (item.path === '/pipeline' &&
+              location.pathname.startsWith('/objects/contacts?viewId='))
+          : location.pathname === '/';
     const IconCmp = item.Icon;
 
     return (
@@ -110,7 +128,7 @@ export const BuzzleWorkspaceNav = () => {
         style={isActive ? activeStyle : undefined}
         onClick={() => handleClick(item.path)}
       >
-        <IconWrap>
+        <IconWrap style={isActive ? activeIconStyle : undefined}>
           <IconCmp size={15} />
         </IconWrap>
         {item.label}
