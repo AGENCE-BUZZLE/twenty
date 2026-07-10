@@ -1,4 +1,5 @@
 import { currentUserState } from '@/auth/states/currentUserState';
+import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { metadataStoreState } from '@/metadata-store/states/metadataStoreState';
 import { useAtomFamilyStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomFamilyStateValue';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
@@ -8,13 +9,24 @@ import { isDefined } from 'twenty-shared/utils';
 
 // Buzzle override of Twenty's default home path.
 //
-// Twenty's original hook computes the first-accessible object as the
-// landing page. For Buzzle we always land clients on /overview
-// (BuzzleOverviewPage), which is the true "home" of a client workspace,
-// and land the super admin on /buzzle-admin. This gives us a single,
-// stable landing surface per audience.
+// Landing rules:
+//   - unauthenticated                            -> /sign-in-up
+//   - super admin AND on the admin workspace     -> /buzzle-admin (cockpit)
+//   - anyone else (super admin on a client, or
+//     regular client)                            -> /overview
+//
+// The admin workspace subdomains are 'gestion' (current) and
+// 'agence-buzzle' (legacy). When Clement impersonates himself into a
+// client workspace, he lands on /overview like the client would, which
+// mirrors the client experience for his hand-holding sessions.
+const BUZZLE_ADMIN_WORKSPACE_SUBDOMAINS: readonly string[] = [
+  'gestion',
+  'agence-buzzle',
+];
+
 export const useDefaultHomePagePath = () => {
   const currentUser = useAtomStateValue(currentUserState);
+  const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const metadataStore = useAtomFamilyStateValue(
     metadataStoreState,
     'objectMetadataItems',
@@ -26,7 +38,12 @@ export const useDefaultHomePagePath = () => {
       return AppPath.SignInUp;
     }
 
-    if (currentUser.canAccessFullAdminPanel === true) {
+    const isSuperAdmin = currentUser.canAccessFullAdminPanel === true;
+    const isAdminWorkspace =
+      isDefined(currentWorkspace?.subdomain) &&
+      BUZZLE_ADMIN_WORKSPACE_SUBDOMAINS.includes(currentWorkspace.subdomain);
+
+    if (isSuperAdmin && isAdminWorkspace) {
       return `/${AppPath.BuzzleAdmin}`;
     }
 
@@ -37,7 +54,7 @@ export const useDefaultHomePagePath = () => {
     }
 
     return '/overview';
-  }, [currentUser, areObjectMetadataItemsLoaded]);
+  }, [currentUser, currentWorkspace, areObjectMetadataItemsLoaded]);
 
   return { defaultHomePagePath };
 };
