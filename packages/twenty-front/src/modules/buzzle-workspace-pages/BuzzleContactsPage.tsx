@@ -84,14 +84,14 @@ const Table = styled.table`
 const Th = styled.th`
   text-align: left;
   padding: 12px 16px;
-  border-bottom: 1px solid ${HairlineColor};
+  border-bottom: 1px solid ${InkColor};
   font-family: 'JetBrains Mono', monospace;
   font-size: 9.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
   font-weight: 500;
-  background: ${PaperColor};
+  background: ${InkColor};
 `;
 
 const Td = styled.td`

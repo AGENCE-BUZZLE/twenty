@@ -119,13 +119,13 @@ const ListWrap = styled.div`
 
 const ListHead = styled.div`
   padding: 14px 22px;
-  border-bottom: 1px solid ${HairlineColor};
-  background: ${PaperColor};
+  border-bottom: 1px solid ${InkColor};
+  background: ${InkColor};
   font-family: 'JetBrains Mono', monospace;
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
   display: grid;
   grid-template-columns: 2fr 3fr 1fr;
   gap: 16px;

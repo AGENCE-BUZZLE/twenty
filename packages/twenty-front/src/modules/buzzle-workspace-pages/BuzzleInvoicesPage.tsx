@@ -114,13 +114,13 @@ const TableHead = styled.div`
   grid-template-columns: 1.2fr 1fr 1fr 1fr 1.2fr;
   gap: 16px;
   padding: 14px 22px;
-  border-bottom: 1px solid ${HairlineColor};
-  background: ${PaperColor};
+  border-bottom: 1px solid ${InkColor};
+  background: ${InkColor};
   font-family: 'JetBrains Mono', monospace;
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
 `;
 
 const TableRow = styled.div`
