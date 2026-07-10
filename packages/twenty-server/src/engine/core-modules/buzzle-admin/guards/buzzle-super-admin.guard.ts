@@ -8,9 +8,9 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 // Guards Buzzle super-admin endpoints (/buzzle-admin/*).
 // Accepts EITHER:
 //   1. A real user JWT session with canAccessFullAdminPanel=true
-//      (this is the primary path — Clément's contact@agence-buzzle.com)
+//      (this is the primary path Clément's contact@agence-buzzle.com)
 //   2. A workspace-scoped API key belonging to a whitelisted admin
-//      workspace subdomain — we accept API keys here because
+//      workspace subdomain we accept API keys here because
 //      operational scripts (crons, migrations, n8n) call us with API
 //      keys, not user sessions.
 //

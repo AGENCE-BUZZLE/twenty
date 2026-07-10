@@ -67,7 +67,7 @@ type NavItem = {
 };
 
 const items: NavItem[] = [
-  { label: "Vue d'ensemble", Icon: IconHome, path: '/' },
+  { label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
   { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
   { label: 'Pipeline', Icon: IconTrendingUp, path: '/pipeline' },
   { label: 'Rapports', Icon: IconChartBar, path: '/reports' },

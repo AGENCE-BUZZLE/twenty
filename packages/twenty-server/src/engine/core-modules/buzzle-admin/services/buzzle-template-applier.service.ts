@@ -16,16 +16,16 @@ import {
   type BuzzleWorkspaceTemplate,
 } from 'src/engine/core-modules/buzzle-admin/types/buzzle-workspace-template.type';
 
-// Sprint S4 stage 3 — real template applier.
+// Sprint S4 stage 3 real template applier.
 //
 // Given a template id and a freshly-created workspace, this service walks
 // the template and calls Twenty's metadata services to provision:
-//   1. Custom objects (via ObjectMetadataService — auto-creates default view + label field)
+//   1. Custom objects (via ObjectMetadataService auto-creates default view + label field)
 //   2. Custom fields on those objects (via FieldMetadataService.createManyFields)
 //   3. Webhooks (via WebhookService.create) pointing at n8n for OCT push
 //
 // Views (kanban, table with hidden fields), roles and hidden-Twenty-objects
-// are stage-4 material — they need view-level metadata edits and role
+// are stage-4 material they need view-level metadata edits and role
 // permission wiring that the current MVP cockpit doesn't require.
 //
 // The Buzzle "fullName" template field is intentionally *not* created here:
@@ -129,7 +129,7 @@ export class BuzzleTemplateApplierService {
       steps.push({
         step: `view:${viewDef.objectNameSingular}:${viewDef.name}`,
         status: 'skipped',
-        detail: 'Twenty auto-creates default table view — kanban view is S4-stage-4',
+        detail: 'Twenty auto-creates default table view kanban view is S4-stage-4',
       });
     }
 
@@ -213,7 +213,7 @@ export class BuzzleTemplateApplierService {
     const steps: TemplateApplicationStep[] = [];
 
     // We create fields one-at-a-time (rather than createManyFields) so a
-    // single bad field doesn't roll back the whole set — the pipeline
+    // single bad field doesn't roll back the whole set the pipeline
     // Statut > Nouveau lead can still start receiving records even if
     // one auxiliary field fails.
     for (const fieldDef of fields) {
@@ -322,7 +322,7 @@ export class BuzzleTemplateApplierService {
     }
   }
 
-  // Preserved for backwards compat with the S4-stage-2 stub — used by
+  // Preserved for backwards compat with the S4-stage-2 stub used by
   // callers that log a pre-applier "what would be applied" report.
   resolveWebhookUrl(urlTemplate: string, workspaceId: string): string {
     return urlTemplate.replaceAll('{{workspaceId}}', workspaceId);

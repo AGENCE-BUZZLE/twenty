@@ -47,7 +47,7 @@ export const useBuzzleImpersonateWorkspace = () => {
         throw new Error('No workspace URL returned by backend');
       }
 
-      // Bypass our custom useRedirectToWorkspaceDomain patch — impersonation
+      // Bypass our custom useRedirectToWorkspaceDomain patch impersonation
       // MUST cross domains (that's the whole point). Use plain window
       // navigation with the login token, hitting Twenty's /verify route
       // which consumes the token from the URL, sets the cookie, then

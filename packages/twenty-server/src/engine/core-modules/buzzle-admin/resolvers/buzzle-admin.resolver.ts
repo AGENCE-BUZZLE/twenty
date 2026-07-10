@@ -51,7 +51,7 @@ export class BuzzleAdminResolver {
   @UseGuards(BuzzleSuperAdminGuard)
   @Mutation(() => ImpersonateDTO, {
     description:
-      'Opens a client workspace as super admin — picks a target user in that workspace and returns an impersonation login token + workspace URLs. Frontend uses the token to authenticate into the subdomain.',
+      'Opens a client workspace as super admin picks a target user in that workspace and returns an impersonation login token + workspace URLs. Frontend uses the token to authenticate into the subdomain.',
   })
   async buzzleImpersonateWorkspace(
     @Args('workspaceId') workspaceId: string,

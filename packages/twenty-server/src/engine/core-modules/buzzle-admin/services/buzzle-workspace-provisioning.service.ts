@@ -23,7 +23,7 @@ import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.ent
 // the full pending → active flow (workspace row, custom application,
 // user-workspace membership, standard application seed, schema init).
 // Then applies the Buzzle template on top (Prospect object, statuses,
-// view, webhook) — that piece is still TODO (BuzzleTemplateApplierService).
+// view, webhook) that piece is still TODO (BuzzleTemplateApplierService).
 //
 // The impersonator MUST be a real authenticated user (not an API key)
 // because signUpOnNewWorkspace needs a full UserEntity to seed the
@@ -104,7 +104,7 @@ export class BuzzleWorkspaceProvisioningService {
     appliedSteps.push('standard-application:created');
 
     // Sprint S4 stage 3: apply the Buzzle template. On failure we do NOT
-    // roll back the workspace — Clément can retry the applier or edit the
+    // roll back the workspace Clément can retry the applier or edit the
     // schema by hand from the Twenty settings UI. Log the outcome instead.
     try {
       const templateReport = await this.templateApplierService.applyTemplate(

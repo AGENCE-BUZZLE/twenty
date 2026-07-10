@@ -8,12 +8,12 @@ Toutes les queries/mutations sont gated par `@AdminResolver()` → seuls les use
 
 ### Queries
 
-- `buzzleListAllWorkspacesWithStats` — Liste tous les workspaces + stats (users, dernière activité)
+- `buzzleListAllWorkspacesWithStats` (Liste tous les workspaces + stats (users, dernière activité)
 
 ### Mutations (à venir)
 
-- `buzzleCreateWorkspaceFromTemplate(name, subdomain, templateId, ownerEmail)` — provisionne un workspace + applique un template (Prospect object + statuts + vue + webhook OCT)
-- `buzzleUpdateWorkspaceCustomization(workspaceId, config)` — modifier statuts custom, cacher menus
+- `buzzleCreateWorkspaceFromTemplate(name, subdomain, templateId, ownerEmail)` (provisionne un workspace + applique un template (Prospect object + statuts + vue + webhook OCT)
+- `buzzleUpdateWorkspaceCustomization(workspaceId, config)` (modifier statuts custom, cacher menus
 
 ## Architecture
 
@@ -34,10 +34,10 @@ Le module est importé dans :
 
 ## Sprint status
 
-- ✅ S2 — Scaffold module + `buzzleListAllWorkspacesWithStats` query
-- ⏳ S2 — `buzzleCreateWorkspaceFromTemplate` mutation (utilise WorkspaceProvisioningService à créer)
-- ⏳ S4 — Templates workspace en code
-- ⏳ S3 — Frontend consumer `/buzzle-admin`
+- ✅ S2 (Scaffold module + `buzzleListAllWorkspacesWithStats` query
+- ⏳ S2 (`buzzleCreateWorkspaceFromTemplate` mutation (utilise WorkspaceProvisioningService à créer)
+- ⏳ S4 (Templates workspace en code
+- ⏳ S3 (Frontend consumer `/buzzle-admin`
 
 ## Reference
 
