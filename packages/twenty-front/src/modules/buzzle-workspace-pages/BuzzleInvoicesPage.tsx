@@ -165,6 +165,45 @@ const EmptyState = styled.div`
   line-height: 1.6;
 `;
 
+// 4-circle spinner shown alone while the Zoho fetch is in flight, so the
+// user does not see empty header rows and stale skeletons.
+const LoaderStage = styled.div`
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+`;
+
+const Loader = styled.div`
+  --dim: 3rem;
+  width: var(--dim);
+  height: var(--dim);
+  position: relative;
+  animation: buzzleInvoiceSpin 2s linear infinite;
+
+  .circle {
+    --dim: 1.2rem;
+    width: var(--dim);
+    height: var(--dim);
+    background-color: ${InkColor};
+    border-radius: 50%;
+    position: absolute;
+  }
+  .circle:nth-child(1) { top: 0; left: 0; }
+  .circle:nth-child(2) { top: 0; right: 0; }
+  .circle:nth-child(3) { bottom: 0; left: 0; }
+  .circle:nth-child(4) { bottom: 0; right: 0; }
+
+  @keyframes buzzleInvoiceSpin {
+    0% { transform: scale(1) rotate(0); }
+    20%, 25% { transform: scale(1.3) rotate(90deg); }
+    45%, 50% { transform: scale(1) rotate(180deg); }
+    70%, 75% { transform: scale(1.3) rotate(270deg); }
+    95%, 100% { transform: scale(1) rotate(360deg); }
+  }
+`;
+
 const ErrorBanner = styled.div`
   padding: 18px 22px;
   border-radius: 12px;
@@ -235,6 +274,23 @@ export const BuzzleInvoicesPage = () => {
 
   const overdueCount = invoices.filter((i) => i.status === 'overdue').length;
 
+  // First-load state: nothing to display yet. Show only the animated
+  // loader so the summary cards and the empty header rows don't flash.
+  if (loading && !data && !error) {
+    return (
+      <Container>
+        <LoaderStage>
+          <Loader>
+            <span className="circle" />
+            <span className="circle" />
+            <span className="circle" />
+            <span className="circle" />
+          </Loader>
+        </LoaderStage>
+      </Container>
+    );
+  }
+
   return (
     <Container>
       <Eyebrow>Espace . Factures</Eyebrow>
@@ -282,9 +338,6 @@ export const BuzzleInvoicesPage = () => {
           <div>Montant</div>
           <div>Statut</div>
         </TableHead>
-        {loading && invoices.length === 0 && (
-          <EmptyState>Chargement des factures.</EmptyState>
-        )}
         {!loading && invoices.length === 0 && !error && (
           <EmptyState>
             Aucune facture pour le moment.
