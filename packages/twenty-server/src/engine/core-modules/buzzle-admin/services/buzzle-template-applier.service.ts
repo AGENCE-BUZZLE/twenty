@@ -4,7 +4,12 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { FieldMetadataType } from 'twenty-shared/types';
 
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { FieldMetadataEntity } from 'src/engine/metadata-modules/field-metadata/field-metadata.entity';
 import { FieldMetadataService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata.service';
+import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { ObjectMetadataService } from 'src/engine/metadata-modules/object-metadata/object-metadata.service';
 import { WebhookService } from 'src/engine/metadata-modules/webhook/webhook.service';
 import { getBuzzleTemplate } from 'src/engine/core-modules/buzzle-admin/templates';
@@ -66,6 +71,10 @@ export class BuzzleTemplateApplierService {
     private readonly objectMetadataService: ObjectMetadataService,
     private readonly fieldMetadataService: FieldMetadataService,
     private readonly webhookService: WebhookService,
+    @InjectRepository(ObjectMetadataEntity)
+    private readonly objectMetadataRepository: Repository<ObjectMetadataEntity>,
+    @InjectRepository(FieldMetadataEntity)
+    private readonly fieldMetadataRepository: Repository<FieldMetadataEntity>,
   ) {}
 
   async applyTemplate(
@@ -169,6 +178,24 @@ export class BuzzleTemplateApplierService {
     workspaceId: string,
     objectDef: BuzzleObjectDefinition,
   ): Promise<TemplateApplicationStep> {
+    // Idempotent: if the object already exists in this workspace, reuse
+    // its id instead of failing on the create. Applies to retries by
+    // Clement clicking "Template" again after a partial failure.
+    const existing = await this.objectMetadataRepository.findOne({
+      where: {
+        workspaceId,
+        nameSingular: objectDef.nameSingular,
+      },
+    });
+
+    if (existing) {
+      return {
+        step: `object:${objectDef.nameSingular}`,
+        status: 'skipped',
+        detail: existing.id,
+      };
+    }
+
     try {
       const flatObject = await this.objectMetadataService.createOneObject({
         createObjectInput: {
@@ -212,11 +239,27 @@ export class BuzzleTemplateApplierService {
   ): Promise<TemplateApplicationStep[]> {
     const steps: TemplateApplicationStep[] = [];
 
+    // Idempotent per-field: skip fields that already exist so a partial
+    // failure can be retried without cleaning up state manually.
+    const existingFields = await this.fieldMetadataRepository.find({
+      where: { objectMetadataId, workspaceId },
+      select: ['name'],
+    });
+    const existingFieldNames = new Set(existingFields.map((f) => f.name));
+
     // We create fields one-at-a-time (rather than createManyFields) so a
-    // single bad field doesn't roll back the whole set the pipeline
+    // single bad field doesn't roll back the whole set. The pipeline
     // Statut > Nouveau lead can still start receiving records even if
     // one auxiliary field fails.
     for (const fieldDef of fields) {
+      if (existingFieldNames.has(fieldDef.name)) {
+        steps.push({
+          step: `field:${objectDef.nameSingular}.${fieldDef.name}`,
+          status: 'skipped',
+          detail: 'field already exists',
+        });
+        continue;
+      }
       try {
         const input = this.buildCreateFieldInput(objectMetadataId, fieldDef);
 
