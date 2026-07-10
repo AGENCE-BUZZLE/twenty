@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconChartBar,
   IconHome,
-  IconMail,
   IconTrendingUp,
   IconUser,
   IconUsers,
@@ -24,15 +23,6 @@ const Section = styled.div`
   gap: 1px;
   padding: 0 8px;
   margin-bottom: 20px;
-`;
-
-const Label = styled.div`
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
-  padding: 6px 10px 4px;
 `;
 
 const Item = styled.div`
@@ -75,11 +65,6 @@ const items: NavItem[] = [
 
 const accountItems: NavItem[] = [
   { label: 'Mon profil', Icon: IconUser, path: '/settings/profile' },
-  {
-    label: 'Contacter Buzzle',
-    Icon: IconMail,
-    path: 'mailto:contact@agence-buzzle.com',
-  },
 ];
 
 const activeStyle: React.CSSProperties = {
@@ -138,14 +123,8 @@ export const BuzzleWorkspaceNav = () => {
 
   return (
     <>
-      <Section>
-        <Label>Espace</Label>
-        {items.map(renderItem)}
-      </Section>
-      <Section>
-        <Label>Compte</Label>
-        {accountItems.map(renderItem)}
-      </Section>
+      <Section>{items.map(renderItem)}</Section>
+      <Section>{accountItems.map(renderItem)}</Section>
     </>
   );
 };
