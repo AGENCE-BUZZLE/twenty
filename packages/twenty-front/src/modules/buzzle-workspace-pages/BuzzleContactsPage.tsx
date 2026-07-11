@@ -1,10 +1,13 @@
 import { styled } from '@linaria/react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { type ObjectRecord } from '@/object-record/types/ObjectRecord';
+
+const PAGE_SIZE = 10;
 
 // Buzzle Contacts view. Replaces Twenty's native record index with a
 // tighter table: date, full name, phone, "voir" button, status pill.
@@ -30,39 +33,35 @@ const STATUS_META: Record<
 const STATUS_ORDER = ['NEW', 'QUOTED', 'VALIDATED', 'CANCELLED'];
 
 const Container = styled.div`
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
   padding: 40px 48px 60px;
-  max-width: 1280px;
-  margin: 0 auto;
   color: ${InkColor};
+  overflow-y: auto;
+  > * {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 `;
 
 const Head = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 24px;
   margin-bottom: 28px;
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  margin-bottom: 8px;
-`;
-
-const Title = styled.h1`
+const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 30px;
-  font-weight: 500;
-  letter-spacing: -0.022em;
-  margin: 0;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: ${InkColor};
+  margin: 0 0 12px;
+  text-transform: none;
 `;
 
 const Lede = styled.p`
-  margin: 4px 0 0;
+  margin: 0;
   color: ${MutedColor};
   font-size: 14px;
   max-width: 560px;
@@ -73,7 +72,6 @@ const TableWrap = styled.div`
   border: 1px solid ${HairlineColor};
   border-radius: 10px;
   background: ${SurfaceColor};
-  overflow: hidden;
 `;
 
 const Table = styled.table`
@@ -92,6 +90,12 @@ const Th = styled.th`
   color: rgba(255, 255, 255, 0.72);
   font-weight: 500;
   background: ${InkColor};
+  &:first-child {
+    border-top-left-radius: 9px;
+  }
+  &:last-child {
+    border-top-right-radius: 9px;
+  }
 `;
 
 const Td = styled.td`
@@ -106,7 +110,7 @@ const TableRow = styled.tr`
     border-bottom: 0;
   }
   &:hover ${Td} {
-    background: rgba(239, 237, 230, 0.4);
+    background: rgba(20, 20, 28, 0.04);
   }
 `;
 
@@ -131,7 +135,7 @@ const ViewButton = styled.button`
   background: transparent;
   color: ${InkColor};
   border: 1px solid ${HairlineColor};
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 6px;
   font-size: 12.5px;
   font-weight: 500;
@@ -139,9 +143,11 @@ const ViewButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.1s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
   &:hover {
-    background: ${PaperColor};
+    background: ${InkColor};
+    color: ${SurfaceColor};
+    border-color: ${InkColor};
   }
 `;
 
@@ -190,7 +196,7 @@ const StatusMenuItem = styled.div`
   align-items: center;
   gap: 8px;
   &:hover {
-    background: ${PaperColor};
+    background: rgba(20, 20, 28, 0.06);
   }
 `;
 
@@ -269,8 +275,11 @@ const CloseButton = styled.button`
   gap: 6px;
   align-items: center;
   font-size: 12px;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
   &:hover {
-    background: ${PaperColor};
+    background: ${InkColor};
+    color: ${SurfaceColor};
+    border-color: ${InkColor};
   }
 `;
 
@@ -433,8 +442,19 @@ export const BuzzleContactsPage = () => {
   const [openStatusMenuFor, setOpenStatusMenuFor] = useState<string | null>(
     null,
   );
+  const [page, setPage] = useState(1);
 
   const rows = useMemo(() => records ?? [], [records]);
+  const pagedRows = useMemo(
+    () => rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [rows, page],
+  );
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+
+    if (page > totalPages) setPage(totalPages);
+  }, [rows.length, page]);
 
   const handleStatusChange = async (recordId: string, next: string) => {
     setOpenStatusMenuFor(null);
@@ -453,14 +473,11 @@ export const BuzzleContactsPage = () => {
   return (
     <Container>
       <Head>
-        <div>
-          <Eyebrow>Espace · Contacts</Eyebrow>
-          <Title>Vos contacts</Title>
-          <Lede>
-            Chaque lead recu par vos campagnes apparait ici. Cliquez sur
-            l'oeil pour voir le detail du formulaire.
-          </Lede>
-        </div>
+        <PageTitle>Espace · Contacts</PageTitle>
+        <Lede>
+          Chaque lead recu par vos campagnes apparait ici. Cliquez sur
+          l'oeil pour voir le detail du formulaire.
+        </Lede>
       </Head>
 
       <TableWrap>
@@ -501,7 +518,7 @@ export const BuzzleContactsPage = () => {
               <InitialState />
             )}
 
-            {rows.map((row) => {
+            {pagedRows.map((row) => {
               const status = typeof row.status === 'string' ? row.status : 'NEW';
               const meta = STATUS_META[status] ?? STATUS_META.NEW;
               const isMenuOpen = openStatusMenuFor === row.id;
@@ -523,7 +540,7 @@ export const BuzzleContactsPage = () => {
                   <Td>
                     <RightAlign>
                       <ViewButton onClick={() => setDetailRecord(row)}>
-                        <IconEye /> Voir plus
+                        <IconEye /> Voir les informations
                       </ViewButton>
                     </RightAlign>
                   </Td>
@@ -566,6 +583,13 @@ export const BuzzleContactsPage = () => {
           </tbody>
         </Table>
       </TableWrap>
+
+      <BuzzlePagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        totalItems={rows.length}
+        onPageChange={setPage}
+      />
 
       {detailRecord && (
         <Backdrop onClick={() => setDetailRecord(null)}>

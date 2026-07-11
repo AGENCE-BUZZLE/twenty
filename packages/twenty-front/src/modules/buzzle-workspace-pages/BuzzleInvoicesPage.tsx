@@ -1,11 +1,14 @@
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 import { getTokenPair } from '@/apollo/utils/getTokenPair';
+
+const PAGE_SIZE = 10;
 
 // Real /invoices page: pulls Zoho-backed invoices for the current workspace
 // through the myWorkspaceInvoices query. When a workspace is not yet linked
@@ -45,10 +48,17 @@ type Invoice = {
 };
 
 const Container = styled.div`
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
   padding: 60px 48px 60px;
-  max-width: 1080px;
-  margin: 0 auto;
   color: ${InkColor};
+  overflow-y: auto;
+  > * {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 `;
 
 const Eyebrow = styled.div`
@@ -322,6 +332,7 @@ const formatDate = (raw: string | null | undefined): string => {
 export const BuzzleInvoicesPage = () => {
   const apolloCoreClient = useApolloCoreClient();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data, loading, error } = useQuery<{ myWorkspaceInvoices: Invoice[] }>(
     MY_WORKSPACE_INVOICES,
@@ -357,6 +368,16 @@ export const BuzzleInvoicesPage = () => {
   };
 
   const invoices = data?.myWorkspaceInvoices ?? [];
+  const pagedInvoices = useMemo(
+    () => invoices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [invoices, page],
+  );
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(invoices.length / PAGE_SIZE));
+
+    if (page > totalPages) setPage(totalPages);
+  }, [invoices.length, page]);
 
   const totalPaid = invoices
     .filter((i) => i.status === 'paid')
@@ -443,7 +464,7 @@ export const BuzzleInvoicesPage = () => {
             Les nouvelles factures apparaitront ici automatiquement.
           </EmptyState>
         )}
-        {invoices.map((inv) => {
+        {pagedInvoices.map((inv) => {
           const meta =
             STATUS_META[inv.status] ??
             { label: inv.status, bg: '#efede6', fg: '#5a5540' };
@@ -475,6 +496,13 @@ export const BuzzleInvoicesPage = () => {
           );
         })}
       </Table>
+
+      <BuzzlePagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        totalItems={invoices.length}
+        onPageChange={setPage}
+      />
     </Container>
   );
 };

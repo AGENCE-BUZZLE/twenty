@@ -1,5 +1,9 @@
 import { styled } from '@linaria/react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
+import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
+
+const PAGE_SIZE = 10;
 
 // Mocked call log page mirroring the invoices UI. Once we wire a real
 // call recording provider (Aircall / Ringover / other), swap the MOCK_CALLS
@@ -62,10 +66,17 @@ const MOCK_CALLS: Call[] = [
 ];
 
 const Container = styled.div`
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
   padding: 60px 48px 60px;
-  max-width: 1080px;
-  margin: 0 auto;
   color: ${InkColor};
+  overflow-y: auto;
+  > * {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 `;
 
 const Eyebrow = styled.div`
@@ -128,7 +139,6 @@ const Table = styled.div`
   border: 1px solid ${HairlineColor};
   border-radius: 12px;
   background: ${SurfaceColor};
-  overflow: hidden;
 `;
 
 const TableHead = styled.div`
@@ -138,6 +148,8 @@ const TableHead = styled.div`
   padding: 14px 22px;
   border-bottom: 1px solid ${InkColor};
   background: ${InkColor};
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10.5px;
   letter-spacing: 0.14em;
@@ -348,6 +360,18 @@ const formatDuration = (sec: number): string => {
 export const BuzzleCallsPage = () => {
   const [calls, setCalls] = useState<Call[]>(MOCK_CALLS);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+
+  const pagedCalls = useMemo(
+    () => calls.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [calls, page],
+  );
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(calls.length / PAGE_SIZE));
+
+    if (page > totalPages) setPage(totalPages);
+  }, [calls.length, page]);
 
   const total = calls.length;
   const totalDurationSec = calls.reduce((s, c) => s + c.durationSec, 0);
@@ -415,7 +439,7 @@ export const BuzzleCallsPage = () => {
           </EmptyState>
         )}
 
-        {calls.map((call) => {
+        {pagedCalls.map((call) => {
           const meta = STATUS_META[call.status];
           const isMenuOpen = openMenuId === call.id;
 
@@ -480,6 +504,13 @@ export const BuzzleCallsPage = () => {
           );
         })}
       </Table>
+
+      <BuzzlePagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        totalItems={calls.length}
+        onPageChange={setPage}
+      />
     </Container>
   );
 };
