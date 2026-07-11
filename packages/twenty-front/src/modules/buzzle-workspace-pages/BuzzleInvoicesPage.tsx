@@ -61,29 +61,38 @@ const Container = styled.div`
   }
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  margin-bottom: 10px;
-`;
-
-const Title = styled.h1`
+const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 32px;
-  font-weight: 500;
-  letter-spacing: -0.024em;
-  margin: 0 0 8px;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: ${InkColor};
+  margin: 0 0 14px;
 `;
 
 const Lede = styled.p`
   margin: 0 0 32px;
   color: ${MutedColor};
   font-size: 15px;
-  max-width: 640px;
+  max-width: 680px;
   line-height: 1.6;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+`;
+
+const LedeIcon = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: ${InkColor};
+  color: ${SurfaceColor};
+  margin: 0 2px;
+  vertical-align: middle;
 `;
 
 const SummaryRow = styled.div`
@@ -410,11 +419,16 @@ export const BuzzleInvoicesPage = () => {
 
   return (
     <Container>
-      <Eyebrow>Espace . Factures</Eyebrow>
-      <Title>Factures</Title>
+      <PageTitle>Espace · Factures</PageTitle>
       <Lede>
-        Historique des factures emises pour votre entreprise. Les paiements sont
-        rapproches automatiquement depuis notre systeme comptable.
+        <span>
+          Retrouvez ici toutes vos factures, deja reglees comme en attente de
+          paiement. Pour telecharger une facture au format PDF, cliquez sur
+        </span>
+        <LedeIcon aria-hidden="true">
+          <IconDownload />
+        </LedeIcon>
+        <span>a droite de la ligne concernee.</span>
       </Lede>
 
       {error && (
