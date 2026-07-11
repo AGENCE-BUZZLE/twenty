@@ -48,7 +48,7 @@ const MOCK_CALLS: Call[] = [
   {
     id: 'mock-3',
     startedAt: '2026-07-10T18:47:00Z',
-    contactName: 'Numero inconnu',
+    contactName: 'Numéro inconnu',
     phoneNumber: '+33 4 91 22 33 44',
     durationSec: 42,
     status: 'CANCELLED',
@@ -79,28 +79,19 @@ const Container = styled.div`
   }
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  margin-bottom: 10px;
-`;
-
-const Title = styled.h1`
+const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 32px;
-  font-weight: 500;
-  letter-spacing: -0.024em;
-  margin: 0 0 8px;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: ${InkColor};
+  margin: 0 0 14px;
 `;
 
 const Lede = styled.p`
   margin: 0 0 32px;
   color: ${MutedColor};
   font-size: 15px;
-  max-width: 640px;
   line-height: 1.6;
 `;
 
@@ -281,9 +272,9 @@ const EmptyState = styled.div`
 
 const STATUS_META: Record<CallStatus, { label: string; bg: string; fg: string }> = {
   NEW: { label: 'Nouveau', bg: '#e3ecff', fg: '#1a3fb0' },
-  QUOTED: { label: 'Devis envoye', bg: '#efe4ff', fg: '#4a1d99' },
-  VALIDATED: { label: 'Valide', bg: '#e3f4ea', fg: '#187a4a' },
-  CANCELLED: { label: 'Annule', bg: '#efede6', fg: '#5a5540' },
+  QUOTED: { label: 'Devis envoyé', bg: '#efe4ff', fg: '#4a1d99' },
+  VALIDATED: { label: 'Validé', bg: '#e3f4ea', fg: '#187a4a' },
+  CANCELLED: { label: 'Annulé', bg: '#efede6', fg: '#5a5540' },
 };
 
 const STATUS_ORDER: CallStatus[] = ['NEW', 'QUOTED', 'VALIDATED', 'CANCELLED'];
@@ -394,25 +385,24 @@ export const BuzzleCallsPage = () => {
 
   return (
     <Container>
-      <Eyebrow>Espace . Appels</Eyebrow>
-      <Title>Appels</Title>
+      <PageTitle>Espace · Appels</PageTitle>
       <Lede>
-        Historique des appels entrants qualifies pour vos campagnes. Chaque
-        enregistrement peut etre ecoute, telecharge et qualifie comme un lead
-        formulaire.
+        Retrouvez ici l'historique des appels entrants qualifiés pour vos
+        campagnes. Chaque enregistrement peut être écouté, téléchargé et
+        qualifié exactement comme un lead formulaire.
       </Lede>
 
       <SummaryRow>
         <SummaryCard>
-          <SummaryLabel>Nombre d appels</SummaryLabel>
+          <SummaryLabel>Nombre d'appels</SummaryLabel>
           <SummaryValue>{total}</SummaryValue>
         </SummaryCard>
         <SummaryCard>
-          <SummaryLabel>Duree totale</SummaryLabel>
+          <SummaryLabel>Durée totale</SummaryLabel>
           <SummaryValue>{totalDurationLabel}</SummaryValue>
         </SummaryCard>
         <SummaryCard>
-          <SummaryLabel>Qualifies</SummaryLabel>
+          <SummaryLabel>Qualifiés</SummaryLabel>
           <SummaryValue>{qualifiedCount}</SummaryValue>
         </SummaryCard>
         <SummaryCard>
@@ -425,17 +415,17 @@ export const BuzzleCallsPage = () => {
         <TableHead>
           <div>Date</div>
           <div>Contact</div>
-          <div>Numero</div>
-          <div>Duree</div>
+          <div>Numéro</div>
+          <div>Durée</div>
           <div>Statut</div>
           <div style={{ textAlign: 'right' }}>Actions</div>
         </TableHead>
 
         {calls.length === 0 && (
           <EmptyState>
-            Aucun appel enregistre pour le moment.
+            Aucun appel enregistré pour le moment.
             <br />
-            Les nouveaux appels apparaitront ici automatiquement.
+            Les nouveaux appels apparaîtront ici automatiquement.
           </EmptyState>
         )}
 
@@ -486,15 +476,15 @@ export const BuzzleCallsPage = () => {
               </div>
               <ActionCell>
                 <IconButton
-                  aria-label={`Ecouter ${call.contactName}`}
-                  title="Ecouter l enregistrement"
+                  aria-label={`Écouter ${call.contactName}`}
+                  title="Écouter l'enregistrement"
                   disabled={!call.recordingUrl}
                 >
                   <IconPlay />
                 </IconButton>
                 <IconButton
-                  aria-label={`Telecharger ${call.contactName}`}
-                  title="Telecharger l enregistrement"
+                  aria-label={`Télécharger ${call.contactName}`}
+                  title="Télécharger l'enregistrement"
                   disabled={!call.recordingUrl}
                 >
                   <IconDownload />

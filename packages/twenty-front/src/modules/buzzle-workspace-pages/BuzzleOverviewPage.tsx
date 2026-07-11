@@ -20,35 +20,32 @@ const AccentColor = '#5b4bff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Container = styled.div`
-  padding: 40px 48px 60px;
-  max-width: 1200px;
-  margin: 0 auto;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  padding: 60px 48px 60px;
   color: ${InkColor};
+  overflow-y: auto;
+  > * {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  margin-bottom: 10px;
-`;
-
-const Title = styled.h1`
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 34px;
-  font-weight: 500;
-  letter-spacing: -0.024em;
-  margin: 0 0 8px;
-  line-height: 1.1;
+const PageTitle = styled.h1`
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: ${InkColor};
+  margin: 0 0 14px;
 `;
 
 const Lede = styled.p`
   margin: 0;
   color: ${MutedColor};
   font-size: 15px;
-  max-width: 640px;
   line-height: 1.6;
 `;
 
@@ -61,9 +58,10 @@ const StatsGrid = styled.div`
 
 const StatCard = styled.div`
   padding: 20px 22px;
-  border: 1px solid ${HairlineColor};
+  border: 1px solid ${InkColor};
   border-radius: 10px;
-  background: ${SurfaceColor};
+  background: ${InkColor};
+  color: ${SurfaceColor};
 `;
 
 const StatHead = styled.div`
@@ -71,12 +69,12 @@ const StatHead = styled.div`
   align-items: center;
   gap: 8px;
   margin-bottom: 14px;
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
 `;
 
 const StatIconWrap = styled.span`
   display: inline-flex;
-  color: ${AccentColor};
+  color: rgba(255, 255, 255, 0.9);
 `;
 
 const StatLabel = styled.div`
@@ -96,7 +94,7 @@ const StatValue = styled.div`
 
 const StatSub = styled.div`
   font-size: 12px;
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.6);
   margin-top: 6px;
 `;
 
@@ -110,16 +108,15 @@ const QuickLinksGrid = styled.div`
 const QuickLink = styled.button`
   text-align: left;
   padding: 22px;
-  border: 1px solid ${HairlineColor};
+  border: 1px solid ${InkColor};
   border-radius: 10px;
-  background: ${SurfaceColor};
+  background: ${InkColor};
+  color: ${SurfaceColor};
   cursor: pointer;
-  transition: background 0.12s, border-color 0.12s;
+  transition: background 0.12s, border-color 0.12s, opacity 0.12s;
   font-family: inherit;
-  color: inherit;
   &:hover {
-    background: ${PaperColor};
-    border-color: ${InkColor};
+    opacity: 0.9;
   }
 `;
 
@@ -135,8 +132,8 @@ const QuickLinkIcon = styled.span`
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: ${PaperColor};
-  color: ${AccentColor};
+  background: rgba(255, 255, 255, 0.08);
+  color: ${SurfaceColor};
   align-items: center;
   justify-content: center;
 `;
@@ -145,10 +142,11 @@ const QuickLinkTitle = styled.div`
   font-family: 'Inter Tight', sans-serif;
   font-size: 16px;
   font-weight: 500;
+  color: ${SurfaceColor};
 `;
 
 const QuickLinkText = styled.div`
-  color: ${MutedColor};
+  color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
   line-height: 1.55;
 `;
@@ -228,13 +226,13 @@ export const BuzzleOverviewPage = () => {
 
   return (
     <Container>
-      <Eyebrow>Vue d'ensemble</Eyebrow>
-      <Title>
-        Bonjour {displayName ? displayName : ''}
-      </Title>
+      <PageTitle>
+        Espace · Vue d'ensemble
+      </PageTitle>
       <Lede>
-        Voici votre espace <b>{workspaceName}</b>. Retrouvez ici l'état de
-        vos contacts, vos rapports de performance et vos factures.
+        Bonjour{displayName ? ` ${displayName}` : ''}, voici votre espace{' '}
+        <b>{workspaceName}</b>. Retrouvez ici l'état de vos contacts, de vos
+        rapports de performance et de vos factures.
       </Lede>
 
       <StatsGrid>

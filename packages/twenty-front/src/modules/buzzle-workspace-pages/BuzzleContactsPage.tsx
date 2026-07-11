@@ -63,9 +63,8 @@ const PageTitle = styled.h1`
 const Lede = styled.p`
   margin: 0;
   color: ${MutedColor};
-  font-size: 14px;
-  max-width: 560px;
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.6;
 `;
 
 const TableWrap = styled.div`
@@ -416,7 +415,8 @@ const InitialState = () => (
     <Td colSpan={5}>
       <EmptyStateCell>
         <EmptyStateTitle>Aucun contact pour le moment</EmptyStateTitle>
-        Vos futurs leads arriveront ici automatiquement.
+        Vos futurs leads arriveront ici automatiquement dès qu'un formulaire
+        sera soumis sur l'une de vos landing pages.
       </EmptyStateCell>
     </Td>
   </TableRow>
@@ -475,8 +475,9 @@ export const BuzzleContactsPage = () => {
       <Head>
         <PageTitle>Espace · Contacts</PageTitle>
         <Lede>
-          Chaque lead recu par vos campagnes apparait ici. Cliquez sur
-          l'oeil pour voir le detail du formulaire.
+          Chaque lead reçu par vos campagnes apparaît ici. Cliquez sur l'œil
+          pour consulter le détail complet du formulaire soumis par le
+          prospect et qualifier son statut.
         </Lede>
       </Head>
 
@@ -497,9 +498,9 @@ export const BuzzleContactsPage = () => {
                 <Td colSpan={5}>
                   <EmptyStateCell>
                     <EmptyStateTitle>
-                      Ce workspace n'est pas encore initialise
+                      Ce workspace n'est pas encore initialisé
                     </EmptyStateTitle>
-                    L'objet Contact sera provisionne par Buzzle. Vos leads
+                    L'objet Contact sera provisionné par Buzzle. Vos leads
                     arriveront ici automatiquement.
                   </EmptyStateCell>
                 </Td>
@@ -509,7 +510,7 @@ export const BuzzleContactsPage = () => {
             {!notInitialised && loading && rows.length === 0 && (
               <TableRow>
                 <Td colSpan={5}>
-                  <EmptyStateCell>Chargement des contacts…</EmptyStateCell>
+                  <EmptyStateCell>Chargement des contacts.</EmptyStateCell>
                 </Td>
               </TableRow>
             )}

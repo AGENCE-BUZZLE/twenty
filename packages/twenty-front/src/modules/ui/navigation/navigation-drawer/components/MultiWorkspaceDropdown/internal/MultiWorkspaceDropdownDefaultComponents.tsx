@@ -40,16 +40,14 @@ import { type AvailableWorkspace } from '~/generated-metadata/graphql';
 import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
 
-const buildLocaleLabel = (locale: string): string => {
-  try {
-    const inSelf = new Intl.DisplayNames([locale], { type: 'language' }).of(
-      locale,
-    );
-    return inSelf ? `${inSelf[0].toUpperCase()}${inSelf.slice(1)}` : locale;
-  } catch {
-    return locale;
-  }
+// Buzzle only supports English + French — keep the label mapping tight.
+const LOCALE_LABELS: Record<string, string> = {
+  en: 'English',
+  'fr-FR': 'Français',
 };
+
+const buildLocaleLabel = (locale: string): string =>
+  LOCALE_LABELS[locale] ?? locale;
 
 // Buzzle: workspace dropdown menu. Anchored to the bottom pill in the
 // sidebar. Renders inside a FloatingPortal so it lives outside the dark

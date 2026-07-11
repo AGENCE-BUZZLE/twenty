@@ -23,9 +23,16 @@ import { dateLocaleState } from '~/localization/states/dateLocaleState';
 import { dynamicActivate } from '~/utils/i18n/dynamicActivate';
 import { logError } from '~/utils/logError';
 
-// Buzzle: language submenu inside the workspace dropdown. Shows every
-// APP_LOCALE with the currently selected one checkmarked. Selection
-// persists via updateWorkspaceMemberSettings + dynamicActivate.
+// Buzzle: language submenu inside the workspace dropdown. Restricted to
+// English + French — the only two locales we localise UI copy for.
+// Selection persists via updateWorkspaceMemberSettings + dynamicActivate.
+
+const SUPPORTED_LOCALES: Array<keyof typeof APP_LOCALES> = ['en', 'fr-FR'];
+
+const LOCALE_LABELS: Record<string, string> = {
+  en: 'English',
+  'fr-FR': 'Français',
+};
 
 const ForceLightSurface = styled.div`
   background: #ffffff;
@@ -63,16 +70,7 @@ const ScrollArea = styled.div`
   max-height: 340px;
 `;
 
-const buildLocaleLabel = (locale: string): string => {
-  try {
-    const inSelfLanguage = new Intl.DisplayNames([locale], {
-      type: 'language',
-    }).of(locale);
-    return inSelfLanguage ? `${inSelfLanguage[0].toUpperCase()}${inSelfLanguage.slice(1)}` : locale;
-  } catch {
-    return locale;
-  }
-};
+const buildLocaleLabel = (locale: string): string => LOCALE_LABELS[locale] ?? locale;
 
 export const MultiWorkspaceDropdownLanguagesComponents = () => {
   const { t } = useLingui();
@@ -116,9 +114,9 @@ export const MultiWorkspaceDropdownLanguagesComponents = () => {
     closeDropdown(MULTI_WORKSPACE_DROPDOWN_ID);
   };
 
-  const options = Object.values(APP_LOCALES)
+  const options = SUPPORTED_LOCALES
     .map((locale) => ({
-      value: locale as keyof typeof APP_LOCALES,
+      value: locale,
       label: buildLocaleLabel(locale),
     }))
     .sort((a, b) => a.label.localeCompare(b.label));

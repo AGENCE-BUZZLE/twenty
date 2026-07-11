@@ -10,11 +10,11 @@ const IconChart = () => (
 
 export const BuzzleReportsPage = () => (
   <BuzzleComingSoonPage
-    eyebrow="Espace . Rapports"
+    eyebrow="Espace · Rapports"
     title="Rapports de performance"
-    lede="Un tableau de bord centralise les conversions poussees a Google Ads et Meta ainsi que la performance de vos campagnes."
+    lede="Ce tableau de bord centralisera bientôt les conversions remontées vers Google Ads et Meta, ainsi que la performance détaillée de chacune de vos campagnes publicitaires."
     Icon={IconChart}
-    cardTitle="A venir"
-    cardSubtitle="Cette section arrive dans une prochaine mise a jour."
+    cardTitle="À venir"
+    cardSubtitle="Cette section arrive dans une prochaine mise à jour."
   />
 );

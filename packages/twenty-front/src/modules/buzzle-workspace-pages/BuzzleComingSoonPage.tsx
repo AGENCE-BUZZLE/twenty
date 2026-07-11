@@ -5,40 +5,35 @@ import { styled } from '@linaria/react';
 // by Rapports and Factures until the real content ships.
 
 const InkColor = '#14141c';
-const PaperColor = '#efede6';
-const HairlineColor = '#d6d2c7';
-const AccentColor = '#5b4bff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Container = styled.div`
-  padding: 80px 48px 60px;
-  max-width: 720px;
-  margin: 0 auto;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  padding: 60px 48px 60px;
   color: ${InkColor};
+  overflow-y: auto;
+  > * {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  margin-bottom: 10px;
-`;
-
-const Title = styled.h1`
+const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 32px;
-  font-weight: 500;
-  letter-spacing: -0.024em;
-  margin: 0 0 8px;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: ${InkColor};
+  margin: 0 0 14px;
 `;
 
 const Lede = styled.p`
-  margin: 0;
+  margin: 0 0 32px;
   color: ${MutedColor};
   font-size: 15px;
-  max-width: 540px;
   line-height: 1.6;
 `;
 
@@ -93,17 +88,19 @@ type BuzzleComingSoonPageProps = {
   cardSubtitle: string;
 };
 
+// The eyebrow + title props are merged into a single "Espace · X" header
+// so the shell matches the treatment applied to Contacts / Factures /
+// Appels. Callers keep passing both to describe the section.
 export const BuzzleComingSoonPage = ({
   eyebrow,
-  title,
+  title: _title,
   lede,
   Icon,
   cardTitle,
   cardSubtitle,
 }: BuzzleComingSoonPageProps) => (
   <Container>
-    <Eyebrow>{eyebrow}</Eyebrow>
-    <Title>{title}</Title>
+    <PageTitle>{eyebrow}</PageTitle>
     <Lede>{lede}</Lede>
     <Card>
       <IconFrame>

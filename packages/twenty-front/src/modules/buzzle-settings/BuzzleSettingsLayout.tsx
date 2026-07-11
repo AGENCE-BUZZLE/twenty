@@ -14,26 +14,25 @@ const AccentColor = '#5b4bff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Container = styled.div`
-  padding: 40px 48px 60px;
-  max-width: 900px;
-  margin: 0 auto;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  padding: 60px 48px 60px;
   color: ${InkColor};
+  overflow-y: auto;
+  > * {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  margin-bottom: 8px;
-`;
-
-const Title = styled.h1`
+const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 30px;
-  font-weight: 500;
-  letter-spacing: -0.022em;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: ${InkColor};
   margin: 0 0 24px;
 `;
 
@@ -84,8 +83,7 @@ export const BuzzleSettingsLayout = ({
   const navigate = useNavigate();
   return (
     <Container>
-      <Eyebrow>Espace · Paramètres</Eyebrow>
-      <Title>Paramètres</Title>
+      <PageTitle>Espace · Paramètres</PageTitle>
       <TabBar>
         <Tab
           isActive={activeTab === 'profile'}

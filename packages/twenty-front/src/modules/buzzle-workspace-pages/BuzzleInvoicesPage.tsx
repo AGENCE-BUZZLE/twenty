@@ -74,12 +74,8 @@ const Lede = styled.p`
   margin: 0 0 32px;
   color: ${MutedColor};
   font-size: 15px;
-  max-width: 680px;
   line-height: 1.6;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
+  display: block;
 `;
 
 const LedeIcon = styled.span`
@@ -91,8 +87,8 @@ const LedeIcon = styled.span`
   border-radius: 5px;
   background: ${InkColor};
   color: ${SurfaceColor};
-  margin: 0 2px;
-  vertical-align: middle;
+  margin: 0 4px;
+  vertical-align: -6px;
 `;
 
 const SummaryRow = styled.div`
@@ -301,13 +297,13 @@ const ErrorBanner = styled.div`
 `;
 
 const STATUS_META: Record<string, { label: string; bg: string; fg: string }> = {
-  paid: { label: 'Payee', bg: '#e3f4ea', fg: '#187a4a' },
-  sent: { label: 'Envoyee', bg: '#e3ecff', fg: '#1a3fb0' },
+  paid: { label: 'Payée', bg: '#e3f4ea', fg: '#187a4a' },
+  sent: { label: 'Envoyée', bg: '#e3ecff', fg: '#1a3fb0' },
   viewed: { label: 'Vue', bg: '#e3ecff', fg: '#1a3fb0' },
   overdue: { label: 'En retard', bg: '#fbe5e5', fg: '#8a1a1a' },
   draft: { label: 'Brouillon', bg: '#efede6', fg: '#5a5540' },
   partially_paid: { label: 'Partielle', bg: '#fff2d6', fg: '#7a5a10' },
-  void: { label: 'Annulee', bg: '#efede6', fg: '#5a5540' },
+  void: { label: 'Annulée', bg: '#efede6', fg: '#5a5540' },
 };
 
 const formatCurrency = (amount: number, currency: string): string => {
@@ -421,19 +417,18 @@ export const BuzzleInvoicesPage = () => {
     <Container>
       <PageTitle>Espace · Factures</PageTitle>
       <Lede>
-        <span>
-          Retrouvez ici toutes vos factures, deja reglees comme en attente de
-          paiement. Pour telecharger une facture au format PDF, cliquez sur
-        </span>
+        Retrouvez ici l'ensemble de vos factures, aussi bien celles déjà
+        réglées que celles en attente de paiement. Pour récupérer une facture
+        au format PDF, il vous suffit de cliquer sur
         <LedeIcon aria-hidden="true">
           <IconDownload />
         </LedeIcon>
-        <span>a droite de la ligne concernee.</span>
+        à droite de la ligne concernée.
       </Lede>
 
       {error && (
         <ErrorBanner>
-          Impossible de charger les factures pour le moment. Reessayez dans
+          Impossible de charger les factures pour le moment. Réessayez dans
           quelques instants ou contactez contact@agence-buzzle.com.
         </ErrorBanner>
       )}
@@ -445,7 +440,7 @@ export const BuzzleInvoicesPage = () => {
             <SummaryValue>{invoices.length}</SummaryValue>
           </SummaryCard>
           <SummaryCard>
-            <SummaryLabel>Total paye</SummaryLabel>
+            <SummaryLabel>Total payé</SummaryLabel>
             <SummaryValue>{formatCurrency(totalPaid, currency)}</SummaryValue>
           </SummaryCard>
           <SummaryCard>
@@ -463,9 +458,9 @@ export const BuzzleInvoicesPage = () => {
 
       <Table>
         <TableHead>
-          <div>N. facture</div>
+          <div>N° facture</div>
           <div>Date</div>
-          <div>Echeance</div>
+          <div>Échéance</div>
           <div>Montant</div>
           <div>Statut</div>
           <div style={{ textAlign: 'right' }}>PDF</div>
@@ -475,7 +470,7 @@ export const BuzzleInvoicesPage = () => {
           <EmptyState>
             Aucune facture pour le moment.
             <br />
-            Les nouvelles factures apparaitront ici automatiquement.
+            Les nouvelles factures apparaîtront ici automatiquement.
           </EmptyState>
         )}
         {pagedInvoices.map((inv) => {
@@ -498,8 +493,8 @@ export const BuzzleInvoicesPage = () => {
               </div>
               <DownloadCell>
                 <DownloadButton
-                  aria-label={`Telecharger ${inv.number}`}
-                  title={`Telecharger ${inv.number}`}
+                  aria-label={`Télécharger ${inv.number}`}
+                  title={`Télécharger ${inv.number}`}
                   onClick={() => handleDownload(inv)}
                   disabled={isDownloading}
                 >
