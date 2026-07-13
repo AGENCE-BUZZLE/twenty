@@ -185,11 +185,10 @@ const VioletCard = styled.div`
   background: ${VioletColor};
   color: #ffffff;
   border-radius: 20px;
-  padding: 26px 28px 24px;
+  padding: 24px 26px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  min-height: 380px;
+  gap: 18px;
   position: relative;
   overflow: hidden;
 `;
@@ -316,11 +315,10 @@ const DarkCard = styled.div`
   background: ${InkColor};
   color: ${SurfaceColor};
   border-radius: 20px;
-  padding: 24px 26px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  min-height: 380px;
+  gap: 16px;
 `;
 
 const DarkCardHead = styled.div`
@@ -495,10 +493,9 @@ const ChartCard = styled.div`
   background: ${InkColor};
   color: ${SurfaceColor};
   border-radius: 20px;
-  padding: 24px 26px 18px;
+  padding: 22px 24px 16px;
   position: relative;
-  min-height: 380px;
-  overflow: hidden;
+  overflow: visible;
 `;
 
 const ChartCardHead = styled.div`
@@ -598,10 +595,25 @@ const LeadsCard = styled.div`
   background: ${InkColor};
   color: ${SurfaceColor};
   border-radius: 20px;
-  padding: 24px 22px;
+  padding: 22px 22px 18px;
   display: flex;
   flex-direction: column;
-  min-height: 380px;
+  height: 100%;
+  max-height: 420px;
+`;
+
+const LeadsScroll = styled.div`
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-right: -4px;
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+  }
 `;
 
 const LeadsHead = styled.div`
@@ -1121,7 +1133,7 @@ export const BuzzleOverviewPage = () => {
         leadFilter === 'all' ? true : leadFilter === 'contact' ? l.kind === 'contact' : l.kind === 'call',
       )
       .sort((a, b) => (a.at < b.at ? 1 : -1))
-      .slice(0, 8);
+      .slice(0, 40);
 
     return merged;
   }, [contacts, calls, leadFilter]);
@@ -1301,7 +1313,30 @@ export const BuzzleOverviewPage = () => {
           </ChartCardHead>
 
           <ChartArea>
-            <ChartSvg viewBox={`0 0 ${chartViewW} ${chartViewH}`} preserveAspectRatio="none">
+            <ChartSvg
+              viewBox={`0 0 ${chartViewW} ${chartViewH}`}
+              preserveAspectRatio="none"
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+
+                if (rect.width === 0 || points.length === 0) return;
+                const localX = e.clientX - rect.left;
+                const svgX = (localX / rect.width) * chartViewW;
+                let closest = 0;
+                let bestDist = Infinity;
+
+                for (let i = 0; i < points.length; i += 1) {
+                  const d = Math.abs(points[i].x - svgX);
+
+                  if (d < bestDist) {
+                    bestDist = d;
+                    closest = i;
+                  }
+                }
+                setTooltipIdx(closest);
+              }}
+              onMouseLeave={() => setTooltipIdx(null)}
+            >
               <defs>
                 <linearGradient id="buzzleChartFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={VioletColor} stopOpacity="0.5" />
@@ -1378,20 +1413,6 @@ export const BuzzleOverviewPage = () => {
                 );
               })}
 
-              {/* Dot + tooltip anchor on hover */}
-              {points.map((p, i) => (
-                <circle
-                  key={`hit-${i}`}
-                  cx={p.x}
-                  cy={p.y}
-                  r="12"
-                  fill="transparent"
-                  onMouseEnter={() => setTooltipIdx(i)}
-                  onMouseLeave={() => setTooltipIdx(null)}
-                  style={{ cursor: 'pointer' }}
-                />
-              ))}
-
               {tooltipIdx !== null && points[tooltipIdx] && (
                 <>
                   <line
@@ -1440,7 +1461,7 @@ export const BuzzleOverviewPage = () => {
           <LeadsHead>
             <div>
               <DarkCardTitle>Leads</DarkCardTitle>
-              <DarkCardSub>Recent activity</DarkCardSub>
+              <DarkCardSub>Activité récente</DarkCardSub>
             </div>
             <LeadsHeadRight>
               <LeadsFilter
@@ -1464,50 +1485,59 @@ export const BuzzleOverviewPage = () => {
             </LeadsHeadRight>
           </LeadsHead>
 
-          {leads.length === 0 ? (
-            <LeadsEmpty>Aucun lead pour le moment.</LeadsEmpty>
-          ) : (
-            groupedLeads.map(([day, dayLeads]) => (
-              <div key={day}>
-                <LeadDayLabel>{day}</LeadDayLabel>
-                {dayLeads.map((lead) => (
-                  <LeadRow key={lead.id}>
-                    <LeadIcon
-                      tint={
-                        lead.kind === 'contact'
-                          ? 'rgba(126, 55, 254, 0.28)'
-                          : 'rgba(34, 185, 114, 0.24)'
-                      }
-                      color={
-                        lead.kind === 'contact' ? '#c9b7ff' : '#a7f4c9'
-                      }
-                    >
-                      {lead.kind === 'contact' ? <IconUsers /> : <IconPhone />}
-                    </LeadIcon>
-                    <div>
-                      <LeadName>{lead.name}</LeadName>
-                      <LeadMeta>{lead.phone || '—'}</LeadMeta>
-                    </div>
-                    <LeadRight>
-                      <LeadTime>{formatHourMin(lead.at)}</LeadTime>
-                      <LeadEyeButton
-                        aria-label={`Voir ${lead.name}`}
-                        onClick={() =>
-                          navigate(lead.kind === 'contact' ? '/contacts' : '/calls')
+          <LeadsScroll>
+            {leads.length === 0 ? (
+              <LeadsEmpty>Aucun lead pour le moment.</LeadsEmpty>
+            ) : (
+              groupedLeads.map(([day, dayLeads]) => (
+                <div key={day}>
+                  <LeadDayLabel>{day}</LeadDayLabel>
+                  {dayLeads.map((lead) => (
+                    <LeadRow key={lead.id}>
+                      <LeadIcon
+                        tint={
+                          lead.kind === 'contact'
+                            ? 'rgba(126, 55, 254, 0.28)'
+                            : 'rgba(34, 185, 114, 0.24)'
+                        }
+                        color={
+                          lead.kind === 'contact' ? '#c9b7ff' : '#a7f4c9'
                         }
                       >
-                        <IconEye />
-                      </LeadEyeButton>
-                    </LeadRight>
-                  </LeadRow>
-                ))}
-              </div>
-            ))
-          )}
+                        {lead.kind === 'contact' ? <IconUsers /> : <IconPhone />}
+                      </LeadIcon>
+                      <div>
+                        <LeadName>{lead.name}</LeadName>
+                        <LeadMeta>{lead.phone || '—'}</LeadMeta>
+                      </div>
+                      <LeadRight>
+                        <LeadTime>{formatHourMin(lead.at)}</LeadTime>
+                        <LeadEyeButton
+                          aria-label={`Voir ${lead.name}`}
+                          onClick={() =>
+                            navigate(lead.kind === 'contact' ? '/contacts' : '/calls')
+                          }
+                        >
+                          <IconEye />
+                        </LeadEyeButton>
+                      </LeadRight>
+                    </LeadRow>
+                  ))}
+                </div>
+              ))
+            )}
+          </LeadsScroll>
 
-          <SeeAllRow onClick={() => navigate('/contacts')}>
-            Voir tous les leads <IconArrowRight />
-          </SeeAllRow>
+          {leadFilter !== 'all' && (
+            <SeeAllRow
+              onClick={() =>
+                navigate(leadFilter === 'contact' ? '/contacts' : '/calls')
+              }
+            >
+              Voir tous les {leadFilter === 'contact' ? 'contacts' : 'appels'}
+              <IconArrowRight />
+            </SeeAllRow>
+          )}
         </LeadsCard>
       </LowerGrid>
     </Container>
