@@ -212,6 +212,14 @@ export const BuzzleWorkspaceSettings = () => {
   const [savedRecently, setSavedRecently] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Deux étapes : le fichier choisi est mis en attente + affiché en preview ;
+  // l'upload part au clic sur "Enregistrer l'image".
+  const [pendingLogo, setPendingLogo] = useState<{
+    file: File;
+    previewUrl: string;
+  } | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoStatus, setLogoStatus] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [updateWorkspace] = useMutation(UpdateWorkspaceDocument);
@@ -286,20 +294,46 @@ export const BuzzleWorkspaceSettings = () => {
     fileInputRef.current?.click();
   };
 
-  const handleLogoFile = async (file: File) => {
+  const handleLogoFile = (file: File) => {
     if (!currentWorkspace?.id) return;
+    // Preview URL local — révoquée quand on remplace / annule / upload.
+    if (pendingLogo) {
+      URL.revokeObjectURL(pendingLogo.previewUrl);
+    }
+    setPendingLogo({ file, previewUrl: URL.createObjectURL(file) });
+    setLogoStatus('');
+    setErrorMessage('');
+  };
+
+  const cancelPendingLogo = () => {
+    if (pendingLogo) URL.revokeObjectURL(pendingLogo.previewUrl);
+    setPendingLogo(null);
+  };
+
+  const commitPendingLogo = async () => {
+    if (!pendingLogo || !currentWorkspace?.id || uploadingLogo) return;
+    setUploadingLogo(true);
+    setErrorMessage('');
     try {
-      const res = await uploadLogo({ variables: { file } });
+      const res = await uploadLogo({
+        variables: { file: pendingLogo.file },
+      });
       const url = res.data?.uploadWorkspaceLogo?.url;
 
       if (url) {
         setCurrentWorkspace({ ...currentWorkspace, logo: url });
+        setLogoStatus('Enregistré');
+        setTimeout(() => setLogoStatus(''), 2200);
       }
+      URL.revokeObjectURL(pendingLogo.previewUrl);
+      setPendingLogo(null);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Impossible d\'envoyer le logo.';
 
       setErrorMessage(message);
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
@@ -308,6 +342,7 @@ export const BuzzleWorkspaceSettings = () => {
     try {
       await updateWorkspace({ variables: { input: { logo: null } } });
       setCurrentWorkspace({ ...currentWorkspace, logo: null });
+      cancelPendingLogo();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Impossible de retirer le logo.';
@@ -387,20 +422,45 @@ export const BuzzleWorkspaceSettings = () => {
         <LogoRow>
           <LogoPreview>
             <img
-              src={getAbsoluteImageUrl(
-                currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
-              )}
+              src={
+                pendingLogo
+                  ? pendingLogo.previewUrl
+                  : getAbsoluteImageUrl(
+                      currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
+                    )
+              }
               alt={currentWorkspace?.displayName ?? 'Logo workspace'}
             />
           </LogoPreview>
           <LogoActions>
-            <OutlineButton type="button" onClick={handleLogoPick}>
-              Changer le logo
-            </OutlineButton>
-            {currentWorkspace?.logo && (
-              <DangerButton type="button" onClick={handleLogoRemove}>
-                Retirer
-              </DangerButton>
+            {pendingLogo ? (
+              <>
+                <SubmitButton
+                  type="button"
+                  onClick={commitPendingLogo}
+                  disabled={uploadingLogo}
+                >
+                  {uploadingLogo ? 'Enregistrement…' : 'Enregistrer l\'image'}
+                </SubmitButton>
+                <OutlineButton
+                  type="button"
+                  onClick={cancelPendingLogo}
+                  disabled={uploadingLogo}
+                >
+                  Annuler
+                </OutlineButton>
+              </>
+            ) : (
+              <>
+                <OutlineButton type="button" onClick={handleLogoPick}>
+                  Choisir une image
+                </OutlineButton>
+                {currentWorkspace?.logo && (
+                  <DangerButton type="button" onClick={handleLogoRemove}>
+                    Retirer
+                  </DangerButton>
+                )}
+              </>
             )}
             <input
               ref={fileInputRef}
@@ -416,6 +476,11 @@ export const BuzzleWorkspaceSettings = () => {
             />
           </LogoActions>
         </LogoRow>
+        {(logoStatus || (errorMessage && pendingLogo)) && (
+          <StatusMsg style={{ marginTop: 12 }}>
+            {errorMessage && pendingLogo ? errorMessage : logoStatus}
+          </StatusMsg>
+        )}
       </Card>
     </BuzzleSettingsLayout>
   );
