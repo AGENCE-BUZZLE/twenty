@@ -106,8 +106,8 @@ const SummaryCard = styled.div`
   border: 1px solid ${InkColor};
   border-radius: 12px;
   padding: 18px 20px;
-  background: ${InkColor};
-  color: ${SurfaceColor};
+  background: ${SurfaceColor};
+  color: ${InkColor};
 `;
 
 const SummaryLabel = styled.div`
@@ -115,7 +115,7 @@ const SummaryLabel = styled.div`
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  color: ${InkColor};
   margin-bottom: 8px;
 `;
 
@@ -123,7 +123,7 @@ const SummaryValue = styled.div`
   font-family: 'Inter Tight', sans-serif;
   font-size: 22px;
   font-weight: 500;
-  color: ${SurfaceColor};
+  color: ${InkColor};
 `;
 
 const Table = styled.div`
