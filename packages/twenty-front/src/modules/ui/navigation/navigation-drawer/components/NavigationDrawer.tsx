@@ -2,7 +2,7 @@ import { styled } from '@linaria/react';
 import { type ReactNode, useState } from 'react';
 
 import { BuzzleLogoHeader } from '@/buzzle-workspace-nav/BuzzleLogoHeader';
-import { BuzzleWorkspaceSwitcherFooter } from '@/buzzle-workspace-nav/BuzzleWorkspaceSwitcherFooter';
+import { BuzzleSettingsFooter } from '@/buzzle-workspace-nav/BuzzleSettingsFooter';
 import { useNavigationDrawerExpanded } from '@/navigation/hooks/useNavigationDrawerExpanded';
 import { useIsSettingsDrawer } from '@/navigation/hooks/useIsSettingsDrawer';
 import { tableWidthResizeIsActiveState } from '@/object-record/record-table/states/tableWidthResizeIsActivedState';
@@ -139,7 +139,7 @@ export const NavigationDrawer = ({
                 <BuzzleLogoHeader />
               )}
               {children}
-              {!isMobile && <BuzzleWorkspaceSwitcherFooter />}
+              {!isMobile && <BuzzleSettingsFooter />}
             </>
           )}
         </StyledContainer>

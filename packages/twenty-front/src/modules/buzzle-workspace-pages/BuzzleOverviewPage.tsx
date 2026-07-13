@@ -6,10 +6,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { currentUserState } from '@/auth/states/currentUserState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
+import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
-import { MultiWorkspaceDropdownButton } from '@/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/MultiWorkspaceDropdownButton';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 // Buzzle workspace overview.
@@ -1158,12 +1158,7 @@ export const BuzzleOverviewPage = () => {
     <Container>
       <HeaderRow>
         <HeaderText>
-          <PageTitle>Espace · Vue d'ensemble</PageTitle>
-          <HeaderSub>
-            Bonjour{displayName ? ` ${displayName}` : ''}, voici votre espace{' '}
-            <b>{workspaceName}</b>. Suivez ici votre solde à régler, votre
-            activité leads et vos appels qualifiés.
-          </HeaderSub>
+          <PageTitle>Vue d'ensemble</PageTitle>
         </HeaderText>
         <HeaderActions>
           <HeaderPeriodStrip role="tablist" aria-label="Période active">
@@ -1200,9 +1195,7 @@ export const BuzzleOverviewPage = () => {
               )}
             </HeaderPeriodPill>
           </HeaderPeriodStrip>
-          <HeaderWorkspaceWrap>
-            <MultiWorkspaceDropdownButton />
-          </HeaderWorkspaceWrap>
+          <BuzzleWorkspacesButton />
         </HeaderActions>
       </HeaderRow>
 
@@ -1216,17 +1209,6 @@ export const BuzzleOverviewPage = () => {
               <IconArrowUp /> {overdueSummary}
             </VioletTrend>
           </VioletHead>
-
-          <VioletStats>
-            <div>
-              <VioletStatValue>{totalInvoices}</VioletStatValue>
-              <VioletStatLabel>Factures</VioletStatLabel>
-            </div>
-            <div>
-              <VioletStatValue>{pendingCount}</VioletStatValue>
-              <VioletStatLabel>En attente</VioletStatLabel>
-            </div>
-          </VioletStats>
 
           <div>
             <VioletBalanceLabel>Solde à régler</VioletBalanceLabel>
@@ -1249,9 +1231,6 @@ export const BuzzleOverviewPage = () => {
             <CtaPrimary onClick={() => navigate('/invoices')}>
               Voir les factures <IconArrowRight />
             </CtaPrimary>
-            <CtaSecondary onClick={() => navigate('/contacts')}>
-              Contacts
-            </CtaSecondary>
           </CtaRow>
         </VioletCard>
 
@@ -1259,14 +1238,7 @@ export const BuzzleOverviewPage = () => {
           <DarkCardHead>
             <div>
               <DarkCardTitle>Mon activité</DarkCardTitle>
-              <DarkCardSub>
-                {contactTotal + MOCK_CALLS_TOTAL} entrées · actualisé à
-                l'instant
-              </DarkCardSub>
             </div>
-            <GoToLink onClick={() => navigate('/contacts')}>
-              Voir tout <IconArrowRight />
-            </GoToLink>
           </DarkCardHead>
 
           <AssetGrid>
@@ -1277,17 +1249,9 @@ export const BuzzleOverviewPage = () => {
                 </AssetIcon>
                 <div>
                   <AssetName>Contacts</AssetName>
-                  <AssetType>LEADS</AssetType>
                 </div>
               </AssetHead>
-              <div>
-                <AssetValue>{contactTotal}</AssetValue>
-                <AssetSub tone={contactNewCount > 0 ? 'up' : 'flat'}>
-                  {contactNewCount > 0
-                    ? `+${contactNewCount} nouveaux · ${contactValidatedCount} validés`
-                    : `${contactValidatedCount} validés`}
-                </AssetSub>
-              </div>
+              <AssetValue>{contactTotal}</AssetValue>
             </AssetCard>
 
             <AssetCard>
@@ -1297,38 +1261,11 @@ export const BuzzleOverviewPage = () => {
                 </AssetIcon>
                 <div>
                   <AssetName>Appels</AssetName>
-                  <AssetType>QUALIFIES</AssetType>
                 </div>
               </AssetHead>
-              <div>
-                <AssetValue>{MOCK_CALLS_TOTAL}</AssetValue>
-                <AssetSub tone={MOCK_CALLS_QUALIFIED > 0 ? 'up' : 'flat'}>
-                  {MOCK_CALLS_QUALIFIED > 0
-                    ? `${MOCK_CALLS_QUALIFIED} qualifié${MOCK_CALLS_QUALIFIED > 1 ? 's' : ''}`
-                    : 'aucun qualifié'}
-                </AssetSub>
-              </div>
+              <AssetValue>{MOCK_CALLS_TOTAL}</AssetValue>
             </AssetCard>
           </AssetGrid>
-
-          <DistributionRow>
-            <DistributionHead>
-              <DistributionLabel>Répartition des leads</DistributionLabel>
-              <DistributionSub>Par statut</DistributionSub>
-            </DistributionHead>
-            <DistributionBar>
-              {distribution.map((d) => (
-                <DistributionSeg key={d.label} pct={d.pct} color={d.color} />
-              ))}
-            </DistributionBar>
-            <DistributionLegend>
-              {distribution.map((d) => (
-                <LegendItem key={d.label}>
-                  <LegendDot color={d.color} /> {d.label} · {d.count}
-                </LegendItem>
-              ))}
-            </DistributionLegend>
-          </DistributionRow>
         </DarkCard>
       </Grid>
 
