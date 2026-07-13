@@ -3,10 +3,73 @@ import { styled } from '@linaria/react';
 import { useState } from 'react';
 
 import { currentUserState } from '@/auth/states/currentUserState';
+import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { BuzzleSettingsLayout } from '@/buzzle-settings/BuzzleSettingsLayout';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { SendInvitationsDocument } from '~/generated-metadata/graphql';
+
+// Roles a super admin / admin can assign to invited members. "Super
+// Administrateur" is intentionally left out — that badge is granted at the
+// user level (canAccessFullAdminPanel), not via an invite.
+type AssignableRole = 'admin' | 'standard' | 'read';
+
+const ASSIGNABLE_ROLES: Array<{
+  value: AssignableRole;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: 'admin',
+    label: 'Administrateur',
+    description:
+      'Accès complet : peut inviter des membres et changer les statuts.',
+  },
+  {
+    value: 'standard',
+    label: 'Standard',
+    description: 'Peut uniquement changer le statut des leads existants.',
+  },
+  {
+    value: 'read',
+    label: 'Lecture seule',
+    description: 'Consulte les leads et rapports, sans possibilité de modifier.',
+  },
+];
+
+// Client-side persistence pour les rôles choisis lors des invitations,
+// tant que le backend permissions Twenty n'est pas branché. Les rôles
+// remontent ensuite dans la liste des membres (badge par email).
+const rolesStorageKey = (workspaceId?: string): string =>
+  `buzzle-member-roles:${workspaceId ?? 'default'}`;
+
+const loadRoleMap = (workspaceId?: string): Record<string, AssignableRole> => {
+  try {
+    const raw = localStorage.getItem(rolesStorageKey(workspaceId));
+
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, AssignableRole>;
+
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
+const persistRole = (
+  workspaceId: string | undefined,
+  email: string,
+  role: AssignableRole,
+): void => {
+  try {
+    const map = loadRoleMap(workspaceId);
+
+    map[email.toLowerCase()] = role;
+    localStorage.setItem(rolesStorageKey(workspaceId), JSON.stringify(map));
+  } catch {
+    // ignore
+  }
+};
 
 // Members management (Buzzle visual). Lists workspaceMember records and
 // exposes a compact "invite by email" form. Twenty's sendInvitations
@@ -56,6 +119,41 @@ const InviteRow = styled.div`
   display: flex;
   gap: 12px;
   align-items: stretch;
+  flex-wrap: wrap;
+`;
+
+const RoleSelect = styled.select`
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: ${InkColor};
+  background: ${SurfaceColor};
+  min-width: 180px;
+  cursor: pointer;
+  &:focus {
+    outline: none;
+    border-color: ${SurfaceColor};
+  }
+`;
+
+const RoleHint = styled.div`
+  width: 100%;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: -2px;
+`;
+
+const RestrictedBanner = styled.div`
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  margin-bottom: 24px;
 `;
 
 const EmailInput = styled.input`
@@ -229,14 +327,27 @@ const displayName = (name?: {
 
 // Temporary role mapping. Twenty's real 4-role system (Super Administrateur /
 // Administrateur / Standard / Lecture seule) will be wired to the workspace
-// roleTargets table in a follow-up. For now we recognise super admins by the
-// canAccessFullAdminPanel flag carried by the currently authenticated user;
-// every other member reads as "Administrateur" by default (the client owns
-// their workspace).
+// roleTargets table in a follow-up. For now:
+// - The currently authenticated user with canAccessFullAdminPanel = true
+//   reads as "Super Administrateur".
+// - Everyone else falls back to whatever was picked when they were invited
+//   (persisted in localStorage), defaulting to "Administrateur".
+const roleTone: Record<AssignableRole, 'admin' | 'standard' | 'read'> = {
+  admin: 'admin',
+  standard: 'standard',
+  read: 'read',
+};
+const roleLabel: Record<AssignableRole, string> = {
+  admin: 'Administrateur',
+  standard: 'Standard',
+  read: 'Lecture seule',
+};
+
 const resolveRole = (
   memberEmail: string | undefined,
   currentUserEmail: string | undefined,
   currentUserIsSuperAdmin: boolean,
+  roleMap: Record<string, AssignableRole>,
 ): { label: string; tone: 'super' | 'admin' | 'standard' | 'read' } => {
   if (
     currentUserIsSuperAdmin &&
@@ -245,17 +356,40 @@ const resolveRole = (
   ) {
     return { label: 'Super Administrateur', tone: 'super' };
   }
+  const assigned = memberEmail
+    ? roleMap[memberEmail.toLowerCase()]
+    : undefined;
+
+  if (assigned) {
+    return { label: roleLabel[assigned], tone: roleTone[assigned] };
+  }
 
   return { label: 'Administrateur', tone: 'admin' };
 };
 
 export const BuzzleMembersSettings = () => {
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState<AssignableRole>('admin');
   const [okMessage, setOkMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [sending, setSending] = useState(false);
 
   const currentUser = useAtomStateValue(currentUserState);
+  const currentWorkspace = useAtomStateValue(currentWorkspaceState);
+  const [roleMap, setRoleMap] = useState<Record<string, AssignableRole>>(() =>
+    loadRoleMap(currentWorkspace?.id),
+  );
+
+  // Current-user role — governs whether we render the invite card at all.
+  // Super Admin + Admin can invite; Standard + Lecture seule cannot.
+  const currentRole = resolveRole(
+    currentUser?.email,
+    currentUser?.email,
+    currentUser?.canAccessFullAdminPanel ?? false,
+    roleMap,
+  );
+  const canInvite =
+    currentRole.tone === 'super' || currentRole.tone === 'admin';
 
   const { records, loading, refetch } = useFindManyRecords({
     objectNameSingular: 'workspaceMember',
@@ -278,8 +412,13 @@ export const BuzzleMembersSettings = () => {
       });
       const payload = result.data?.sendInvitations;
       if (payload?.success) {
-        setOkMessage(`Invitation envoyée à ${email}.`);
+        persistRole(currentWorkspace?.id, email, inviteRole);
+        setRoleMap((prev) => ({ ...prev, [email.toLowerCase()]: inviteRole }));
+        setOkMessage(
+          `Invitation envoyée à ${email} avec le rôle ${roleLabel[inviteRole]}.`,
+        );
         setInviteEmail('');
+        setInviteRole('admin');
         refetch();
       } else {
         setErrorMessage(
@@ -297,32 +436,57 @@ export const BuzzleMembersSettings = () => {
 
   return (
     <BuzzleSettingsLayout activeTab="members">
-      <Card>
-        <CardHead>
-          <div>
-            <CardTitle>Inviter un nouveau membre</CardTitle>
-            <CardSub>
-              L'invitation est envoyée par email avec un lien de connexion.
-            </CardSub>
-          </div>
-        </CardHead>
-        <form onSubmit={handleInvite}>
-          <InviteRow>
-            <EmailInput
-              type="email"
-              placeholder="adresse@exemple.com"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              required
-            />
-            <InviteButton type="submit" disabled={sending}>
-              <IconSend /> {sending ? 'Envoi…' : 'Envoyer l\'invitation'}
-            </InviteButton>
-          </InviteRow>
-          {okMessage && <OkBanner>{okMessage}</OkBanner>}
-          {errorMessage && <ErrorBanner>{errorMessage}</ErrorBanner>}
-        </form>
-      </Card>
+      {canInvite ? (
+        <Card>
+          <CardHead>
+            <div>
+              <CardTitle>Inviter un nouveau membre</CardTitle>
+              <CardSub>
+                L'invitation est envoyée par email avec un lien de connexion.
+                Choisissez le rôle qui définira ses droits dans le workspace.
+              </CardSub>
+            </div>
+          </CardHead>
+          <form onSubmit={handleInvite}>
+            <InviteRow>
+              <EmailInput
+                type="email"
+                placeholder="adresse@exemple.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                required
+              />
+              <RoleSelect
+                aria-label="Rôle à attribuer"
+                value={inviteRole}
+                onChange={(e) =>
+                  setInviteRole(e.target.value as AssignableRole)
+                }
+              >
+                {ASSIGNABLE_ROLES.map((role) => (
+                  <option key={role.value} value={role.value}>
+                    {role.label}
+                  </option>
+                ))}
+              </RoleSelect>
+              <InviteButton type="submit" disabled={sending}>
+                <IconSend /> {sending ? 'Envoi…' : 'Envoyer l\'invitation'}
+              </InviteButton>
+              <RoleHint>
+                {ASSIGNABLE_ROLES.find((r) => r.value === inviteRole)?.description}
+              </RoleHint>
+            </InviteRow>
+            {okMessage && <OkBanner>{okMessage}</OkBanner>}
+            {errorMessage && <ErrorBanner>{errorMessage}</ErrorBanner>}
+          </form>
+        </Card>
+      ) : (
+        <RestrictedBanner>
+          Seuls les Administrateurs et Super Administrateurs peuvent inviter de
+          nouveaux membres. Contactez un administrateur du workspace pour
+          demander un accès.
+        </RestrictedBanner>
+      )}
 
       <ListWrap>
         <ListHead>
@@ -340,6 +504,7 @@ export const BuzzleMembersSettings = () => {
               email,
               currentUser?.email,
               currentUser?.canAccessFullAdminPanel ?? false,
+              roleMap,
             );
 
             return (
