@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { currentUserState } from '@/auth/states/currentUserState';
@@ -9,6 +9,7 @@ import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
+import { MultiWorkspaceDropdownButton } from '@/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/MultiWorkspaceDropdownButton';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 // Buzzle workspace overview.
@@ -19,10 +20,8 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 
 const InkColor = '#14141c';
 const SurfaceColor = '#ffffff';
-const HairlineColor = '#d6d2c7';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 const VioletColor = '#7e37fe';
-const VioletTint = 'rgba(126, 55, 254, 0.16)';
 
 type Invoice = {
   id: string;
@@ -33,12 +32,6 @@ type Invoice = {
   balance: number;
   currency: string;
   status: string;
-};
-
-type WorkflowRecord = {
-  id: string;
-  name?: string | null;
-  statuses?: string[] | null;
 };
 
 const MY_WORKSPACE_INVOICES = gql`
@@ -99,88 +92,83 @@ const HeaderSub = styled.div`
 const HeaderActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
-  position: relative;
-`;
-
-const WorkflowTrigger = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid ${InkColor};
-  background: ${SurfaceColor};
-  color: ${InkColor};
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-  &:hover {
-    background: ${InkColor};
-    color: ${SurfaceColor};
-  }
-`;
-
-const WorkflowMenu = styled.div`
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  min-width: 260px;
-  background: ${SurfaceColor};
-  border: 1px solid ${InkColor};
-  border-radius: 12px;
-  padding: 8px;
-  box-shadow: 0 12px 32px rgba(20, 20, 28, 0.14);
-  z-index: 30;
-`;
-
-const WorkflowMenuHead = styled.div`
-  padding: 8px 10px 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-`;
-
-const WorkflowItem = styled.button`
-  display: flex;
-  align-items: center;
   gap: 10px;
-  width: 100%;
-  padding: 10px 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+`;
+
+const HeaderPeriodStrip = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: ${SurfaceColor};
+  border: 1px solid ${InkColor};
+  border-radius: 999px;
+  padding: 4px;
+`;
+
+const HeaderPeriodPill = styled.button<{ active?: boolean }>`
+  padding: 7px 14px;
+  border-radius: 999px;
   border: 0;
-  background: transparent;
-  color: ${InkColor};
+  background: ${({ active }) => (active ? InkColor : 'transparent')};
+  color: ${({ active }) => (active ? SurfaceColor : InkColor)};
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  text-align: left;
+  font-size: 12.5px;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: 8px;
-  &:hover {
-    background: rgba(20, 20, 28, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  &:hover:not(:disabled) {
+    background: ${({ active }) =>
+      active ? InkColor : 'rgba(20, 20, 28, 0.06)'};
   }
 `;
 
-const WorkflowIconChip = styled.span`
-  display: inline-flex;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  background: ${VioletTint};
-  color: ${VioletColor};
-  align-items: center;
-  justify-content: center;
+const HeaderCustomDate = styled.input`
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 0 4px;
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1);
+  }
 `;
 
-const WorkflowAddItem = styled(WorkflowItem)`
-  border-top: 1px solid ${HairlineColor};
-  margin-top: 6px;
-  padding-top: 14px;
-  color: ${InkColor};
-  font-weight: 500;
+// Wrap the workspace switcher so its dark-drawer CSS variables (inherited
+// from the sidebar) don't leak Ink colors when we render it inside a light
+// surface header. We reset the important drawer tokens back to the light
+// palette locally.
+const HeaderWorkspaceWrap = styled.div`
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid ${InkColor};
+  border-radius: 999px;
+  background: ${SurfaceColor};
+
+  --t-background-primary: #ffffff;
+  --t-background-secondary: #ffffff;
+  --t-background-tertiary: #efede6;
+  --t-background-transparent-light: rgba(20, 20, 28, 0.04);
+  --t-background-transparent-medium: rgba(20, 20, 28, 0.06);
+  --t-background-transparent-strong: rgba(20, 20, 28, 0.1);
+  --t-gray-scale-gray2: #efede6;
+  --t-color-gray2: #efede6;
+  --t-gray-scale-gray3: #f5f2ea;
+  --t-color-gray3: #f5f2ea;
+  --t-font-color-primary: ${InkColor};
+  --t-font-color-secondary: rgba(20, 20, 28, 0.72);
+  --t-font-color-tertiary: rgba(20, 20, 28, 0.55);
+  --t-font-color-light: rgba(20, 20, 28, 0.6);
+  --t-font-color-extra-light: rgba(20, 20, 28, 0.42);
+  --t-border-color-light: rgba(20, 20, 28, 0.08);
+  --t-border-color-medium: rgba(20, 20, 28, 0.14);
+  --t-border-color-strong: rgba(20, 20, 28, 0.2);
 `;
 
 const Grid = styled.div`
@@ -321,49 +309,6 @@ const CtaSecondary = styled.button`
   cursor: pointer;
   &:hover {
     background: rgba(255, 255, 255, 0.16);
-  }
-`;
-
-const PeriodRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  padding: 4px;
-  margin-top: 16px;
-`;
-
-const PeriodPill = styled.button<{ active?: boolean }>`
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 0;
-  background: ${({ active }) => (active ? SurfaceColor : 'transparent')};
-  color: ${({ active }) => (active ? InkColor : SurfaceColor)};
-  font-family: 'Inter', sans-serif;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  &:hover:not(:disabled) {
-    background: ${({ active }) => (active ? SurfaceColor : 'rgba(255,255,255,0.14)')};
-  }
-`;
-
-const CustomDate = styled.input`
-  background: transparent;
-  border: 0;
-  color: ${SurfaceColor};
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  padding: 4px 6px;
-  color-scheme: dark;
-  &::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    cursor: pointer;
   }
 `;
 
@@ -802,24 +747,6 @@ const IconArrowRight = () => (
   </svg>
 );
 
-const IconWorkflow = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="5" cy="6" r="2.2" />
-    <circle cx="19" cy="6" r="2.2" />
-    <circle cx="12" cy="18" r="2.2" />
-    <path d="M6.8 7.6 10.4 16" />
-    <path d="M17.2 7.6 13.6 16" />
-    <path d="M7 6h10" />
-  </svg>
-);
-
-const IconPlus = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
 const IconUsers = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -888,7 +815,6 @@ export const BuzzleOverviewPage = () => {
   const { findActiveObjectMetadataItemByNamePlural } =
     useFilteredObjectMetadataItems();
   const contactObject = findActiveObjectMetadataItemByNamePlural('contacts');
-  const workflowObject = findActiveObjectMetadataItemByNamePlural('workflows');
 
   const { records: contactRecords } = useFindManyRecords({
     objectNameSingular: 'contact',
@@ -896,17 +822,85 @@ export const BuzzleOverviewPage = () => {
     limit: 200,
   });
 
-  const { records: workflowRecords } = useFindManyRecords({
-    objectNameSingular: 'workflow',
-    skip: !workflowObject,
-    limit: 20,
-  });
-
   const { data: invoicesData } = useQuery<{ myWorkspaceInvoices: Invoice[] }>(
     MY_WORKSPACE_INVOICES,
     { client: apolloCoreClient, fetchPolicy: 'cache-and-network' },
   );
-  const invoices = invoicesData?.myWorkspaceInvoices ?? [];
+  const allInvoices = invoicesData?.myWorkspaceInvoices ?? [];
+  const allContacts = contactRecords ?? [];
+
+  // Calls are still mocked (waiting on a real provider) — mirror the count
+  // that BuzzleCallsPage displays so the dashboard stays in sync.
+  const MOCK_CALLS = useMemo(
+    () => [
+      { id: 'mock-1', startedAt: '2026-07-11T09:32:00Z', contactName: 'Sylvie Vartan', phoneNumber: '+33 6 87 65 43 21' },
+      { id: 'mock-2', startedAt: '2026-07-11T08:14:00Z', contactName: 'Alexandre Meyer', phoneNumber: '+33 6 12 34 56 78' },
+      { id: 'mock-3', startedAt: '2026-07-10T18:47:00Z', contactName: 'Numéro inconnu', phoneNumber: '+33 4 91 22 33 44' },
+      { id: 'mock-4', startedAt: '2026-07-10T15:03:00Z', contactName: 'Karim Bakri', phoneNumber: '+33 7 82 65 41 09' },
+    ],
+    [],
+  );
+
+  // Period filter — controls every derived value below (chart, list, cards,
+  // solde, distribution, everything).
+  const [period, setPeriod] = useState<Period>('week');
+  const [customDate, setCustomDate] = useState<string>(() => {
+    const d = new Date();
+
+    return d.toISOString().slice(0, 10);
+  });
+
+  const periodRange = useMemo(() => {
+    const now = Date.now();
+
+    if (period === 'today') {
+      const d = new Date();
+
+      d.setHours(0, 0, 0, 0);
+
+      return { start: d.getTime(), end: now };
+    }
+    if (period === 'week') {
+      return { start: now - 7 * 86400000, end: now };
+    }
+    if (period === 'month') {
+      return { start: now - 30 * 86400000, end: now };
+    }
+    // custom = the day picked in the calendar
+    const anchor = customDate ? new Date(customDate) : new Date();
+
+    anchor.setHours(0, 0, 0, 0);
+    const end = new Date(anchor);
+
+    end.setHours(23, 59, 59, 999);
+
+    return { start: anchor.getTime(), end: end.getTime() };
+  }, [period, customDate]);
+
+  const inRange = (iso?: string | null): boolean => {
+    if (!iso) return false;
+    const ts = new Date(iso).getTime();
+
+    if (Number.isNaN(ts)) return false;
+
+    return ts >= periodRange.start && ts <= periodRange.end;
+  };
+
+  const invoices = useMemo(
+    () => allInvoices.filter((i) => inRange(i.date)),
+    [allInvoices, periodRange],
+  );
+  const contacts = useMemo(
+    () =>
+      allContacts.filter((c) =>
+        inRange(typeof c.createdAt === 'string' ? c.createdAt : null),
+      ),
+    [allContacts, periodRange],
+  );
+  const calls = useMemo(
+    () => MOCK_CALLS.filter((c) => inRange(c.startedAt)),
+    [MOCK_CALLS, periodRange],
+  );
 
   const pendingBalance = invoices
     .filter((i) => i.status !== 'paid' && i.status !== 'void')
@@ -919,7 +913,6 @@ export const BuzzleOverviewPage = () => {
   const paidCount = invoices.filter((i) => i.status === 'paid').length;
   const pendingCount = totalInvoices - paidCount;
 
-  const contacts = contactRecords ?? [];
   const contactTotal = contacts.length;
   const contactByStatus = useMemo(() => {
     const buckets: Record<string, number> = {
@@ -939,47 +932,8 @@ export const BuzzleOverviewPage = () => {
   const contactNewCount = contactByStatus.NEW;
   const contactValidatedCount = contactByStatus.VALIDATED;
 
-  // Calls are still mocked (waiting on a real provider) — mirror the count
-  // that BuzzleCallsPage displays so the dashboard stays in sync.
-  const MOCK_CALLS = useMemo(
-    () => [
-      { id: 'mock-1', startedAt: '2026-07-11T09:32:00Z', contactName: 'Sylvie Vartan', phoneNumber: '+33 6 87 65 43 21' },
-      { id: 'mock-2', startedAt: '2026-07-11T08:14:00Z', contactName: 'Alexandre Meyer', phoneNumber: '+33 6 12 34 56 78' },
-      { id: 'mock-3', startedAt: '2026-07-10T18:47:00Z', contactName: 'Numéro inconnu', phoneNumber: '+33 4 91 22 33 44' },
-      { id: 'mock-4', startedAt: '2026-07-10T15:03:00Z', contactName: 'Karim Bakri', phoneNumber: '+33 7 82 65 41 09' },
-    ],
-    [],
-  );
-  const MOCK_CALLS_TOTAL = MOCK_CALLS.length;
-  const MOCK_CALLS_QUALIFIED = 1;
-
-  const [period, setPeriod] = useState<Period>('week');
-  const [customDate, setCustomDate] = useState<string>(() => {
-    const d = new Date();
-
-    return d.toISOString().slice(0, 10);
-  });
-
-  const [workflowOpen, setWorkflowOpen] = useState(false);
-  const workflowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!workflowOpen) return;
-    const handler = (event: MouseEvent) => {
-      if (
-        workflowRef.current &&
-        !workflowRef.current.contains(event.target as Node)
-      ) {
-        setWorkflowOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handler);
-
-    return () => document.removeEventListener('mousedown', handler);
-  }, [workflowOpen]);
-
-  const workflows: WorkflowRecord[] = (workflowRecords ?? []) as WorkflowRecord[];
+  const MOCK_CALLS_TOTAL = calls.length;
+  const MOCK_CALLS_QUALIFIED = 0;
 
   const totalContactsForBar = Math.max(1, contactTotal);
   const seg = (label: string, count: number, color: string) => ({
@@ -1017,7 +971,7 @@ export const BuzzleOverviewPage = () => {
     const contactDates: string[] = contacts
       .map((c) => (typeof c.createdAt === 'string' ? c.createdAt : null))
       .filter((v): v is string => Boolean(v));
-    const callDates: string[] = MOCK_CALLS.map((c) => c.startedAt);
+    const callDates: string[] = calls.map((c) => c.startedAt);
 
     const relevantDates =
       chartChannel === 'contact'
@@ -1085,7 +1039,7 @@ export const BuzzleOverviewPage = () => {
     }
 
     return buckets;
-  }, [contacts, MOCK_CALLS, chartChannel, period, customDate]);
+  }, [contacts, calls, chartChannel, period, customDate]);
 
   const chartMax = Math.max(1, ...timeline.map((b) => b.count));
   const chartTotal = timeline.reduce((s, b) => s + b.count, 0);
@@ -1154,7 +1108,7 @@ export const BuzzleOverviewPage = () => {
       })(),
       at: typeof c.createdAt === 'string' ? c.createdAt : '',
     }));
-    const callLeads: LeadItem[] = MOCK_CALLS.map((c) => ({
+    const callLeads: LeadItem[] = calls.map((c) => ({
       id: `call-${c.id}`,
       kind: 'call',
       name: c.contactName,
@@ -1170,7 +1124,7 @@ export const BuzzleOverviewPage = () => {
       .slice(0, 8);
 
     return merged;
-  }, [contacts, MOCK_CALLS, leadFilter]);
+  }, [contacts, calls, leadFilter]);
 
   const groupedLeads = useMemo(() => {
     const groups: Record<string, LeadItem[]> = {};
@@ -1211,62 +1165,44 @@ export const BuzzleOverviewPage = () => {
             activité leads et vos appels qualifiés.
           </HeaderSub>
         </HeaderText>
-        <HeaderActions ref={workflowRef}>
-          <WorkflowTrigger
-            onClick={() => setWorkflowOpen((prev) => !prev)}
-            aria-haspopup="menu"
-            aria-expanded={workflowOpen}
-          >
-            <IconWorkflow /> Workflows
-          </WorkflowTrigger>
-          {workflowOpen && (
-            <WorkflowMenu role="menu">
-              <WorkflowMenuHead>Vos automatisations</WorkflowMenuHead>
-              {workflows.length === 0 && (
-                <WorkflowItem
-                  onClick={() => {
-                    setWorkflowOpen(false);
-                    navigate('/objects/workflows');
-                  }}
-                >
-                  <WorkflowIconChip>
-                    <IconWorkflow />
-                  </WorkflowIconChip>
-                  <div>
-                    Aucun workflow pour le moment
-                    <div style={{ color: MutedColor, fontSize: 11.5 }}>
-                      Créez-en un pour automatiser vos actions.
-                    </div>
-                  </div>
-                </WorkflowItem>
+        <HeaderActions>
+          <HeaderPeriodStrip role="tablist" aria-label="Période active">
+            <HeaderPeriodPill
+              active={period === 'today'}
+              onClick={() => setPeriod('today')}
+            >
+              Aujourd'hui
+            </HeaderPeriodPill>
+            <HeaderPeriodPill
+              active={period === 'week'}
+              onClick={() => setPeriod('week')}
+            >
+              Cette semaine
+            </HeaderPeriodPill>
+            <HeaderPeriodPill
+              active={period === 'month'}
+              onClick={() => setPeriod('month')}
+            >
+              Ce mois-ci
+            </HeaderPeriodPill>
+            <HeaderPeriodPill
+              active={period === 'custom'}
+              onClick={() => setPeriod('custom')}
+            >
+              Personnaliser
+              {period === 'custom' && (
+                <HeaderCustomDate
+                  type="date"
+                  value={customDate}
+                  onChange={(e) => setCustomDate(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
               )}
-              {workflows.slice(0, 6).map((wf) => (
-                <WorkflowItem
-                  key={wf.id}
-                  onClick={() => {
-                    setWorkflowOpen(false);
-                    navigate(`/object/workflow/${wf.id}`);
-                  }}
-                >
-                  <WorkflowIconChip>
-                    <IconWorkflow />
-                  </WorkflowIconChip>
-                  <div>{wf.name || 'Workflow sans nom'}</div>
-                </WorkflowItem>
-              ))}
-              <WorkflowAddItem
-                onClick={() => {
-                  setWorkflowOpen(false);
-                  navigate('/objects/workflows');
-                }}
-              >
-                <WorkflowIconChip>
-                  <IconPlus />
-                </WorkflowIconChip>
-                Ajouter un workflow
-              </WorkflowAddItem>
-            </WorkflowMenu>
-          )}
+            </HeaderPeriodPill>
+          </HeaderPeriodStrip>
+          <HeaderWorkspaceWrap>
+            <MultiWorkspaceDropdownButton />
+          </HeaderWorkspaceWrap>
         </HeaderActions>
       </HeaderRow>
 
@@ -1317,41 +1253,6 @@ export const BuzzleOverviewPage = () => {
               Contacts
             </CtaSecondary>
           </CtaRow>
-
-          <PeriodRow>
-            <PeriodPill
-              active={period === 'today'}
-              onClick={() => setPeriod('today')}
-            >
-              Aujourd'hui
-            </PeriodPill>
-            <PeriodPill
-              active={period === 'week'}
-              onClick={() => setPeriod('week')}
-            >
-              Cette semaine
-            </PeriodPill>
-            <PeriodPill
-              active={period === 'month'}
-              onClick={() => setPeriod('month')}
-            >
-              Ce mois-ci
-            </PeriodPill>
-            <PeriodPill
-              active={period === 'custom'}
-              onClick={() => setPeriod('custom')}
-            >
-              Personnaliser
-              {period === 'custom' && (
-                <CustomDate
-                  type="date"
-                  value={customDate}
-                  onChange={(e) => setCustomDate(e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              )}
-            </PeriodPill>
-          </PeriodRow>
         </VioletCard>
 
         <DarkCard>
