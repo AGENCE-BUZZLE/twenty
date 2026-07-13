@@ -12,6 +12,7 @@ import { LazyRoute } from '@/app/components/LazyRoute';
 import { BuzzleCockpit } from '@/buzzle-admin/pages/BuzzleCockpit';
 import { BuzzleMembersSettings } from '@/buzzle-settings/BuzzleMembersSettings';
 import { BuzzleProfileSettings } from '@/buzzle-settings/BuzzleProfileSettings';
+import { BuzzleWorkspaceSettings } from '@/buzzle-settings/BuzzleWorkspaceSettings';
 import { BuzzleCallsPage } from '@/buzzle-workspace-pages/BuzzleCallsPage';
 import { BuzzleContactsPage } from '@/buzzle-workspace-pages/BuzzleContactsPage';
 import { BuzzleInvoicesPage } from '@/buzzle-workspace-pages/BuzzleInvoicesPage';
@@ -200,6 +201,10 @@ const createWorkspaceAppRouter = (
               <Route
                 path="/settings/members"
                 element={<BuzzleMembersSettings />}
+              />
+              <Route
+                path="/settings/workspace"
+                element={<BuzzleWorkspaceSettings />}
               />
               <Route
                 path={AppPath.SettingsCatchAll}

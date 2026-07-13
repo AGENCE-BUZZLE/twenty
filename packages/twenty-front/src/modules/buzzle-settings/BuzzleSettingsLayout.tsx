@@ -2,6 +2,9 @@ import { styled } from '@linaria/react';
 import { useNavigate } from 'react-router-dom';
 import { type ReactNode } from 'react';
 
+import { currentUserState } from '@/auth/states/currentUserState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+
 // Shared shell for Buzzle settings pages. Renders an eyebrow, a title,
 // a horizontal tab bar (Profil / Membres) and the page content below.
 // The Buzzle main drawer stays visible on the left because
@@ -72,7 +75,7 @@ const Tab = styled.button<{ isActive: boolean }>`
 `;
 
 type BuzzleSettingsLayoutProps = {
-  activeTab: 'profile' | 'members';
+  activeTab: 'profile' | 'members' | 'workspace';
   children: ReactNode;
 };
 
@@ -81,6 +84,9 @@ export const BuzzleSettingsLayout = ({
   children,
 }: BuzzleSettingsLayoutProps) => {
   const navigate = useNavigate();
+  const currentUser = useAtomStateValue(currentUserState);
+  const isSuperAdmin = currentUser?.canAccessFullAdminPanel ?? false;
+
   return (
     <Container>
       <PageTitle>Espace · Paramètres</PageTitle>
@@ -97,6 +103,14 @@ export const BuzzleSettingsLayout = ({
         >
           Membres
         </Tab>
+        {isSuperAdmin && (
+          <Tab
+            isActive={activeTab === 'workspace'}
+            onClick={() => navigate('/settings/workspace')}
+          >
+            Workspace
+          </Tab>
+        )}
       </TabBar>
       {children}
     </Container>

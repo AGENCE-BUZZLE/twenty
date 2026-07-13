@@ -2,7 +2,7 @@ import { styled } from '@linaria/react';
 import { useEffect, useRef, useState } from 'react';
 import { AppPath } from 'twenty-shared/types';
 import { Avatar } from 'twenty-ui/data-display';
-import { IconChevronDown, IconPlus } from 'twenty-ui/icon';
+import { IconPlus } from 'twenty-ui/icon';
 
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
@@ -32,20 +32,18 @@ const Wrap = styled.div`
 const Trigger = styled.button`
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 14px 6px 6px;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
-  border: 1px solid ${InkColor};
-  background: ${SurfaceColor};
+  border: 0;
+  background: transparent;
   color: ${InkColor};
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  padding: 0;
+  transition: opacity 0.12s;
   &:hover {
-    background: ${InkColor};
-    color: ${SurfaceColor};
+    opacity: 0.75;
   }
 `;
 
@@ -166,16 +164,16 @@ export const BuzzleWorkspacesButton = () => {
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-label={currentWorkspace?.displayName || 'Workspace'}
+        title={currentWorkspace?.displayName || 'Workspace'}
       >
         <Avatar
           placeholder={currentWorkspace?.displayName || ''}
           avatarUrl={getAbsoluteImageUrl(
             currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
           )}
-          size="sm"
+          size="md"
         />
-        {currentWorkspace?.displayName || 'Workspace'}
-        <IconChevronDown size={14} />
       </Trigger>
       {open && (
         <Menu role="menu">

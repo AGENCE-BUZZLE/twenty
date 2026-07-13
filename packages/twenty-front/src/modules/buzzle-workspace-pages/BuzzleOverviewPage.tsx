@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { currentUserState } from '@/auth/states/currentUserState';
@@ -137,6 +137,80 @@ const HeaderCustomDate = styled.input`
   &::-webkit-calendar-picker-indicator {
     cursor: pointer;
     filter: invert(1);
+  }
+`;
+
+const CustomWrap = styled.div`
+  position: relative;
+  display: inline-flex;
+`;
+
+const CustomPopover = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: ${SurfaceColor};
+  border: 1px solid ${InkColor};
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(20, 20, 28, 0.16);
+  padding: 14px 16px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 260px;
+`;
+
+const CustomPopoverRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const CustomPopoverLabel = styled.label`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: ${MutedColor};
+  width: 32px;
+`;
+
+const CustomPopoverInput = styled.input`
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border: 1px solid rgba(20, 20, 28, 0.14);
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: ${InkColor};
+  background: ${SurfaceColor};
+  &:focus {
+    outline: none;
+    border-color: ${InkColor};
+  }
+`;
+
+const CustomPopoverActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+`;
+
+const CustomPopoverButton = styled.button<{ primary?: boolean }>`
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid ${InkColor};
+  background: ${({ primary }) => (primary ? InkColor : 'transparent')};
+  color: ${({ primary }) => (primary ? SurfaceColor : InkColor)};
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  &:hover {
+    background: ${InkColor};
+    color: ${SurfaceColor};
   }
 `;
 
@@ -363,15 +437,19 @@ const AssetGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
 `;
 
 const AssetCard = styled.div`
   background: rgba(255, 255, 255, 0.04);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 8px;
+  height: 100%;
 `;
 
 const AssetHead = styled.div`
@@ -872,6 +950,24 @@ export const BuzzleOverviewPage = () => {
   };
   const [customStart, setCustomStart] = useState<string>(weekAgoIso);
   const [customEnd, setCustomEnd] = useState<string>(todayIso);
+  const [customPickerOpen, setCustomPickerOpen] = useState(false);
+  const customPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!customPickerOpen) return;
+    const handler = (event: MouseEvent) => {
+      if (
+        customPickerRef.current &&
+        !customPickerRef.current.contains(event.target as Node)
+      ) {
+        setCustomPickerOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handler);
+
+    return () => document.removeEventListener('mousedown', handler);
+  }, [customPickerOpen]);
 
   const periodRange = useMemo(() => {
     const now = Date.now();
@@ -1374,39 +1470,60 @@ export const BuzzleOverviewPage = () => {
             >
               Ce mois-ci
             </HeaderPeriodPill>
-            <HeaderPeriodPill
-              active={period === 'custom'}
-              onClick={() => setPeriod('custom')}
-            >
-              Période à définir
-              {period === 'custom' && (
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    marginLeft: 8,
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <HeaderCustomDate
-                    type="date"
-                    value={customStart}
-                    max={customEnd || undefined}
-                    onChange={(e) => setCustomStart(e.target.value)}
-                    aria-label="Date de début"
-                  />
-                  <span style={{ opacity: 0.7 }}>→</span>
-                  <HeaderCustomDate
-                    type="date"
-                    value={customEnd}
-                    min={customStart || undefined}
-                    onChange={(e) => setCustomEnd(e.target.value)}
-                    aria-label="Date de fin"
-                  />
-                </span>
+            <CustomWrap ref={customPickerRef}>
+              <HeaderPeriodPill
+                active={period === 'custom'}
+                onClick={() => {
+                  setPeriod('custom');
+                  setCustomPickerOpen((prev) => !prev);
+                }}
+              >
+                {period === 'custom' && customStart && customEnd
+                  ? `${formatShortDate(customStart)} → ${formatShortDate(customEnd)}`
+                  : 'Période à définir'}
+              </HeaderPeriodPill>
+              {customPickerOpen && (
+                <CustomPopover onClick={(e) => e.stopPropagation()}>
+                  <CustomPopoverRow>
+                    <CustomPopoverLabel htmlFor="buzzle-range-start">
+                      Du
+                    </CustomPopoverLabel>
+                    <CustomPopoverInput
+                      id="buzzle-range-start"
+                      type="date"
+                      value={customStart}
+                      max={customEnd || undefined}
+                      onChange={(e) => setCustomStart(e.target.value)}
+                    />
+                  </CustomPopoverRow>
+                  <CustomPopoverRow>
+                    <CustomPopoverLabel htmlFor="buzzle-range-end">
+                      Au
+                    </CustomPopoverLabel>
+                    <CustomPopoverInput
+                      id="buzzle-range-end"
+                      type="date"
+                      value={customEnd}
+                      min={customStart || undefined}
+                      onChange={(e) => setCustomEnd(e.target.value)}
+                    />
+                  </CustomPopoverRow>
+                  <CustomPopoverActions>
+                    <CustomPopoverButton
+                      onClick={() => setCustomPickerOpen(false)}
+                    >
+                      Fermer
+                    </CustomPopoverButton>
+                    <CustomPopoverButton
+                      primary
+                      onClick={() => setCustomPickerOpen(false)}
+                    >
+                      Appliquer
+                    </CustomPopoverButton>
+                  </CustomPopoverActions>
+                </CustomPopover>
               )}
-            </HeaderPeriodPill>
+            </CustomWrap>
           </HeaderPeriodStrip>
           <BuzzleWorkspacesButton />
         </HeaderActions>
