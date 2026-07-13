@@ -321,7 +321,16 @@ export const BuzzleWorkspaceSettings = () => {
       const url = res.data?.uploadWorkspaceLogo?.url;
 
       if (url) {
-        setCurrentWorkspace({ ...currentWorkspace, logo: url });
+        // Persist the freshly uploaded URL on the workspace record so it
+        // survives a page refresh. uploadWorkspaceLogo only writes the
+        // file; without this call the workspace still has logo = null in
+        // core.workspace and the browser falls back to the initials avatar.
+        const updated = await updateWorkspace({
+          variables: { input: { logo: url } },
+        });
+        const persistedLogo = updated.data?.updateWorkspace?.logo ?? url;
+
+        setCurrentWorkspace({ ...currentWorkspace, logo: persistedLogo });
         setLogoStatus('Enregistré');
         setTimeout(() => setLogoStatus(''), 2200);
       }
