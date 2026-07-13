@@ -1,5 +1,4 @@
 import { styled } from '@linaria/react';
-import { t } from '@lingui/core/macro';
 import { useStore } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,20 +7,17 @@ import {
   IconChevronDown,
   IconCheck,
   IconLogout,
-  IconSearch,
   IconSettings,
   IconUser,
   IconUsers,
   IconWorldWww,
 } from 'twenty-ui/icon';
-import { LightIconButton } from 'twenty-ui/input';
 import { enUS } from 'date-fns/locale';
 
 import { useAuth } from '@/auth/hooks/useAuth';
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { useInvalidateMetadataStore } from '@/metadata-store/hooks/useInvalidateMetadataStore';
 import { useUpdateWorkspaceMemberSettings } from '@/settings/profile/hooks/useUpdateWorkspaceMemberSettings';
-import { useOpenRecordsSearchPageInSidePanel } from '@/side-panel/hooks/useOpenRecordsSearchPageInSidePanel';
 import { getDateFnsLocale } from '@/ui/field/display/utils/getDateFnsLocale';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { dateLocaleState } from '~/localization/states/dateLocaleState';
@@ -144,7 +140,6 @@ type MenuVariant = 'root' | 'languages';
 
 export const BuzzleSettingsFooter = () => {
   const navigate = useNavigate();
-  const { openRecordsSearchPage } = useOpenRecordsSearchPageInSidePanel();
   const { signOut } = useAuth();
   const store = useStore();
   const [currentWorkspaceMember, setCurrentWorkspaceMember] = useAtomState(
@@ -224,14 +219,6 @@ export const BuzzleSettingsFooter = () => {
           <IconChevronDown size={14} />
         </TriggerIcon>
       </Trigger>
-      <LightIconButton
-        Icon={IconSearch}
-        accent="secondary"
-        size="small"
-        onClick={openRecordsSearchPage}
-        aria-label={t`Search`}
-      />
-
       {open && variant === 'root' && (
         <Menu role="menu">
           <MenuItem
