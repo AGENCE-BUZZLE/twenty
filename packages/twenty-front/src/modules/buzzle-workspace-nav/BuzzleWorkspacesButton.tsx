@@ -1,23 +1,21 @@
 import { styled } from '@linaria/react';
 import { useEffect, useRef, useState } from 'react';
-import { AppPath } from 'twenty-shared/types';
 import { Avatar } from 'twenty-ui/data-display';
-import { IconPlus } from 'twenty-ui/icon';
 
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
-import { countAvailableWorkspaces } from '@/auth/utils/availableWorkspacesUtils';
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
 import { useRedirect } from '@/domain-manager/hooks/useRedirect';
-import { useRedirectToDefaultDomain } from '@/domain-manager/hooks/useRedirectToDefaultDomain';
 import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
 import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
 import { type AvailableWorkspace } from '~/generated-metadata/graphql';
 
-// Buzzle: header trigger that lists workspaces + "Ajouter un workspace"
-// only. No Profil / Membres / Langue / Logout — those live in the sidebar
+// Buzzle: header trigger listing only the workspaces available to the
+// current super admin. Workspace creation is handled from Claude / the
+// backend cockpit, not from this menu. No Profil / Membres / Langue —
+// those live in the sidebar Paramètres footer.
 // Paramètres footer.
 
 const InkColor = '#14141c';
@@ -88,24 +86,6 @@ const MenuItem = styled.button`
   }
 `;
 
-const AddItem = styled(MenuItem)`
-  border-top: 1px solid rgba(20, 20, 28, 0.08);
-  margin-top: 6px;
-  padding-top: 14px;
-  font-weight: 500;
-`;
-
-const AddPlus = styled.span`
-  display: inline-flex;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  background: rgba(126, 55, 254, 0.16);
-  color: #7e37fe;
-  align-items: center;
-  justify-content: center;
-`;
-
 const ActiveTag = styled.span`
   margin-left: auto;
   font-family: 'JetBrains Mono', monospace;
@@ -118,11 +98,8 @@ const ActiveTag = styled.span`
 export const BuzzleWorkspacesButton = () => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const availableWorkspaces = useAtomStateValue(availableWorkspacesState);
-  const availableWorkspacesCount =
-    countAvailableWorkspaces(availableWorkspaces);
   const { buildWorkspaceUrl } = useBuildWorkspaceUrl();
   const { redirect } = useRedirect();
-  const { redirectToDefaultDomain } = useRedirectToDefaultDomain();
 
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -146,14 +123,6 @@ export const BuzzleWorkspacesButton = () => {
     // deliberate workspace switches for Clément. We drive the redirect
     // ourselves so the click always lands on the target subdomain.
     redirect(buildWorkspaceUrl(getWorkspaceUrl(target.workspaceUrls)));
-  };
-
-  const openCreate = () => {
-    setOpen(false);
-    redirectToDefaultDomain({
-      pathname: AppPath.SignInUp,
-      searchParams: { action: 'create-new-workspace' },
-    });
   };
 
   const list = [
@@ -208,12 +177,6 @@ export const BuzzleWorkspacesButton = () => {
               </MenuItem>
             );
           })}
-          <AddItem onClick={openCreate}>
-            <AddPlus>
-              <IconPlus size={14} />
-            </AddPlus>
-            Ajouter un workspace
-          </AddItem>
         </Menu>
       )}
     </Wrap>
