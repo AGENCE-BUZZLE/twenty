@@ -8,8 +8,8 @@ import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { countAvailableWorkspaces } from '@/auth/utils/availableWorkspacesUtils';
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
+import { useRedirect } from '@/domain-manager/hooks/useRedirect';
 import { useRedirectToDefaultDomain } from '@/domain-manager/hooks/useRedirectToDefaultDomain';
-import { useRedirectToWorkspaceDomain } from '@/domain-manager/hooks/useRedirectToWorkspaceDomain';
 import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
@@ -121,7 +121,7 @@ export const BuzzleWorkspacesButton = () => {
   const availableWorkspacesCount =
     countAvailableWorkspaces(availableWorkspaces);
   const { buildWorkspaceUrl } = useBuildWorkspaceUrl();
-  const { redirectToWorkspaceDomain } = useRedirectToWorkspaceDomain();
+  const { redirect } = useRedirect();
   const { redirectToDefaultDomain } = useRedirectToDefaultDomain();
 
   const [open, setOpen] = useState(false);
@@ -142,7 +142,10 @@ export const BuzzleWorkspacesButton = () => {
 
   const goTo = (target: AvailableWorkspace) => {
     setOpen(false);
-    redirectToWorkspaceDomain(getWorkspaceUrl(target.workspaceUrls));
+    // Bypass useRedirectToWorkspaceDomain — its super-admin guard blocks
+    // deliberate workspace switches for Clément. We drive the redirect
+    // ourselves so the click always lands on the target subdomain.
+    redirect(buildWorkspaceUrl(getWorkspaceUrl(target.workspaceUrls)));
   };
 
   const openCreate = () => {
