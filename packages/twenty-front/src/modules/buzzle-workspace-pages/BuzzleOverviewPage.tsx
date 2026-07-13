@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { currentUserState } from '@/auth/states/currentUserState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
+import { BuzzleLeadDrawer, type BuzzleLeadDrawerField } from '@/buzzle-workspace-pages/BuzzleLeadDrawer';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
@@ -191,6 +192,7 @@ const VioletCard = styled.div`
   gap: 14px;
   position: relative;
   overflow: hidden;
+  height: 260px;
 `;
 
 const VioletHead = styled.div`
@@ -319,6 +321,7 @@ const DarkCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  height: 260px;
 `;
 
 const DarkCardHead = styled.div`
@@ -496,6 +499,9 @@ const ChartCard = styled.div`
   padding: 16px 20px 12px;
   position: relative;
   overflow: visible;
+  height: 320px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ChartCardHead = styled.div`
@@ -546,7 +552,8 @@ const ChannelPill = styled.button<{ active?: boolean }>`
 const ChartArea = styled.div`
   position: relative;
   width: 100%;
-  height: 200px;
+  flex: 1 1 auto;
+  min-height: 0;
 `;
 
 const ChartSvg = styled.svg`
@@ -598,8 +605,7 @@ const LeadsCard = styled.div`
   padding: 16px 18px 12px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  max-height: 320px;
+  height: 320px;
 `;
 
 const LeadsScroll = styled.div`
@@ -1174,6 +1180,107 @@ export const BuzzleOverviewPage = () => {
   };
 
   const [leadFilter, setLeadFilter] = useState<Channel>('all');
+  const [detailDrawer, setDetailDrawer] = useState<{
+    title: string;
+    fields: BuzzleLeadDrawerField[];
+  } | null>(null);
+
+  // Build drawer fields from a contact / call and open the drawer. Mirrors
+  // the "Voir les informations" behavior on the /contacts page.
+  const openContactDrawer = (contactId: string) => {
+    const record = allContacts.find((c) => c.id === contactId);
+
+    if (!record) return;
+    const name =
+      typeof record.name === 'string' && record.name.trim().length > 0
+        ? record.name
+        : 'Détail du contact';
+    const phone = (() => {
+      const p = record.phone as {
+        primaryPhoneCallingCode?: string;
+        primaryPhoneNumber?: string;
+      } | null | undefined;
+
+      if (!p || typeof p !== 'object') return '';
+
+      return `${p.primaryPhoneCallingCode ?? ''} ${p.primaryPhoneNumber ?? ''}`.trim();
+    })();
+    const email = (() => {
+      const e = record.email as { primaryEmail?: string } | null | undefined;
+
+      if (!e || typeof e !== 'object') return '';
+
+      return e.primaryEmail ?? '';
+    })();
+
+    setDetailDrawer({
+      title: name,
+      fields: [
+        {
+          label: 'Reçu le',
+          value: typeof record.createdAt === 'string'
+            ? new Date(record.createdAt).toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : '',
+        },
+        { label: 'Email', value: email },
+        { label: 'Téléphone', value: phone },
+        {
+          label: 'Message',
+          value: typeof record.message === 'string' ? record.message : '',
+        },
+        {
+          label: 'Statut',
+          value: typeof record.status === 'string' ? record.status : '',
+        },
+        {
+          label: 'Google Click ID',
+          value: typeof record.gclid === 'string' ? record.gclid : '',
+        },
+        {
+          label: 'UTM Source',
+          value: typeof record.utmSource === 'string' ? record.utmSource : '',
+        },
+        {
+          label: 'UTM Medium',
+          value: typeof record.utmMedium === 'string' ? record.utmMedium : '',
+        },
+        {
+          label: 'UTM Campaign',
+          value:
+            typeof record.utmCampaign === 'string' ? record.utmCampaign : '',
+        },
+      ],
+    });
+  };
+
+  const openCallDrawer = (callId: string) => {
+    const record = MOCK_CALLS.find((c) => c.id === callId);
+
+    if (!record) return;
+    setDetailDrawer({
+      title: record.contactName,
+      fields: [
+        {
+          label: 'Reçu le',
+          value: new Date(record.startedAt).toLocaleString('fr-FR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        },
+        { label: 'Numéro', value: record.phoneNumber },
+        { label: 'Contact', value: record.contactName },
+      ],
+    });
+  };
 
   const leads: LeadItem[] = useMemo(() => {
     const contactLeads: LeadItem[] = contacts.map((c) => ({
@@ -1605,9 +1712,12 @@ export const BuzzleOverviewPage = () => {
                         <LeadTime>{formatHourMin(lead.at)}</LeadTime>
                         <LeadEyeButton
                           aria-label={`Voir ${lead.name}`}
-                          onClick={() =>
-                            navigate(lead.kind === 'contact' ? '/contacts' : '/calls')
-                          }
+                          onClick={() => {
+                            const rawId = lead.id.replace(/^(contact|call)-/, '');
+
+                            if (lead.kind === 'contact') openContactDrawer(rawId);
+                            else openCallDrawer(rawId);
+                          }}
                         >
                           <IconEye />
                         </LeadEyeButton>
@@ -1631,6 +1741,14 @@ export const BuzzleOverviewPage = () => {
           )}
         </LeadsCard>
       </LowerGrid>
+
+      {detailDrawer && (
+        <BuzzleLeadDrawer
+          title={detailDrawer.title}
+          fields={detailDrawer.fields}
+          onClose={() => setDetailDrawer(null)}
+        />
+      )}
     </Container>
   );
 };
