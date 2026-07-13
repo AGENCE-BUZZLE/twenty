@@ -53,11 +53,11 @@ const Container = styled.div`
   flex: 1 1 auto;
   align-self: stretch;
   width: 100%;
-  padding: 48px 48px 60px;
+  padding: 28px 40px 32px;
   color: ${InkColor};
   overflow-y: auto;
   > * {
-    max-width: 1280px;
+    max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -67,19 +67,19 @@ const HeaderRow = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 32px;
-  gap: 24px;
+  margin-bottom: 16px;
+  gap: 20px;
 `;
 
 const HeaderText = styled.div``;
 
 const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 700;
-  letter-spacing: -0.028em;
+  letter-spacing: -0.024em;
   color: ${InkColor};
-  margin: 0 0 12px;
+  margin: 0;
 `;
 
 const HeaderSub = styled.div`
@@ -174,8 +174,8 @@ const HeaderWorkspaceWrap = styled.div`
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 14px;
   @media (max-width: 960px) {
     grid-template-columns: 1fr;
   }
@@ -184,11 +184,11 @@ const Grid = styled.div`
 const VioletCard = styled.div`
   background: ${VioletColor};
   color: #ffffff;
-  border-radius: 20px;
-  padding: 24px 26px;
+  border-radius: 18px;
+  padding: 18px 22px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   position: relative;
   overflow: hidden;
 `;
@@ -196,7 +196,7 @@ const VioletCard = styled.div`
 const VioletHead = styled.div`
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
 `;
 
 const VioletEyebrow = styled.div`
@@ -255,7 +255,7 @@ const VioletBalanceLabel = styled.div`
 
 const VioletBalanceValue = styled.div`
   font-family: 'Inter Tight', sans-serif;
-  font-size: 44px;
+  font-size: 34px;
   font-weight: 500;
   letter-spacing: -0.024em;
   line-height: 1.05;
@@ -314,11 +314,11 @@ const CtaSecondary = styled.button`
 const DarkCard = styled.div`
   background: ${InkColor};
   color: ${SurfaceColor};
-  border-radius: 20px;
-  padding: 22px 24px;
+  border-radius: 18px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 `;
 
 const DarkCardHead = styled.div`
@@ -359,16 +359,16 @@ const GoToLink = styled.button`
 const AssetGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 `;
 
 const AssetCard = styled.div`
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 14px;
-  padding: 16px 18px;
+  border-radius: 12px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 `;
 
 const AssetHead = styled.div`
@@ -403,7 +403,7 @@ const AssetType = styled.div`
 
 const AssetValue = styled.div`
   font-family: 'Inter Tight', sans-serif;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 500;
   letter-spacing: -0.02em;
 `;
@@ -483,7 +483,7 @@ const LegendDot = styled.span<{ color: string }>`
 const LowerGrid = styled.div`
   display: grid;
   grid-template-columns: 1.4fr 1fr;
-  gap: 20px;
+  gap: 14px;
   @media (max-width: 1080px) {
     grid-template-columns: 1fr;
   }
@@ -492,8 +492,8 @@ const LowerGrid = styled.div`
 const ChartCard = styled.div`
   background: ${InkColor};
   color: ${SurfaceColor};
-  border-radius: 20px;
-  padding: 22px 24px 16px;
+  border-radius: 18px;
+  padding: 16px 20px 12px;
   position: relative;
   overflow: visible;
 `;
@@ -546,7 +546,7 @@ const ChannelPill = styled.button<{ active?: boolean }>`
 const ChartArea = styled.div`
   position: relative;
   width: 100%;
-  height: 260px;
+  height: 200px;
 `;
 
 const ChartSvg = styled.svg`
@@ -594,12 +594,12 @@ const ChartTooltipTrend = styled.div`
 const LeadsCard = styled.div`
   background: ${InkColor};
   color: ${SurfaceColor};
-  border-radius: 20px;
-  padding: 22px 22px 18px;
+  border-radius: 18px;
+  padding: 16px 18px 12px;
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: 420px;
+  max-height: 320px;
 `;
 
 const LeadsScroll = styled.div`
@@ -854,13 +854,18 @@ export const BuzzleOverviewPage = () => {
   );
 
   // Period filter — controls every derived value below (chart, list, cards,
-  // solde, distribution, everything).
+  // solde, distribution, everything). "custom" is a start → end range.
   const [period, setPeriod] = useState<Period>('week');
-  const [customDate, setCustomDate] = useState<string>(() => {
+  const todayIso = () => new Date().toISOString().slice(0, 10);
+  const weekAgoIso = () => {
     const d = new Date();
 
+    d.setDate(d.getDate() - 6);
+
     return d.toISOString().slice(0, 10);
-  });
+  };
+  const [customStart, setCustomStart] = useState<string>(weekAgoIso);
+  const [customEnd, setCustomEnd] = useState<string>(todayIso);
 
   const periodRange = useMemo(() => {
     const now = Date.now();
@@ -878,16 +883,21 @@ export const BuzzleOverviewPage = () => {
     if (period === 'month') {
       return { start: now - 30 * 86400000, end: now };
     }
-    // custom = the day picked in the calendar
-    const anchor = customDate ? new Date(customDate) : new Date();
+    // custom = start / end range picked in the header
+    const start = customStart ? new Date(customStart) : new Date();
 
-    anchor.setHours(0, 0, 0, 0);
-    const end = new Date(anchor);
+    start.setHours(0, 0, 0, 0);
+    const end = customEnd ? new Date(customEnd) : new Date();
 
     end.setHours(23, 59, 59, 999);
 
-    return { start: anchor.getTime(), end: end.getTime() };
-  }, [period, customDate]);
+    // Guard against inverted range — swap if end is before start.
+    if (end.getTime() < start.getTime()) {
+      return { start: end.getTime(), end: start.getTime() };
+    }
+
+    return { start: start.getTime(), end: end.getTime() };
+  }, [period, customStart, customEnd]);
 
   const inRange = (iso?: string | null): boolean => {
     if (!iso) return false;
@@ -1038,6 +1048,73 @@ export const BuzzleOverviewPage = () => {
       }
     };
 
+    const pushRangeBuckets = (startIso: string, endIso: string) => {
+      const start = new Date(startIso);
+      const end = new Date(endIso);
+
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      let a = start.getTime();
+      let b = end.getTime();
+
+      if (b < a) [a, b] = [b, a];
+      const spanDays = Math.max(1, Math.ceil((b - a) / 86400000));
+
+      // Single day → same 8x3h buckets as "today"
+      if (spanDays <= 1) {
+        pushHourBuckets(new Date(a));
+        return;
+      }
+      // Cap at 60 buckets to keep the chart readable — daily up to 60 days,
+      // otherwise aggregate by week.
+      if (spanDays <= 60) {
+        const now = new Date();
+
+        for (let i = spanDays - 1; i >= 0; i -= 1) {
+          const d = new Date(now);
+          const target = new Date(b);
+
+          target.setDate(target.getDate() - i);
+          target.setHours(0, 0, 0, 0);
+          d.getTime();
+          const dayEnd = new Date(target);
+
+          dayEnd.setHours(23, 59, 59, 999);
+          const label = target.toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: 'short',
+          });
+          const count = relevantDates.filter((iso2) => {
+            const ts = new Date(iso2).getTime();
+
+            return ts >= target.getTime() && ts <= dayEnd.getTime();
+          }).length;
+
+          buckets.push({ label, iso: target.toISOString(), count });
+        }
+        return;
+      }
+      // Weekly aggregation for very long ranges.
+      const weekMs = 7 * 86400000;
+      const totalWeeks = Math.ceil((b - a) / weekMs);
+
+      for (let i = 0; i < totalWeeks; i += 1) {
+        const wStart = a + i * weekMs;
+        const wEnd = Math.min(b, wStart + weekMs - 1);
+        const label = new Date(wStart).toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: 'short',
+        });
+        const count = relevantDates.filter((iso2) => {
+          const ts = new Date(iso2).getTime();
+
+          return ts >= wStart && ts <= wEnd;
+        }).length;
+
+        buckets.push({ label, iso: new Date(wStart).toISOString(), count });
+      }
+    };
+
     if (period === 'today') {
       pushHourBuckets(periodStart);
     } else if (period === 'week') {
@@ -1045,13 +1122,11 @@ export const BuzzleOverviewPage = () => {
     } else if (period === 'month') {
       pushDayBuckets(30);
     } else {
-      const anchor = customDate ? new Date(customDate) : new Date();
-
-      pushHourBuckets(anchor);
+      pushRangeBuckets(customStart, customEnd);
     }
 
     return buckets;
-  }, [contacts, calls, chartChannel, period, customDate]);
+  }, [contacts, calls, chartChannel, period, customStart, customEnd]);
 
   const chartMax = Math.max(1, ...timeline.map((b) => b.count));
   const chartTotal = timeline.reduce((s, b) => s + b.count, 0);
@@ -1196,14 +1271,33 @@ export const BuzzleOverviewPage = () => {
               active={period === 'custom'}
               onClick={() => setPeriod('custom')}
             >
-              Personnaliser
+              Période à définir
               {period === 'custom' && (
-                <HeaderCustomDate
-                  type="date"
-                  value={customDate}
-                  onChange={(e) => setCustomDate(e.target.value)}
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    marginLeft: 8,
+                  }}
                   onClick={(e) => e.stopPropagation()}
-                />
+                >
+                  <HeaderCustomDate
+                    type="date"
+                    value={customStart}
+                    max={customEnd || undefined}
+                    onChange={(e) => setCustomStart(e.target.value)}
+                    aria-label="Date de début"
+                  />
+                  <span style={{ opacity: 0.7 }}>→</span>
+                  <HeaderCustomDate
+                    type="date"
+                    value={customEnd}
+                    min={customStart || undefined}
+                    onChange={(e) => setCustomEnd(e.target.value)}
+                    aria-label="Date de fin"
+                  />
+                </span>
               )}
             </HeaderPeriodPill>
           </HeaderPeriodStrip>
@@ -1214,9 +1308,6 @@ export const BuzzleOverviewPage = () => {
       <Grid>
         <VioletCard>
           <VioletHead>
-            <div>
-              <VioletEyebrow>Overview · {monthLabel()}</VioletEyebrow>
-            </div>
             <VioletTrend tone={overdueTrend}>
               <IconArrowUp /> {overdueSummary}
             </VioletTrend>
@@ -1287,7 +1378,7 @@ export const BuzzleOverviewPage = () => {
             <div>
               <ChartCardTitle>Leads</ChartCardTitle>
               <ChartCardSub>
-                Volume cumulé sur {period === 'today' ? 'la journée' : period === 'week' ? '7 jours' : period === 'month' ? '30 jours' : 'la journée sélectionnée'}
+                Volume cumulé sur {period === 'today' ? 'la journée' : period === 'week' ? '7 jours' : period === 'month' ? '30 jours' : `du ${formatShortDate(customStart)} au ${formatShortDate(customEnd)}`}
               </ChartCardSub>
             </div>
             <ChannelPills>
