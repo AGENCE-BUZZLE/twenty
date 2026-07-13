@@ -2,8 +2,10 @@ import { useMutation } from '@apollo/client/react';
 import { styled } from '@linaria/react';
 import { useState } from 'react';
 
+import { currentUserState } from '@/auth/states/currentUserState';
 import { BuzzleSettingsLayout } from '@/buzzle-settings/BuzzleSettingsLayout';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { SendInvitationsDocument } from '~/generated-metadata/graphql';
 
 // Members management (Buzzle visual). Lists workspaceMember records and
@@ -171,16 +173,24 @@ const EmailCell = styled.div`
   font-size: 12.5px;
 `;
 
-const RoleTag = styled.span`
+const RoleTag = styled.span<{ tone?: 'super' | 'admin' | 'standard' | 'read' }>`
   display: inline-block;
   padding: 3px 10px;
   border-radius: 999px;
-  background: ${PaperColor};
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: ${InkColor};
+  background: ${({ tone }) =>
+    tone === 'super'
+      ? 'rgba(126, 55, 254, 0.16)'
+      : tone === 'admin'
+        ? 'rgba(20, 20, 28, 0.08)'
+        : tone === 'standard'
+          ? 'rgba(20, 20, 28, 0.06)'
+          : 'rgba(20, 20, 28, 0.04)'};
+  color: ${({ tone }) =>
+    tone === 'super' ? '#5b1fd9' : InkColor};
 `;
 
 const EmptyRow = styled.div`
@@ -217,11 +227,35 @@ const displayName = (name?: {
   return full || 'Sans nom';
 };
 
+// Temporary role mapping. Twenty's real 4-role system (Super Administrateur /
+// Administrateur / Standard / Lecture seule) will be wired to the workspace
+// roleTargets table in a follow-up. For now we recognise super admins by the
+// canAccessFullAdminPanel flag carried by the currently authenticated user;
+// every other member reads as "Administrateur" by default (the client owns
+// their workspace).
+const resolveRole = (
+  memberEmail: string | undefined,
+  currentUserEmail: string | undefined,
+  currentUserIsSuperAdmin: boolean,
+): { label: string; tone: 'super' | 'admin' | 'standard' | 'read' } => {
+  if (
+    currentUserIsSuperAdmin &&
+    memberEmail &&
+    memberEmail === currentUserEmail
+  ) {
+    return { label: 'Super Administrateur', tone: 'super' };
+  }
+
+  return { label: 'Administrateur', tone: 'admin' };
+};
+
 export const BuzzleMembersSettings = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [okMessage, setOkMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [sending, setSending] = useState(false);
+
+  const currentUser = useAtomStateValue(currentUserState);
 
   const { records, loading, refetch } = useFindManyRecords({
     objectNameSingular: 'workspaceMember',
@@ -299,32 +333,40 @@ export const BuzzleMembersSettings = () => {
         {loading && (!records || records.length === 0) ? (
           <EmptyRow>Chargement des membres…</EmptyRow>
         ) : records && records.length > 0 ? (
-          records.map((row) => (
-            <ListRow key={row.id}>
-              <NameCell>
-                <Avatar>
-                  {initialsOf(
+          records.map((row) => {
+            const email =
+              typeof row.userEmail === 'string' ? row.userEmail : '';
+            const role = resolveRole(
+              email,
+              currentUser?.email,
+              currentUser?.canAccessFullAdminPanel ?? false,
+            );
+
+            return (
+              <ListRow key={row.id}>
+                <NameCell>
+                  <Avatar>
+                    {initialsOf(
+                      row.name as {
+                        firstName?: string;
+                        lastName?: string;
+                      } | null,
+                    )}
+                  </Avatar>
+                  {displayName(
                     row.name as {
                       firstName?: string;
                       lastName?: string;
                     } | null,
                   )}
-                </Avatar>
-                {displayName(
-                  row.name as {
-                    firstName?: string;
-                    lastName?: string;
-                  } | null,
-                )}
-              </NameCell>
-              <EmailCell>
-                {typeof row.userEmail === 'string' ? row.userEmail : ''}
-              </EmailCell>
-              <div>
-                <RoleTag>Membre</RoleTag>
-              </div>
-            </ListRow>
-          ))
+                </NameCell>
+                <EmailCell>{email}</EmailCell>
+                <div>
+                  <RoleTag tone={role.tone}>{role.label}</RoleTag>
+                </div>
+              </ListRow>
+            );
+          })
         ) : (
           <EmptyRow>Aucun membre pour le moment.</EmptyRow>
         )}
