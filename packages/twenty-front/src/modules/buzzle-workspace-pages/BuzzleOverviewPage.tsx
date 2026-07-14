@@ -1026,16 +1026,19 @@ export const BuzzleOverviewPage = () => {
     [MOCK_CALLS, periodRange],
   );
 
-  const pendingBalance = invoices
-    .filter((i) => i.status !== 'paid' && i.status !== 'void')
-    .reduce((s, i) => s + i.balance, 0);
-  const overdueInvoices = invoices.filter((i) => i.status === 'overdue');
+  // Solde impayé et retards sont TOUJOURS calculés sur l'ensemble des
+  // factures, jamais filtrés par période. Une facture ouverte reste
+  // ouverte tant qu'elle n'est pas réglée, même si Clément regarde la
+  // journée d'aujourd'hui.
+  const unpaidInvoices = allInvoices.filter(
+    (i) => i.status !== 'paid' && i.status !== 'void',
+  );
+  const pendingBalance = unpaidInvoices.reduce((s, i) => s + i.balance, 0);
+  const overdueInvoices = unpaidInvoices.filter((i) => i.status === 'overdue');
   const lastOverdue = overdueInvoices
     .slice()
     .sort((a, b) => (a.date < b.date ? 1 : -1))[0];
-  const totalInvoices = invoices.length;
-  const paidCount = invoices.filter((i) => i.status === 'paid').length;
-  const pendingCount = totalInvoices - paidCount;
+  const pendingCount = unpaidInvoices.length;
 
   const contactTotal = contacts.length;
   const contactByStatus = useMemo(() => {
