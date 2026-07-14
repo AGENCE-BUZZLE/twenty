@@ -4,12 +4,10 @@ import { Avatar } from 'twenty-ui/data-display';
 
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
-import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
-import { useRedirect } from '@/domain-manager/hooks/useRedirect';
+import { useBuzzleImpersonateWorkspace } from '@/buzzle-admin/hooks/useBuzzleImpersonateWorkspace';
 import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
-import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
 import { type AvailableWorkspace } from '~/generated-metadata/graphql';
 
 // Buzzle: header trigger listing only the workspaces available to the
@@ -98,8 +96,7 @@ const ActiveTag = styled.span`
 export const BuzzleWorkspacesButton = () => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const availableWorkspaces = useAtomStateValue(availableWorkspacesState);
-  const { buildWorkspaceUrl } = useBuildWorkspaceUrl();
-  const { redirect } = useRedirect();
+  const { openWorkspace, pendingWorkspaceId } = useBuzzleImpersonateWorkspace();
 
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -118,11 +115,13 @@ export const BuzzleWorkspacesButton = () => {
   }, [open]);
 
   const goTo = (target: AvailableWorkspace) => {
+    // Impersonation path: mints a fresh loginToken scoped to the target
+    // workspace and lands on `<target>/verify?loginToken=…`, which is
+    // what actually rewrites the local tokenPair. A plain redirect here
+    // leaked data across tenants (browser reused the source workspace
+    // JWT when localStorage had none for the target subdomain).
     setOpen(false);
-    // Bypass useRedirectToWorkspaceDomain — its super-admin guard blocks
-    // deliberate workspace switches for Clément. We drive the redirect
-    // ourselves so the click always lands on the target subdomain.
-    redirect(buildWorkspaceUrl(getWorkspaceUrl(target.workspaceUrls)));
+    void openWorkspace(target.id);
   };
 
   const list = [
@@ -159,10 +158,12 @@ export const BuzzleWorkspacesButton = () => {
           )}
           {list.map((workspace) => {
             const isActive = workspace.id === currentWorkspace?.id;
+            const isSwitching = pendingWorkspaceId === workspace.id;
 
             return (
               <MenuItem
                 key={workspace.id}
+                disabled={pendingWorkspaceId !== null}
                 onClick={() => (isActive ? setOpen(false) : goTo(workspace))}
               >
                 <Avatar
@@ -173,7 +174,8 @@ export const BuzzleWorkspacesButton = () => {
                   size="sm"
                 />
                 {workspace.displayName ?? '(Sans nom)'}
-                {isActive && <ActiveTag>Actif</ActiveTag>}
+                {isSwitching && <ActiveTag>…</ActiveTag>}
+                {!isSwitching && isActive && <ActiveTag>Actif</ActiveTag>}
               </MenuItem>
             );
           })}
