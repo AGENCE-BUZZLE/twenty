@@ -731,8 +731,12 @@ export const BuzzleInvoicesPage = () => {
   };
 
   const allInvoices = data?.myWorkspaceInvoices ?? [];
+  // Unpaid invoices stay visible even when they fall outside the active
+  // period, so nothing outstanding gets hidden behind a date filter. The
+  // period only narrows the paid / void history around them.
+  const isUnpaid = (i: Invoice) => i.status !== 'paid' && i.status !== 'void';
   const invoices = useMemo(
-    () => allInvoices.filter((i) => inRange(i.date)),
+    () => allInvoices.filter((i) => isUnpaid(i) || inRange(i.date)),
     [allInvoices, periodRange],
   );
 
