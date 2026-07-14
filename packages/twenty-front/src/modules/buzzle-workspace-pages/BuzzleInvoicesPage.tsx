@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
+import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 import { getTokenPair } from '@/apollo/utils/getTokenPair';
@@ -11,15 +12,16 @@ import { getTokenPair } from '@/apollo/utils/getTokenPair';
 const PAGE_SIZE = 10;
 
 // Real /invoices page: pulls Zoho-backed invoices for the current workspace
-// through the myWorkspaceInvoices query. When a workspace is not yet linked
-// to a Zoho customer, the resolver returns an empty list and we render a
-// gentle "aucune facture" state.
+// through the myWorkspaceInvoices query, laid out in the same visual system
+// as the Vue d'ensemble dashboard: compact header with the period strip
+// and workspace switcher, a violet "Solde à régler" card, an Ink activity
+// card, and the table wrapped in a light surface underneath.
 
 const InkColor = '#14141c';
-const PaperColor = '#efede6';
 const HairlineColor = '#d6d2c7';
 const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
+const VioletColor = '#7e37fe';
 
 const MY_WORKSPACE_INVOICES = gql`
   query MyWorkspaceInvoices {
@@ -51,72 +53,320 @@ const Container = styled.div`
   flex: 1 1 auto;
   align-self: stretch;
   width: 100%;
-  padding: 60px 48px 60px;
+  padding: 28px 40px 32px;
   color: ${InkColor};
   overflow-y: auto;
   > * {
-    max-width: 1080px;
+    max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
   }
 `;
 
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 20px;
+`;
+
+const HeaderText = styled.div``;
+
 const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 700;
-  letter-spacing: -0.028em;
+  letter-spacing: -0.024em;
   color: ${InkColor};
-  margin: 0 0 14px;
+  margin: 0;
 `;
 
-const Lede = styled.p`
-  margin: 0 0 32px;
-  color: ${MutedColor};
-  font-size: 15px;
-  line-height: 1.6;
-  display: block;
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 `;
 
-const LedeIcon = styled.span`
+const HeaderPeriodStrip = styled.div`
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  color: ${InkColor};
-  margin: 0 4px;
-  vertical-align: -3px;
+  gap: 4px;
+  background: ${SurfaceColor};
+  border: 1px solid ${InkColor};
+  border-radius: 999px;
+  padding: 4px;
 `;
 
-const SummaryRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
+const HeaderPeriodPill = styled.button<{ active?: boolean }>`
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: ${({ active }) => (active ? InkColor : 'transparent')};
+  color: ${({ active }) => (active ? SurfaceColor : InkColor)};
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  &:hover:not(:disabled) {
+    background: ${({ active }) =>
+      active ? InkColor : 'rgba(20, 20, 28, 0.06)'};
+  }
 `;
 
-const SummaryCard = styled.div`
+const CustomWrap = styled.div`
+  position: relative;
+  display: inline-flex;
+`;
+
+const CustomPopover = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: ${SurfaceColor};
   border: 1px solid ${InkColor};
   border-radius: 12px;
-  padding: 18px 20px;
-  background: ${SurfaceColor};
-  color: ${InkColor};
+  box-shadow: 0 12px 32px rgba(20, 20, 28, 0.16);
+  padding: 14px 16px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 260px;
 `;
 
-const SummaryLabel = styled.div`
+const CustomPopoverRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const CustomPopoverLabel = styled.label`
   font-family: 'JetBrains Mono', monospace;
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: ${InkColor};
-  margin-bottom: 8px;
+  color: ${MutedColor};
+  width: 32px;
 `;
 
-const SummaryValue = styled.div`
+const CustomPopoverInput = styled.input`
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border: 1px solid rgba(20, 20, 28, 0.14);
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: ${InkColor};
+  background: ${SurfaceColor};
+  &:focus {
+    outline: none;
+    border-color: ${InkColor};
+  }
+`;
+
+const CustomPopoverActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+`;
+
+const CustomPopoverButton = styled.button<{ primary?: boolean }>`
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid ${InkColor};
+  background: ${({ primary }) => (primary ? InkColor : 'transparent')};
+  color: ${({ primary }) => (primary ? SurfaceColor : InkColor)};
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  &:hover {
+    background: ${InkColor};
+    color: ${SurfaceColor};
+  }
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const VioletCard = styled.div`
+  background: ${VioletColor};
+  color: #ffffff;
+  border-radius: 18px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  height: 260px;
+`;
+
+const VioletHead = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+`;
+
+const VioletTrend = styled.span<{ tone: 'up' | 'down' | 'flat' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  background: rgba(255, 255, 255, 0.16);
+  color: ${({ tone }) =>
+    tone === 'down' ? '#ffdada' : tone === 'up' ? '#e8ffe1' : '#ffffff'};
+`;
+
+const VioletBalanceLabel = styled.div`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+  margin-bottom: 6px;
+`;
+
+const VioletBalanceValue = styled.div`
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.024em;
+  line-height: 1.05;
+`;
+
+const VioletBalanceSub = styled.div`
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+`;
+
+const CtaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+`;
+
+const CtaSecondary = styled.button`
+  background: rgba(255, 255, 255, 0.1);
+  color: ${SurfaceColor};
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  &:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+`;
+
+const DarkCard = styled.div`
+  background: ${InkColor};
+  color: ${SurfaceColor};
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 260px;
+`;
+
+const DarkCardHead = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+`;
+
+const DarkCardTitle = styled.div`
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+`;
+
+const DarkCardSub = styled.div`
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  margin-top: 4px;
+`;
+
+const AssetGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+`;
+
+const AssetCard = styled.div`
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  height: 100%;
+`;
+
+const AssetHead = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const AssetIcon = styled.span<{ tint: string; color: string }>`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: ${({ tint }) => tint};
+  color: ${({ color }) => color};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const AssetName = styled.div`
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+`;
+
+const AssetValue = styled.div`
   font-family: 'Inter Tight', sans-serif;
   font-size: 22px;
   font-weight: 500;
-  color: ${InkColor};
+  letter-spacing: -0.02em;
 `;
+
+// ---------- Table ----------
 
 const Table = styled.div`
   border: 1px solid ${HairlineColor};
@@ -243,6 +493,58 @@ const IconSpin = () => (
   </svg>
 );
 
+const IconArrowUp = () => (
+  <svg
+    width="10"
+    height="10"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <polyline points="17 11 12 6 7 11" />
+    <line x1="12" y1="18" x2="12" y2="6" />
+  </svg>
+);
+
+const IconWallet = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M20 12V8H6a2 2 0 0 1 0-4h12v4" />
+    <path d="M4 6v12a2 2 0 0 0 2 2h14v-4" />
+    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+  </svg>
+);
+
+const IconClock = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
 // 4-circle spinner shown alone while the Zoho fetch is in flight, so the
 // user does not see empty header rows and stale skeletons.
 const LoaderStage = styled.div`
@@ -330,6 +632,22 @@ const formatDate = (raw: string | null | undefined): string => {
   }
 };
 
+const formatShortDate = (raw?: string | null): string => {
+  if (!raw) return '';
+
+  try {
+    return new Date(raw).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return raw;
+  }
+};
+
+type Period = 'today' | 'week' | 'month' | 'custom';
+
 export const BuzzleInvoicesPage = () => {
   const apolloCoreClient = useApolloCoreClient();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -338,6 +656,84 @@ export const BuzzleInvoicesPage = () => {
   const { data, loading, error } = useQuery<{ myWorkspaceInvoices: Invoice[] }>(
     MY_WORKSPACE_INVOICES,
     { client: apolloCoreClient, fetchPolicy: 'cache-and-network' },
+  );
+
+  // Period filter: mirrors the Vue d'ensemble page so the same 4-pill
+  // header (Aujourd'hui / Cette semaine / Ce mois-ci / Période à définir)
+  // narrows the invoice list, summary values, and CTA copy.
+  const [period, setPeriod] = useState<Period>('month');
+  const todayIso = () => new Date().toISOString().slice(0, 10);
+  const weekAgoIso = () => {
+    const d = new Date();
+
+    d.setDate(d.getDate() - 29);
+
+    return d.toISOString().slice(0, 10);
+  };
+  const [customStart, setCustomStart] = useState<string>(weekAgoIso);
+  const [customEnd, setCustomEnd] = useState<string>(todayIso);
+  const [customPickerOpen, setCustomPickerOpen] = useState(false);
+  const customPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!customPickerOpen) return;
+    const handler = (event: MouseEvent) => {
+      if (
+        customPickerRef.current &&
+        !customPickerRef.current.contains(event.target as Node)
+      ) {
+        setCustomPickerOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handler);
+
+    return () => document.removeEventListener('mousedown', handler);
+  }, [customPickerOpen]);
+
+  const periodRange = useMemo(() => {
+    const now = Date.now();
+
+    if (period === 'today') {
+      const d = new Date();
+
+      d.setHours(0, 0, 0, 0);
+
+      return { start: d.getTime(), end: now };
+    }
+    if (period === 'week') {
+      return { start: now - 7 * 86400000, end: now };
+    }
+    if (period === 'month') {
+      return { start: now - 30 * 86400000, end: now };
+    }
+    const start = customStart ? new Date(customStart) : new Date();
+
+    start.setHours(0, 0, 0, 0);
+    const end = customEnd ? new Date(customEnd) : new Date();
+
+    end.setHours(23, 59, 59, 999);
+
+    if (end.getTime() < start.getTime()) {
+      return { start: end.getTime(), end: start.getTime() };
+    }
+
+    return { start: start.getTime(), end: end.getTime() };
+  }, [period, customStart, customEnd]);
+
+  const inRange = (iso?: string | null): boolean => {
+    if (!iso) return false;
+    const ts = new Date(iso).getTime();
+
+    if (Number.isNaN(ts)) return false;
+
+    return ts >= periodRange.start && ts <= periodRange.end;
+  };
+
+  const allInvoices = data?.myWorkspaceInvoices ?? [];
+  const invoices = useMemo(
+    () => allInvoices.filter((i) => inRange(i.date)),
+    [allInvoices, periodRange],
   );
 
   const handleDownload = async (invoice: Invoice) => {
@@ -368,7 +764,6 @@ export const BuzzleInvoicesPage = () => {
     }
   };
 
-  const invoices = data?.myWorkspaceInvoices ?? [];
   const pagedInvoices = useMemo(
     () => invoices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
     [invoices, page],
@@ -380,17 +775,34 @@ export const BuzzleInvoicesPage = () => {
     if (page > totalPages) setPage(totalPages);
   }, [invoices.length, page]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [period, customStart, customEnd]);
+
   const totalPaid = invoices
     .filter((i) => i.status === 'paid')
     .reduce((s, i) => s + i.total, 0);
 
-  const totalOutstanding = invoices
+  const pendingBalance = invoices
     .filter((i) => i.status !== 'paid' && i.status !== 'void')
     .reduce((s, i) => s + i.balance, 0);
 
-  const currency = invoices[0]?.currency ?? 'EUR';
+  const overdueInvoices = invoices.filter((i) => i.status === 'overdue');
+  const lastOverdue = overdueInvoices
+    .slice()
+    .sort((a, b) => (a.date < b.date ? 1 : -1))[0];
 
-  const overdueCount = invoices.filter((i) => i.status === 'overdue').length;
+  const totalInvoices = invoices.length;
+  const paidCount = invoices.filter((i) => i.status === 'paid').length;
+  const pendingCount = totalInvoices - paidCount;
+
+  const currency = allInvoices[0]?.currency ?? 'EUR';
+
+  const overdueTrend = overdueInvoices.length > 0 ? 'down' : 'up';
+  const overdueSummary =
+    overdueInvoices.length > 0
+      ? `${overdueInvoices.length} en retard`
+      : 'À jour';
 
   // First-load state: nothing to display yet. Show only the animated
   // loader so the summary cards and the empty header rows don't flash.
@@ -411,16 +823,88 @@ export const BuzzleInvoicesPage = () => {
 
   return (
     <Container>
-      <PageTitle>Espace · Factures</PageTitle>
-      <Lede>
-        Retrouvez ici l'ensemble de vos factures, aussi bien celles déjà
-        réglées que celles en attente de paiement. Pour récupérer une facture
-        au format PDF, il vous suffit de cliquer sur
-        <LedeIcon aria-hidden="true">
-          <IconDownload />
-        </LedeIcon>
-        à droite de la ligne concernée.
-      </Lede>
+      <HeaderRow>
+        <HeaderText>
+          <PageTitle>Factures</PageTitle>
+        </HeaderText>
+        <HeaderActions>
+          <HeaderPeriodStrip role="tablist" aria-label="Période active">
+            <HeaderPeriodPill
+              active={period === 'today'}
+              onClick={() => setPeriod('today')}
+            >
+              Aujourd'hui
+            </HeaderPeriodPill>
+            <HeaderPeriodPill
+              active={period === 'week'}
+              onClick={() => setPeriod('week')}
+            >
+              Cette semaine
+            </HeaderPeriodPill>
+            <HeaderPeriodPill
+              active={period === 'month'}
+              onClick={() => setPeriod('month')}
+            >
+              Ce mois-ci
+            </HeaderPeriodPill>
+            <CustomWrap ref={customPickerRef}>
+              <HeaderPeriodPill
+                active={period === 'custom'}
+                onClick={() => {
+                  setPeriod('custom');
+                  setCustomPickerOpen((prev) => !prev);
+                }}
+              >
+                {period === 'custom' && customStart && customEnd
+                  ? `${formatShortDate(customStart)} → ${formatShortDate(customEnd)}`
+                  : 'Période à définir'}
+              </HeaderPeriodPill>
+              {customPickerOpen && (
+                <CustomPopover onClick={(e) => e.stopPropagation()}>
+                  <CustomPopoverRow>
+                    <CustomPopoverLabel htmlFor="buzzle-invoice-range-start">
+                      Du
+                    </CustomPopoverLabel>
+                    <CustomPopoverInput
+                      id="buzzle-invoice-range-start"
+                      type="date"
+                      value={customStart}
+                      max={customEnd || undefined}
+                      onChange={(e) => setCustomStart(e.target.value)}
+                    />
+                  </CustomPopoverRow>
+                  <CustomPopoverRow>
+                    <CustomPopoverLabel htmlFor="buzzle-invoice-range-end">
+                      Au
+                    </CustomPopoverLabel>
+                    <CustomPopoverInput
+                      id="buzzle-invoice-range-end"
+                      type="date"
+                      value={customEnd}
+                      min={customStart || undefined}
+                      onChange={(e) => setCustomEnd(e.target.value)}
+                    />
+                  </CustomPopoverRow>
+                  <CustomPopoverActions>
+                    <CustomPopoverButton
+                      onClick={() => setCustomPickerOpen(false)}
+                    >
+                      Fermer
+                    </CustomPopoverButton>
+                    <CustomPopoverButton
+                      primary
+                      onClick={() => setCustomPickerOpen(false)}
+                    >
+                      Appliquer
+                    </CustomPopoverButton>
+                  </CustomPopoverActions>
+                </CustomPopover>
+              )}
+            </CustomWrap>
+          </HeaderPeriodStrip>
+          <BuzzleWorkspacesButton />
+        </HeaderActions>
+      </HeaderRow>
 
       {error && (
         <ErrorBanner>
@@ -429,28 +913,82 @@ export const BuzzleInvoicesPage = () => {
         </ErrorBanner>
       )}
 
-      {!error && invoices.length > 0 && (
-        <SummaryRow>
-          <SummaryCard>
-            <SummaryLabel>Nombre de factures</SummaryLabel>
-            <SummaryValue>{invoices.length}</SummaryValue>
-          </SummaryCard>
-          <SummaryCard>
-            <SummaryLabel>Total payé</SummaryLabel>
-            <SummaryValue>{formatCurrency(totalPaid, currency)}</SummaryValue>
-          </SummaryCard>
-          <SummaryCard>
-            <SummaryLabel>Solde restant</SummaryLabel>
-            <SummaryValue>
-              {formatCurrency(totalOutstanding, currency)}
-            </SummaryValue>
-          </SummaryCard>
-          <SummaryCard>
-            <SummaryLabel>En retard</SummaryLabel>
-            <SummaryValue>{overdueCount}</SummaryValue>
-          </SummaryCard>
-        </SummaryRow>
-      )}
+      <Grid>
+        <VioletCard>
+          <VioletHead>
+            <VioletTrend tone={overdueTrend}>
+              <IconArrowUp /> {overdueSummary}
+            </VioletTrend>
+          </VioletHead>
+
+          <div>
+            <VioletBalanceLabel>Solde à régler</VioletBalanceLabel>
+            <VioletBalanceValue>
+              {formatCurrency(pendingBalance, currency)}
+            </VioletBalanceValue>
+            {lastOverdue ? (
+              <VioletBalanceSub>
+                Dernière en retard · <b>{lastOverdue.number}</b> émise le{' '}
+                {formatShortDate(lastOverdue.date)}
+              </VioletBalanceSub>
+            ) : pendingCount > 0 ? (
+              <VioletBalanceSub>
+                {pendingCount} facture{pendingCount > 1 ? 's' : ''} en attente
+                de règlement sur la période
+              </VioletBalanceSub>
+            ) : (
+              <VioletBalanceSub>
+                Aucune facture en retard, tout est à jour.
+              </VioletBalanceSub>
+            )}
+          </div>
+
+          <CtaRow>
+            {allInvoices.length > 0 && (
+              <CtaSecondary onClick={() => setPeriod('month')}>
+                Voir sur 30 jours
+              </CtaSecondary>
+            )}
+          </CtaRow>
+        </VioletCard>
+
+        <DarkCard>
+          <DarkCardHead>
+            <div>
+              <DarkCardTitle>Historique</DarkCardTitle>
+              <DarkCardSub>
+                Récapitulatif des factures sur la période active
+              </DarkCardSub>
+            </div>
+          </DarkCardHead>
+
+          <AssetGrid>
+            <AssetCard>
+              <AssetHead>
+                <AssetIcon tint="rgba(34, 185, 114, 0.24)" color="#a7f4c9">
+                  <IconWallet />
+                </AssetIcon>
+                <div>
+                  <AssetName>Total payé</AssetName>
+                </div>
+              </AssetHead>
+              <AssetValue>{formatCurrency(totalPaid, currency)}</AssetValue>
+            </AssetCard>
+
+            <AssetCard>
+              <AssetHead>
+                <AssetIcon tint="rgba(126, 55, 254, 0.28)" color="#c9b7ff">
+                  <IconClock />
+                </AssetIcon>
+                <div>
+                  <AssetName>Factures</AssetName>
+                </div>
+              </AssetHead>
+              <AssetValue>{totalInvoices}</AssetValue>
+            </AssetCard>
+          </AssetGrid>
+        </DarkCard>
+      </Grid>
 
       <Table>
         <TableHead>
@@ -464,9 +1002,9 @@ export const BuzzleInvoicesPage = () => {
         <style>{`@keyframes buzzleBtnSpin { to { transform: rotate(360deg); } }`}</style>
         {!loading && invoices.length === 0 && !error && (
           <EmptyState>
-            Aucune facture pour le moment.
+            Aucune facture sur cette période.
             <br />
-            Les nouvelles factures apparaîtront ici automatiquement.
+            Ajustez le filtre en haut à droite pour élargir la vue.
           </EmptyState>
         )}
         {pagedInvoices.map((inv) => {
