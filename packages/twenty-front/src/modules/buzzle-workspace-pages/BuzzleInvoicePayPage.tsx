@@ -64,7 +64,7 @@ const Container = styled.div`
   color: ${InkColor};
   overflow-y: auto;
   > * {
-    max-width: 960px;
+    max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
   }
