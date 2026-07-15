@@ -15,6 +15,7 @@ import { BuzzleProfileSettings } from '@/buzzle-settings/BuzzleProfileSettings';
 import { BuzzleWorkspaceSettings } from '@/buzzle-settings/BuzzleWorkspaceSettings';
 import { BuzzleCallsPage } from '@/buzzle-workspace-pages/BuzzleCallsPage';
 import { BuzzleContactsPage } from '@/buzzle-workspace-pages/BuzzleContactsPage';
+import { BuzzleInvoicePayPage } from '@/buzzle-workspace-pages/BuzzleInvoicePayPage';
 import { BuzzleInvoicesPage } from '@/buzzle-workspace-pages/BuzzleInvoicesPage';
 import { BuzzleOverviewPage } from '@/buzzle-workspace-pages/BuzzleOverviewPage';
 import { BuzzleCreateWorkspace } from '@/buzzle-admin/pages/BuzzleCreateWorkspace';
@@ -186,6 +187,10 @@ const createWorkspaceAppRouter = (
               <Route path="/contacts" element={<BuzzleContactsPage />} />
               <Route path="/calls" element={<BuzzleCallsPage />} />
               <Route path="/invoices" element={<BuzzleInvoicesPage />} />
+              <Route
+                path="/invoices/pay"
+                element={<BuzzleInvoicePayPage />}
+              />
               {/* Buzzle: settings are limited to Profil + Membres. Any
                   other Twenty settings URL is redirected to Profil. */}
               <Route

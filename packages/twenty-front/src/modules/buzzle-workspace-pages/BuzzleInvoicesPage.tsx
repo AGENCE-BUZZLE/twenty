@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
@@ -270,11 +271,11 @@ const CtaRow = styled.div`
   margin-top: auto;
 `;
 
-const CtaSecondary = styled.button`
-  background: rgba(255, 255, 255, 0.1);
+const CtaPrimary = styled.button`
+  background: ${InkColor};
   color: ${SurfaceColor};
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  padding: 10px 16px;
+  border: 0;
+  padding: 10px 18px;
   border-radius: 999px;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
@@ -284,7 +285,7 @@ const CtaSecondary = styled.button`
   align-items: center;
   gap: 8px;
   &:hover {
-    background: rgba(255, 255, 255, 0.16);
+    opacity: 0.88;
   }
 `;
 
@@ -510,6 +511,23 @@ const IconArrowUp = () => (
   </svg>
 );
 
+const IconArrowRight = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.4"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
 const IconWallet = () => (
   <svg
     width="18"
@@ -649,6 +667,7 @@ const formatShortDate = (raw?: string | null): string => {
 type Period = 'today' | 'week' | 'month' | 'custom';
 
 export const BuzzleInvoicesPage = () => {
+  const navigate = useNavigate();
   const apolloCoreClient = useApolloCoreClient();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -948,10 +967,10 @@ export const BuzzleInvoicesPage = () => {
           </div>
 
           <CtaRow>
-            {allInvoices.length > 0 && (
-              <CtaSecondary onClick={() => setPeriod('month')}>
-                Voir sur 30 jours
-              </CtaSecondary>
+            {pendingBalance > 0 && (
+              <CtaPrimary onClick={() => navigate('/invoices/pay')}>
+                Effectuer un règlement <IconArrowRight />
+              </CtaPrimary>
             )}
           </CtaRow>
         </VioletCard>
