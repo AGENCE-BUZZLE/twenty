@@ -81,20 +81,19 @@ const HeaderRow = styled.div`
 const HeaderText = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
 `;
 
 const BackButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 14px;
+  padding: 10px 18px;
   border-radius: 999px;
   border: 1px solid ${InkColor};
   background: ${SurfaceColor};
   color: ${InkColor};
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
@@ -344,11 +343,16 @@ const NoticeBox = styled.div`
   line-height: 1.55;
 `;
 
-const CtaBar = styled.div`
+const FooterBar = styled.div`
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 22px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+`;
+
+const FooterFiller = styled.div`
+  flex: 0 0 auto;
 `;
 
 const CtaPrimary = styled.a`
@@ -598,9 +602,6 @@ export const BuzzleInvoicePayPage = () => {
       <Container>
         <HeaderRow>
           <HeaderText>
-            <BackButton onClick={() => navigate('/invoices')}>
-              <IconArrowLeft /> Retour aux factures
-            </BackButton>
             <PageTitle>Aucun solde à régler</PageTitle>
           </HeaderText>
           <HeaderActions>
@@ -610,6 +611,12 @@ export const BuzzleInvoicePayPage = () => {
         <NoticeBox>
           Toutes vos factures sont à jour. Rien à régler pour le moment.
         </NoticeBox>
+        <FooterBar>
+          <BackButton onClick={() => navigate('/invoices')}>
+            <IconArrowLeft /> Retour aux factures
+          </BackButton>
+          <FooterFiller />
+        </FooterBar>
       </Container>
     );
   }
@@ -626,10 +633,6 @@ export const BuzzleInvoicePayPage = () => {
     <Container>
       <HeaderRow>
         <HeaderText>
-          <BackButton onClick={goBack}>
-            <IconArrowLeft />{' '}
-            {step === 'method' ? 'Retour aux factures' : 'Étape précédente'}
-          </BackButton>
           <PageTitle>Effectuer un règlement</PageTitle>
         </HeaderText>
         <HeaderActions>
@@ -737,17 +740,6 @@ export const BuzzleInvoicePayPage = () => {
             fenêtre. Merci d'indiquer manuellement la référence {invoiceReference}{' '}
             dans le champ prévu à cet effet si Revolut le demande.
           </NoticeBox>
-
-          <CtaBar>
-            <CtaPrimary
-              href={REVOLUT_CHECKOUT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Payer {formatCurrency(cardTotal, currency)} sur Revolut{' '}
-              <IconArrowRight />
-            </CtaPrimary>
-          </CtaBar>
         </>
       )}
 
@@ -785,6 +777,25 @@ export const BuzzleInvoicePayPage = () => {
           </NoticeBox>
         </>
       )}
+
+      <FooterBar>
+        <BackButton onClick={goBack}>
+          <IconArrowLeft />{' '}
+          {step === 'method' ? 'Retour aux factures' : 'Étape précédente'}
+        </BackButton>
+        {step === 'card' ? (
+          <CtaPrimary
+            href={REVOLUT_CHECKOUT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Payer {formatCurrency(cardTotal, currency)} sur Revolut{' '}
+            <IconArrowRight />
+          </CtaPrimary>
+        ) : (
+          <FooterFiller />
+        )}
+      </FooterBar>
     </Container>
   );
 };
