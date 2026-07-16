@@ -26,29 +26,27 @@ const StyledContainer = styled.div`
 `;
 
 // Fallback layout when no workspace-specific logo is passed (e.g. on
-// app.crm.agence-buzzle.com/welcome). We show the Buzzle wordmark on the
-// same Ink background as the sidebar, so the sign-in page reads as
-// Buzzle-branded and not as a generic Twenty page.
-const StyledBuzzleContainer = styled.div`
-  height: 64px;
-  width: 180px;
-  background: #14141c;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 22px;
-  margin-bottom: ${themeCssVariables.spacing[4]};
-  margin-top: ${themeCssVariables.spacing[4]};
-  cursor: pointer;
-`;
-
-const StyledBuzzleLogo = styled.img`
-  width: 100%;
-  height: auto;
+// app.crm.agence-buzzle.com/welcome). Show the Buzzle wordmark as-is,
+// no pill wrapper. The PNG asset is a white glyph on transparent, so
+// we use it as a CSS mask and paint it with the theme's primary font
+// color, which flips to white automatically in dark mode.
+const StyledBuzzleLogo = styled.span`
   display: block;
+  width: 200px;
+  height: 72px;
+  margin-top: ${themeCssVariables.spacing[4]};
+  margin-bottom: ${themeCssVariables.spacing[4]};
+  background-color: ${themeCssVariables.font.color.primary};
+  -webkit-mask-image: url('/images/buzzle-white.png');
+  mask-image: url('/images/buzzle-white.png');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+  cursor: pointer;
   user-select: none;
-  -webkit-user-drag: none;
 `;
 
 const StyledSecondaryLogo = styled.img`
@@ -119,9 +117,7 @@ export const Logo = ({
           redirectToDefaultDomain();
         }}
       >
-        <StyledBuzzleContainer>
-          <StyledBuzzleLogo src="/images/buzzle-white.png" alt="Buzzle" />
-        </StyledBuzzleContainer>
+        <StyledBuzzleLogo aria-label="Buzzle" role="img" />
       </UndecoratedLink>
     );
   }
