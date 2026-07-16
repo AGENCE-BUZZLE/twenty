@@ -62,6 +62,7 @@ const Container = styled.div`
   width: 100%;
   padding: 28px 40px 48px;
   color: ${InkColor};
+  background: #efede6;
   overflow-y: auto;
   > * {
     max-width: 1320px;
