@@ -1,2 +1,1 @@
-export const DEFAULT_WORKSPACE_LOGO =
-  '/images/icons/android/android-launchericon-192-192.png';
+export const DEFAULT_WORKSPACE_LOGO = '/images/favicon-crm-buzzle.png?v=2';
