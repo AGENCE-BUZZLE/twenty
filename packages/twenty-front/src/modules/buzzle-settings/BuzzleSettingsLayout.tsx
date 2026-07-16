@@ -3,75 +3,90 @@ import { useNavigate } from 'react-router-dom';
 import { type ReactNode } from 'react';
 
 import { currentUserState } from '@/auth/states/currentUserState';
+import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
-// Shared shell for Buzzle settings pages. Renders an eyebrow, a title,
-// a horizontal tab bar (Profil / Membres) and the page content below.
-// The Buzzle main drawer stays visible on the left because
-// useIsSettingsDrawer() is stubbed to false.
+// Shared shell for Buzzle settings pages, portée sur le même patron que
+// les autres espaces (Vue d'ensemble / Factures / Contacts / Appels) :
+// header compact avec un titre 32px à gauche et une strip pill à droite
+// pour switcher Profil / Membres / Workspace, plus le workspace picker
+// tout à droite pour rester cohérent avec le reste de l'app.
 
 const InkColor = '#14141c';
 const PaperColor = '#efede6';
 const HairlineColor = '#d6d2c7';
 const AccentColor = '#5b4bff';
+const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Container = styled.div`
   flex: 1 1 auto;
   align-self: stretch;
   width: 100%;
-  padding: 60px 48px 60px;
+  padding: 28px 40px 32px;
   color: ${InkColor};
   overflow-y: auto;
   > * {
-    max-width: 1080px;
+    max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
   }
 `;
 
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 20px;
+`;
+
+const HeaderText = styled.div``;
+
 const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 700;
-  letter-spacing: -0.028em;
+  letter-spacing: -0.024em;
   color: ${InkColor};
-  margin: 0 0 24px;
+  margin: 0;
 `;
 
-const TabBar = styled.div`
+const HeaderActions = styled.div`
   display: flex;
-  gap: 6px;
-  border-bottom: 1px solid ${HairlineColor};
-  margin-bottom: 28px;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 `;
 
-const Tab = styled.button<{ isActive: boolean }>`
-  background: transparent;
+const TabStrip = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: ${SurfaceColor};
+  border: 1px solid ${InkColor};
+  border-radius: 999px;
+  padding: 4px;
+`;
+
+const TabPill = styled.button<{ active?: boolean }>`
+  padding: 7px 14px;
+  border-radius: 999px;
   border: 0;
-  padding: 10px 16px 12px;
-  font-family: inherit;
-  font-size: 13.5px;
-  color: ${({ isActive }) => (isActive ? InkColor : MutedColor)};
-  font-weight: ${({ isActive }) => (isActive ? 500 : 400)};
+  background: ${({ active }) => (active ? InkColor : 'transparent')};
+  color: ${({ active }) => (active ? SurfaceColor : InkColor)};
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
   cursor: pointer;
-  position: relative;
-  &:hover {
-    color: ${InkColor};
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  &:hover:not(:disabled) {
+    background: ${({ active }) =>
+      active ? InkColor : 'rgba(20, 20, 28, 0.06)'};
   }
-  ${({ isActive }) =>
-    isActive
-      ? `&::after {
-      content: '';
-      position: absolute;
-      left: 12px;
-      right: 12px;
-      bottom: -1px;
-      height: 2px;
-      border-radius: 2px;
-      background: ${InkColor};
-    }`
-      : ''}
 `;
 
 type BuzzleSettingsLayoutProps = {
@@ -89,29 +104,36 @@ export const BuzzleSettingsLayout = ({
 
   return (
     <Container>
-      <PageTitle>Espace · Paramètres</PageTitle>
-      <TabBar>
-        <Tab
-          isActive={activeTab === 'profile'}
-          onClick={() => navigate('/settings/profile')}
-        >
-          Profil
-        </Tab>
-        <Tab
-          isActive={activeTab === 'members'}
-          onClick={() => navigate('/settings/members')}
-        >
-          Membres
-        </Tab>
-        {isSuperAdmin && (
-          <Tab
-            isActive={activeTab === 'workspace'}
-            onClick={() => navigate('/settings/workspace')}
-          >
-            Workspace
-          </Tab>
-        )}
-      </TabBar>
+      <HeaderRow>
+        <HeaderText>
+          <PageTitle>Paramètres</PageTitle>
+        </HeaderText>
+        <HeaderActions>
+          <TabStrip role="tablist" aria-label="Section paramètres">
+            <TabPill
+              active={activeTab === 'profile'}
+              onClick={() => navigate('/settings/profile')}
+            >
+              Profil
+            </TabPill>
+            <TabPill
+              active={activeTab === 'members'}
+              onClick={() => navigate('/settings/members')}
+            >
+              Membres
+            </TabPill>
+            {isSuperAdmin && (
+              <TabPill
+                active={activeTab === 'workspace'}
+                onClick={() => navigate('/settings/workspace')}
+              >
+                Workspace
+              </TabPill>
+            )}
+          </TabStrip>
+          <BuzzleWorkspacesButton />
+        </HeaderActions>
+      </HeaderRow>
       {children}
     </Container>
   );
