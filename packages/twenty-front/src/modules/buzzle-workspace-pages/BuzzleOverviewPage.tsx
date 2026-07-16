@@ -940,7 +940,7 @@ export const BuzzleOverviewPage = () => {
 
   // Period filter — controls every derived value below (chart, list, cards,
   // solde, distribution, everything). "custom" is a start → end range.
-  const [period, setPeriod] = useState<Period>('week');
+  const [period, setPeriod] = useState<Period>('month');
   const todayIso = () => new Date().toISOString().slice(0, 10);
   const weekAgoIso = () => {
     const d = new Date();
@@ -971,20 +971,38 @@ export const BuzzleOverviewPage = () => {
   }, [customPickerOpen]);
 
   const periodRange = useMemo(() => {
-    const now = Date.now();
+    const now = new Date();
 
     if (period === 'today') {
-      const d = new Date();
-
-      d.setHours(0, 0, 0, 0);
-
-      return { start: d.getTime(), end: now };
+      const start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      return { start: start.getTime(), end: now.getTime() };
     }
     if (period === 'week') {
-      return { start: now - 7 * 86400000, end: now };
+      // Semaine calendaire ISO : lundi 00:00:00 au dimanche 23:59:59.
+      const dow = now.getDay();
+      const daysFromMonday = (dow + 6) % 7;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - daysFromMonday);
+      monday.setHours(0, 0, 0, 0);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      return { start: monday.getTime(), end: sunday.getTime() };
     }
     if (period === 'month') {
-      return { start: now - 30 * 86400000, end: now };
+      // Mois calendaire : 1er 00:00:00 au dernier jour 23:59:59.
+      const first = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+      const last = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
+      return { start: first.getTime(), end: last.getTime() };
     }
     // custom = start / end range picked in the header
     const start = customStart ? new Date(customStart) : new Date();
@@ -994,7 +1012,7 @@ export const BuzzleOverviewPage = () => {
 
     end.setHours(23, 59, 59, 999);
 
-    // Guard against inverted range — swap if end is before start.
+    // Guard against inverted range: swap if end is before start.
     if (end.getTime() < start.getTime()) {
       return { start: end.getTime(), end: start.getTime() };
     }
@@ -1108,32 +1126,6 @@ export const BuzzleOverviewPage = () => {
           ? callDates
           : [...contactDates, ...callDates];
 
-    const pushDayBuckets = (days: number) => {
-      const now = new Date();
-
-      for (let i = days - 1; i >= 0; i -= 1) {
-        const d = new Date(now);
-
-        d.setDate(now.getDate() - i);
-        d.setHours(0, 0, 0, 0);
-        const iso = d.toISOString();
-        const label = d.toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: 'short',
-        });
-        const dayEnd = new Date(d);
-
-        dayEnd.setHours(23, 59, 59, 999);
-        const count = relevantDates.filter((iso2) => {
-          const ts = new Date(iso2).getTime();
-
-          return ts >= d.getTime() && ts <= dayEnd.getTime();
-        }).length;
-
-        buckets.push({ label, iso, count });
-      }
-    };
-
     const pushHourBuckets = (anchor: Date, slots = 8) => {
       const stepMs = (24 * 3600 * 1000) / slots;
       const dayStart = new Date(anchor);
@@ -1223,10 +1215,15 @@ export const BuzzleOverviewPage = () => {
 
     if (period === 'today') {
       pushHourBuckets(periodStart);
-    } else if (period === 'week') {
-      pushDayBuckets(7);
-    } else if (period === 'month') {
-      pushDayBuckets(30);
+    } else if (period === 'week' || period === 'month') {
+      // Semaine calendaire (lundi -> dimanche) ou mois calendaire
+      // (1er -> dernier jour), en réutilisant periodRange déjà calculé
+      // plus haut pour que le chart couvre exactement la même plage que
+      // les cartes et la liste des leads.
+      pushRangeBuckets(
+        new Date(periodRange.start).toISOString(),
+        new Date(periodRange.end).toISOString(),
+      );
     } else {
       pushRangeBuckets(customStart, customEnd);
     }

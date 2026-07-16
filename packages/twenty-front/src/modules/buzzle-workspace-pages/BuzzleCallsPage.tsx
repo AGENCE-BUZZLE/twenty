@@ -712,17 +712,35 @@ export const BuzzleCallsPage = () => {
   }, [customPickerOpen]);
 
   const periodRange = useMemo(() => {
-    const now = Date.now();
+    const now = new Date();
     if (period === 'today') {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      return { start: d.getTime(), end: now };
+      const start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      return { start: start.getTime(), end: now.getTime() };
     }
     if (period === 'week') {
-      return { start: now - 7 * 86400000, end: now };
+      const dow = now.getDay();
+      const daysFromMonday = (dow + 6) % 7;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - daysFromMonday);
+      monday.setHours(0, 0, 0, 0);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      return { start: monday.getTime(), end: sunday.getTime() };
     }
     if (period === 'month') {
-      return { start: now - 30 * 86400000, end: now };
+      const first = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+      const last = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
+      return { start: first.getTime(), end: last.getTime() };
     }
     const start = customStart ? new Date(customStart) : new Date();
     start.setHours(0, 0, 0, 0);
