@@ -6,6 +6,12 @@ import { useIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCu
 import { ONBOARDING_CONTENT_BLOCK_WIDTH } from '@/onboarding/constants/OnboardingContentBlockWidth';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 
+// Buzzle: legal pages are hosted at the root of agence-buzzle.com. The
+// footer copy is French-only to match the rest of the CRM's UI language.
+const TERMS_URL = 'https://agence-buzzle.com/conditions-utilisation';
+const DPA_URL = 'https://agence-buzzle.com/data-processing-agreement';
+const PRIVACY_URL = 'https://agence-buzzle.com/politique-confidentialite';
+
 const StyledCopyContainer = styled.div`
   align-items: center;
   color: ${themeCssVariables.font.color.tertiary};
@@ -71,30 +77,18 @@ export const FooterNote = ({
   if (!isOnAWorkspace) {
     return (
       <StyledCopyContainer>
-        <Trans>By using Buzzle CRM, you agree to the</Trans>{' '}
-        <a
-          href="https://agence-buzzle.com/legal/terms"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Trans>Terms of Service</Trans>
+        En utilisant Buzzle CRM, vous acceptez nos{' '}
+        <a href={TERMS_URL} target="_blank" rel="noopener noreferrer">
+          Conditions d'utilisation
         </a>{' '}
-        <Trans>and</Trans>{' '}
+        et notre{' '}
         {secondaryAgreement === 'dataProcessingAgreement' ? (
-          <a
-            href="https://agence-buzzle.com/legal/dpa"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Trans>Data Processing Agreement</Trans>
+          <a href={DPA_URL} target="_blank" rel="noopener noreferrer">
+            Data Processing Agreement
           </a>
         ) : (
-          <a
-            href="https://agence-buzzle.com/legal/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Trans>Privacy Policy</Trans>
+          <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
+            Politique de confidentialité
           </a>
         )}
         .
@@ -112,20 +106,12 @@ export const FooterNote = ({
           <StyledSeparator>•</StyledSeparator>
         </>
       )}
-      <a
-        href="https://agence-buzzle.com/legal/privacy"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Trans>Privacy Policy</Trans>
+      <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
+        Politique de confidentialité
       </a>
       <StyledSeparator>•</StyledSeparator>
-      <a
-        href="https://agence-buzzle.com/legal/terms"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Trans>Terms of Service</Trans>
+      <a href={TERMS_URL} target="_blank" rel="noopener noreferrer">
+        Conditions d'utilisation
       </a>
     </StyledLinksContainer>
   );
