@@ -3,8 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconFileText,
   IconHome,
+  IconLock,
   IconPhone,
   IconUsers,
+  IconWorldWww,
 } from 'twenty-ui/icon';
 
 // Fixed Buzzle drawer nav (client-side). Pipeline and Mon profil are
@@ -36,6 +38,18 @@ const Item = styled.div`
   }
 `;
 
+const LockedItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: not-allowed;
+  user-select: none;
+`;
+
 const IconWrap = styled.span`
   opacity: 0.72;
   display: inline-flex;
@@ -50,6 +64,7 @@ type NavItem = {
   Icon: (props: { size?: number }) => JSX.Element;
   path: string;
   badge?: string;
+  locked?: boolean;
 };
 
 const items: NavItem[] = [
@@ -57,7 +72,21 @@ const items: NavItem[] = [
   { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
   { label: 'Appels', Icon: IconPhone, path: '/calls', badge: 'Beta' },
   { label: 'Factures', Icon: IconFileText, path: '/invoices' },
+  {
+    label: 'Audit SEO/GEO',
+    Icon: IconWorldWww,
+    path: '/audit-seo-geo',
+    locked: true,
+  },
 ];
+
+const LockBadge = styled.span`
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.45);
+`;
 
 const NavBadge = styled.span`
   margin-left: auto;
@@ -92,6 +121,26 @@ export const BuzzleWorkspaceNav = () => {
   };
 
   const renderItem = (item: NavItem) => {
+    const IconCmp = item.Icon;
+
+    if (item.locked === true) {
+      return (
+        <LockedItem
+          key={item.path}
+          aria-disabled="true"
+          title="Bientôt disponible"
+        >
+          <IconWrap>
+            <IconCmp size={15} />
+          </IconWrap>
+          {item.label}
+          <LockBadge aria-hidden="true">
+            <IconLock size={13} />
+          </LockBadge>
+        </LockedItem>
+      );
+    }
+
     // Consider a nav item active when the current path starts with it,
     // so /objects/contacts still keeps "Contacts" highlighted when the
     // scaffold redirects to the native record index (temporary during
@@ -102,7 +151,6 @@ export const BuzzleWorkspaceNav = () => {
         : location.pathname.startsWith(item.path) ||
           (item.path === '/contacts' &&
             location.pathname.startsWith('/objects/contacts'));
-    const IconCmp = item.Icon;
 
     return (
       <Item
