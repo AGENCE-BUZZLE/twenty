@@ -25,6 +25,32 @@ const StyledContainer = styled.div`
   width: ${themeCssVariables.spacing[12]};
 `;
 
+// Fallback layout when no workspace-specific logo is passed (e.g. on
+// app.crm.agence-buzzle.com/welcome). We show the Buzzle wordmark on the
+// same Ink background as the sidebar, so the sign-in page reads as
+// Buzzle-branded and not as a generic Twenty page.
+const StyledBuzzleContainer = styled.div`
+  height: 64px;
+  width: 180px;
+  background: #14141c;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 22px;
+  margin-bottom: ${themeCssVariables.spacing[4]};
+  margin-top: ${themeCssVariables.spacing[4]};
+  cursor: pointer;
+`;
+
+const StyledBuzzleLogo = styled.img`
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+`;
+
 const StyledSecondaryLogo = styled.img`
   border-radius: ${themeCssVariables.border.radius.xs};
   height: ${themeCssVariables.spacing[6]};
@@ -74,6 +100,31 @@ export const Logo = ({
     : null;
 
   const isUsingDefaultLogo = !isDefined(primaryLogo);
+
+  // On the root domain welcome page (app.crm.agence-buzzle.com/welcome
+  // and friends) there is no target workspace, so we swap Twenty's
+  // generic launcher icon for the Buzzle wordmark on the same Ink pill
+  // used at the top of the sidebar.
+  const isRootDomainWelcome =
+    isUsingDefaultLogo &&
+    !isDefined(secondaryLogo) &&
+    !isDefined(placeholder);
+
+  if (isRootDomainWelcome) {
+    return (
+      <UndecoratedLink
+        to={to}
+        onClick={() => {
+          onClick?.();
+          redirectToDefaultDomain();
+        }}
+      >
+        <StyledBuzzleContainer>
+          <StyledBuzzleLogo src="/images/buzzle-white.png" alt="Buzzle" />
+        </StyledBuzzleContainer>
+      </UndecoratedLink>
+    );
+  }
 
   return (
     <StyledContainer onClick={() => onClick?.()}>
