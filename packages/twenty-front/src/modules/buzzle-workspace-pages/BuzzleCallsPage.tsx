@@ -363,7 +363,6 @@ const Table = styled.div`
   border: 1px solid ${HairlineColor};
   border-radius: 12px;
   background: ${SurfaceColor};
-  overflow: hidden;
 `;
 
 const TableHead = styled.div`
@@ -373,6 +372,8 @@ const TableHead = styled.div`
   padding: 14px 22px;
   border-bottom: 1px solid ${InkColor};
   background: ${InkColor};
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10.5px;
   letter-spacing: 0.14em;
@@ -410,23 +411,22 @@ const DurationCell = styled.div`
   color: ${InkColor};
 `;
 
-const StatusPill = styled.span`
-  display: inline-block;
-  padding: 3px 10px;
+const StatusPill = styled.button<{ bg: string; fg: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
   border-radius: 999px;
+  background: ${({ bg }) => bg};
+  color: ${({ fg }) => fg};
+  border: 0;
+  cursor: pointer;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10.5px;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-`;
-
-const StatusButton = styled.button`
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
+  position: relative;
 `;
 
 const ActionCell = styled.div`
@@ -459,40 +459,49 @@ const IconButton = styled.button`
 
 const StatusMenu = styled.div`
   position: absolute;
-  top: 100%;
+  top: calc(100% + 6px);
   right: 0;
-  margin-top: 6px;
   background: ${SurfaceColor};
   border: 1px solid ${HairlineColor};
   border-radius: 8px;
-  overflow: hidden;
-  z-index: 10;
   min-width: 180px;
-  box-shadow: 0 8px 24px rgba(20, 20, 28, 0.08);
+  box-shadow: 0 6px 20px rgba(20, 20, 28, 0.08);
+  z-index: 20;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  text-transform: none;
 `;
 
-const StatusMenuItem = styled.button`
+const StatusMenuItem = styled.div`
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: ${InkColor};
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
-  padding: 10px 14px;
-  border: 0;
-  background: transparent;
-  color: ${InkColor};
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  text-align: left;
-  cursor: pointer;
   &:hover {
     background: rgba(20, 20, 28, 0.06);
   }
 `;
 
-const StatusPillWrap = styled.div`
-  position: relative;
-  display: inline-block;
+const StatusDot = styled.span<{ color: string }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${({ color }) => color};
+  flex-shrink: 0;
 `;
+
+const STATUS_DOT_COLOR: Record<CallStatus, string> = {
+  NEW: '#3d5efc',
+  QUOTED: '#5b4bff',
+  VALIDATED: '#187a4a',
+  CANCELLED: '#8a8b91',
+};
 
 const EmptyState = styled.div`
   padding: 60px 22px;
@@ -940,39 +949,33 @@ export const BuzzleCallsPage = () => {
               <DateCell>{call.phoneNumber}</DateCell>
               <DurationCell>{formatDuration(call.durationSec)}</DurationCell>
               <div>
-                <StatusPillWrap>
-                  <StatusButton
-                    onClick={() =>
-                      setOpenMenuId(isMenuOpen ? null : call.id)
-                    }
-                  >
-                    <StatusPill
-                      style={{ background: meta.bg, color: meta.fg }}
-                    >
-                      {meta.label}
-                      <IconChevron />
-                    </StatusPill>
-                  </StatusButton>
+                <StatusPill
+                  bg={meta.bg}
+                  fg={meta.fg}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMenuId(isMenuOpen ? null : call.id);
+                  }}
+                >
+                  {meta.label}
+                  <IconChevron />
                   {isMenuOpen && (
-                    <StatusMenu>
-                      {STATUS_ORDER.map((s) => (
-                        <StatusMenuItem
-                          key={s}
-                          onClick={() => handleStatusChange(call.id, s)}
-                        >
-                          <StatusPill
-                            style={{
-                              background: STATUS_META[s].bg,
-                              color: STATUS_META[s].fg,
-                            }}
+                    <StatusMenu onClick={(e) => e.stopPropagation()}>
+                      {STATUS_ORDER.map((s) => {
+                        const m = STATUS_META[s];
+                        return (
+                          <StatusMenuItem
+                            key={s}
+                            onClick={() => handleStatusChange(call.id, s)}
                           >
-                            {STATUS_META[s].label}
-                          </StatusPill>
-                        </StatusMenuItem>
-                      ))}
+                            <StatusDot color={STATUS_DOT_COLOR[s]} />
+                            {m.label}
+                          </StatusMenuItem>
+                        );
+                      })}
                     </StatusMenu>
                   )}
-                </StatusPillWrap>
+                </StatusPill>
               </div>
               <ActionCell>
                 <IconButton

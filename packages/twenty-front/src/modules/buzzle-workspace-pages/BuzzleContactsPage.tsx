@@ -335,7 +335,6 @@ const TableWrap = styled.div`
   border: 1px solid ${HairlineColor};
   border-radius: 12px;
   background: ${SurfaceColor};
-  overflow: hidden;
 `;
 
 const Table = styled.table`
@@ -354,6 +353,12 @@ const Th = styled.th`
   color: rgba(255, 255, 255, 0.72);
   font-weight: 500;
   background: ${InkColor};
+  &:first-child {
+    border-top-left-radius: 11px;
+  }
+  &:last-child {
+    border-top-right-radius: 11px;
+  }
 `;
 
 const Td = styled.td`
