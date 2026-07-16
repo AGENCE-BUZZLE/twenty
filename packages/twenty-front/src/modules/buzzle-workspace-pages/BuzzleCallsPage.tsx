@@ -91,7 +91,11 @@ const HeaderRow = styled.div`
   gap: 20px;
 `;
 
-const HeaderText = styled.div``;
+const HeaderText = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+`;
 
 const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
@@ -100,6 +104,18 @@ const PageTitle = styled.h1`
   letter-spacing: -0.024em;
   color: ${InkColor};
   margin: 0;
+`;
+
+const TitleBadge = styled.span`
+  background: ${VioletColor};
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
 `;
 
 const HeaderActions = styled.div`
@@ -776,6 +792,7 @@ export const BuzzleCallsPage = () => {
       <HeaderRow>
         <HeaderText>
           <PageTitle>Appels</PageTitle>
+          <TitleBadge>Beta</TitleBadge>
         </HeaderText>
         <HeaderActions>
           <HeaderPeriodStrip role="tablist" aria-label="Période active">

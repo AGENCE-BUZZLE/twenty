@@ -49,14 +49,28 @@ type NavItem = {
   label: string;
   Icon: (props: { size?: number }) => JSX.Element;
   path: string;
+  badge?: string;
 };
 
 const items: NavItem[] = [
   { label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
   { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
-  { label: 'Appels', Icon: IconPhone, path: '/calls' },
+  { label: 'Appels', Icon: IconPhone, path: '/calls', badge: 'Beta' },
   { label: 'Factures', Icon: IconFileText, path: '/invoices' },
 ];
+
+const NavBadge = styled.span`
+  margin-left: auto;
+  background: #7e37fe;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+`;
 
 const activeStyle: React.CSSProperties = {
   background: 'rgba(255, 255, 255, 0.12)',
@@ -100,6 +114,7 @@ export const BuzzleWorkspaceNav = () => {
           <IconCmp size={15} />
         </IconWrap>
         {item.label}
+        {item.badge && <NavBadge>{item.badge}</NavBadge>}
       </Item>
     );
   };
