@@ -26,27 +26,17 @@ const StyledContainer = styled.div`
 `;
 
 // Fallback layout when no workspace-specific logo is passed (e.g. on
-// app.crm.agence-buzzle.com/welcome). Show the Buzzle wordmark as-is,
-// no pill wrapper. The PNG asset is a white glyph on transparent, so
-// we use it as a CSS mask and paint it with the theme's primary font
-// color, which flips to white automatically in dark mode.
-const StyledBuzzleLogo = styled.span`
+// app.crm.agence-buzzle.com/welcome). Show the Buzzle wordmark bare on
+// the page background, no pill wrapper.
+const StyledBuzzleLogo = styled.img`
   display: block;
   width: 200px;
-  height: 72px;
+  height: auto;
   margin-top: ${themeCssVariables.spacing[4]};
   margin-bottom: ${themeCssVariables.spacing[4]};
-  background-color: ${themeCssVariables.font.color.primary};
-  -webkit-mask-image: url('/images/buzzle-white.png');
-  mask-image: url('/images/buzzle-white.png');
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-position: center;
-  mask-position: center;
   cursor: pointer;
   user-select: none;
+  -webkit-user-drag: none;
 `;
 
 const StyledSecondaryLogo = styled.img`
@@ -117,7 +107,7 @@ export const Logo = ({
           redirectToDefaultDomain();
         }}
       >
-        <StyledBuzzleLogo aria-label="Buzzle" role="img" />
+        <StyledBuzzleLogo src="/images/buzzle-dark.png" alt="Buzzle" />
       </UndecoratedLink>
     );
   }
