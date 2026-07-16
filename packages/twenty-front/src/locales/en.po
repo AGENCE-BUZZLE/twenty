@@ -17904,7 +17904,7 @@ msgstr "Weight"
 #. js-lingui-id: nTuObL
 #: src/pages/auth/SignInUp.tsx
 msgid "Welcome to Twenty"
-msgstr "Welcome to Buzzle CRM"
+msgstr "Welcome!"
 
 #. js-lingui-id: t8ZvkC
 #: src/pages/auth/SignInUp.tsx

@@ -30,7 +30,7 @@ const StyledContainer = styled.div`
 // the page background, no pill wrapper.
 const StyledBuzzleLogo = styled.img`
   display: block;
-  width: 200px;
+  width: 130px;
   height: auto;
   margin-top: ${themeCssVariables.spacing[4]};
   margin-bottom: ${themeCssVariables.spacing[4]};
