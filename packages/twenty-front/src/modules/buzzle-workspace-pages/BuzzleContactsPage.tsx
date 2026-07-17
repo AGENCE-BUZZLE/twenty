@@ -1,8 +1,9 @@
 import { styled } from '@linaria/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
+import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
@@ -91,109 +92,6 @@ const HeaderActions = styled.div`
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
-`;
-
-const HeaderPeriodStrip = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: ${SurfaceColor};
-  border: 1px solid ${InkColor};
-  border-radius: 999px;
-  padding: 4px;
-`;
-
-const HeaderPeriodPill = styled.button<{ active?: boolean }>`
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 0;
-  background: ${({ active }) => (active ? InkColor : 'transparent')};
-  color: ${({ active }) => (active ? SurfaceColor : InkColor)};
-  font-family: 'Inter', sans-serif;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  &:hover:not(:disabled) {
-    background: ${({ active }) =>
-      active ? InkColor : 'rgba(20, 20, 28, 0.06)'};
-  }
-`;
-
-const CustomWrap = styled.div`
-  position: relative;
-  display: inline-flex;
-`;
-
-const CustomPopover = styled.div`
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  background: ${SurfaceColor};
-  border: 1px solid ${InkColor};
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(20, 20, 28, 0.16);
-  padding: 14px 16px;
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 260px;
-`;
-
-const CustomPopoverRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const CustomPopoverLabel = styled.label`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  width: 32px;
-`;
-
-const CustomPopoverInput = styled.input`
-  flex: 1 1 auto;
-  padding: 8px 10px;
-  border: 1px solid rgba(20, 20, 28, 0.14);
-  border-radius: 6px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: ${InkColor};
-  background: ${SurfaceColor};
-  &:focus {
-    outline: none;
-    border-color: ${InkColor};
-  }
-`;
-
-const CustomPopoverActions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 2px;
-`;
-
-const CustomPopoverButton = styled.button<{ primary?: boolean }>`
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid ${InkColor};
-  background: ${({ primary }) => (primary ? InkColor : 'transparent')};
-  color: ${({ primary }) => (primary ? SurfaceColor : InkColor)};
-  font-family: 'Inter', sans-serif;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  &:hover {
-    background: ${InkColor};
-    color: ${SurfaceColor};
-  }
 `;
 
 const Grid = styled.div`
@@ -657,19 +555,6 @@ const formatDateTime = (iso?: string | null) => {
   }
 };
 
-const formatShortDate = (raw?: string | null): string => {
-  if (!raw) return '';
-  try {
-    return new Date(raw).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  } catch {
-    return raw;
-  }
-};
-
 const displayPhone = (rawPhone: unknown): string => {
   if (typeof rawPhone === 'string') return rawPhone;
   if (!rawPhone || typeof rawPhone !== 'object') return '';
@@ -765,22 +650,6 @@ export const BuzzleContactsPage = () => {
   };
   const [customStart, setCustomStart] = useState<string>(weekAgoIso);
   const [customEnd, setCustomEnd] = useState<string>(todayIso);
-  const [customPickerOpen, setCustomPickerOpen] = useState(false);
-  const customPickerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!customPickerOpen) return;
-    const handler = (event: MouseEvent) => {
-      if (
-        customPickerRef.current &&
-        !customPickerRef.current.contains(event.target as Node)
-      ) {
-        setCustomPickerOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [customPickerOpen]);
 
   const periodRange = useMemo(() => {
     const now = new Date();
@@ -907,80 +776,14 @@ export const BuzzleContactsPage = () => {
           <PageTitle>Contacts</PageTitle>
         </HeaderText>
         <HeaderActions>
-          <HeaderPeriodStrip role="tablist" aria-label="Période active">
-            <HeaderPeriodPill
-              active={period === 'today'}
-              onClick={() => setPeriod('today')}
-            >
-              Aujourd'hui
-            </HeaderPeriodPill>
-            <HeaderPeriodPill
-              active={period === 'week'}
-              onClick={() => setPeriod('week')}
-            >
-              Cette semaine
-            </HeaderPeriodPill>
-            <HeaderPeriodPill
-              active={period === 'month'}
-              onClick={() => setPeriod('month')}
-            >
-              Ce mois-ci
-            </HeaderPeriodPill>
-            <CustomWrap ref={customPickerRef}>
-              <HeaderPeriodPill
-                active={period === 'custom'}
-                onClick={() => {
-                  setPeriod('custom');
-                  setCustomPickerOpen((prev) => !prev);
-                }}
-              >
-                {period === 'custom' && customStart && customEnd
-                  ? `${formatShortDate(customStart)} → ${formatShortDate(customEnd)}`
-                  : 'Période à définir'}
-              </HeaderPeriodPill>
-              {customPickerOpen && (
-                <CustomPopover onClick={(e) => e.stopPropagation()}>
-                  <CustomPopoverRow>
-                    <CustomPopoverLabel htmlFor="buzzle-contacts-range-start">
-                      Du
-                    </CustomPopoverLabel>
-                    <CustomPopoverInput
-                      id="buzzle-contacts-range-start"
-                      type="date"
-                      value={customStart}
-                      max={customEnd || undefined}
-                      onChange={(e) => setCustomStart(e.target.value)}
-                    />
-                  </CustomPopoverRow>
-                  <CustomPopoverRow>
-                    <CustomPopoverLabel htmlFor="buzzle-contacts-range-end">
-                      Au
-                    </CustomPopoverLabel>
-                    <CustomPopoverInput
-                      id="buzzle-contacts-range-end"
-                      type="date"
-                      value={customEnd}
-                      min={customStart || undefined}
-                      onChange={(e) => setCustomEnd(e.target.value)}
-                    />
-                  </CustomPopoverRow>
-                  <CustomPopoverActions>
-                    <CustomPopoverButton
-                      onClick={() => setCustomPickerOpen(false)}
-                    >
-                      Fermer
-                    </CustomPopoverButton>
-                    <CustomPopoverButton
-                      primary
-                      onClick={() => setCustomPickerOpen(false)}
-                    >
-                      Appliquer
-                    </CustomPopoverButton>
-                  </CustomPopoverActions>
-                </CustomPopover>
-              )}
-            </CustomWrap>
-          </HeaderPeriodStrip>
+          <BuzzlePeriodPicker
+            period={period}
+            onPeriodChange={setPeriod}
+            customStart={customStart}
+            customEnd={customEnd}
+            onCustomStartChange={setCustomStart}
+            onCustomEndChange={setCustomEnd}
+          />
           <BuzzleWorkspacesButton />
         </HeaderActions>
       </HeaderRow>

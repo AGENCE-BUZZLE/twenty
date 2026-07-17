@@ -1,19 +1,15 @@
 import { styled } from '@linaria/react';
-import { atom, useAtom } from 'jotai';
-import { Avatar } from 'twenty-ui/data-display';
 
-import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
-import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
-import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
+import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
+import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 
 // Mobile header for the Buzzle CRM. Replaces Twenty's bottom
 // MobileNavigationBar with an Ink header on top: hamburger left, Buzzle
-// wordmark centered, workspace avatar right. Tapping the hamburger
-// toggles the drawer via `buzzleMobileDrawerOpenState`, which the
-// DefaultLayout listens to so it can slide the drawer in as an overlay.
-
-export const buzzleMobileDrawerOpenState = atom<boolean>(false);
+// wordmark centered. The workspace avatar is intentionally not shown
+// here because the same switcher already lives in each page's beige
+// header (avoids visual duplication). The hamburger toggles Twenty's
+// `isNavigationDrawerExpandedState` so the drawer content is actually
+// mounted with the correct width, unlike a custom overlay.
 
 const InkColor = '#14141c';
 
@@ -55,7 +51,8 @@ const LogoWrap = styled.div`
   flex: 1 1 auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-left: 4px;
   min-width: 0;
 `;
 
@@ -65,14 +62,6 @@ const LogoImg = styled.img`
   display: block;
   user-select: none;
   -webkit-user-drag: none;
-`;
-
-const WorkspaceButton = styled.div`
-  flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  overflow: hidden;
 `;
 
 const IconMenu = () => (
@@ -94,32 +83,21 @@ const IconMenu = () => (
 );
 
 export const BuzzleMobileHeader = () => {
-  const [isOpen, setIsOpen] = useAtom(buzzleMobileDrawerOpenState);
-  const currentWorkspace = useAtomStateValue(currentWorkspaceState);
+  const [isExpanded, setIsExpanded] = useAtomState(
+    isNavigationDrawerExpandedState,
+  );
 
   return (
     <Header>
       <HamburgerButton
-        aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-        onClick={() => setIsOpen(!isOpen)}
+        aria-label={isExpanded ? 'Fermer le menu' : 'Ouvrir le menu'}
+        onClick={() => setIsExpanded(!isExpanded)}
       >
         <IconMenu />
       </HamburgerButton>
       <LogoWrap>
         <LogoImg src="/images/buzzle-white.png" alt="Buzzle" />
       </LogoWrap>
-      <WorkspaceButton
-        aria-label={currentWorkspace?.displayName ?? 'Workspace'}
-        title={currentWorkspace?.displayName ?? 'Workspace'}
-      >
-        <Avatar
-          placeholder={currentWorkspace?.displayName ?? ''}
-          avatarUrl={getAbsoluteImageUrl(
-            currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
-          )}
-          size="md"
-        />
-      </WorkspaceButton>
     </Header>
   );
 };
