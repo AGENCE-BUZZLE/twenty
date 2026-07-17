@@ -926,17 +926,17 @@ export const BuzzleOverviewPage = () => {
   const allInvoices = invoicesData?.myWorkspaceInvoices ?? [];
   const allContacts = contactRecords ?? [];
 
-  // Calls are still mocked (waiting on a real provider) — mirror the count
-  // that BuzzleCallsPage displays so the dashboard stays in sync.
-  const MOCK_CALLS = useMemo(
-    () => [
-      { id: 'mock-1', startedAt: '2026-07-11T09:32:00Z', contactName: 'Sylvie Vartan', phoneNumber: '+33 6 87 65 43 21' },
-      { id: 'mock-2', startedAt: '2026-07-11T08:14:00Z', contactName: 'Alexandre Meyer', phoneNumber: '+33 6 12 34 56 78' },
-      { id: 'mock-3', startedAt: '2026-07-10T18:47:00Z', contactName: 'Numéro inconnu', phoneNumber: '+33 4 91 22 33 44' },
-      { id: 'mock-4', startedAt: '2026-07-10T15:03:00Z', contactName: 'Karim Bakri', phoneNumber: '+33 7 82 65 41 09' },
-    ],
-    [],
-  );
+  // Calls placeholder: empty en attendant un vrai provider (Aircall /
+  // Ringover / autre). Une fois wired, remplacer par la query GraphQL
+  // correspondante.
+  const MOCK_CALLS = useMemo<
+    Array<{
+      id: string;
+      startedAt: string;
+      contactName: string;
+      phoneNumber: string;
+    }>
+  >(() => [], []);
 
   // Period filter — controls every derived value below (chart, list, cards,
   // solde, distribution, everything). "custom" is a start → end range.

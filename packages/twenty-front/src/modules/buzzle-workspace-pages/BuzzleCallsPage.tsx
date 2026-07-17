@@ -30,44 +30,9 @@ type Call = {
   recordingUrl?: string;
 };
 
-const MOCK_CALLS: Call[] = [
-  {
-    id: 'mock-1',
-    startedAt: '2026-07-11T09:32:00Z',
-    contactName: 'Sylvie Vartan',
-    phoneNumber: '+33 6 87 65 43 21',
-    durationSec: 194,
-    status: 'VALIDATED',
-    recordingUrl: undefined,
-  },
-  {
-    id: 'mock-2',
-    startedAt: '2026-07-11T08:14:00Z',
-    contactName: 'Alexandre Meyer',
-    phoneNumber: '+33 6 12 34 56 78',
-    durationSec: 341,
-    status: 'QUOTED',
-    recordingUrl: undefined,
-  },
-  {
-    id: 'mock-3',
-    startedAt: '2026-07-10T18:47:00Z',
-    contactName: 'Numéro inconnu',
-    phoneNumber: '+33 4 91 22 33 44',
-    durationSec: 42,
-    status: 'CANCELLED',
-    recordingUrl: undefined,
-  },
-  {
-    id: 'mock-4',
-    startedAt: '2026-07-10T15:03:00Z',
-    contactName: 'Karim Bakri',
-    phoneNumber: '+33 7 82 65 41 09',
-    durationSec: 512,
-    status: 'NEW',
-    recordingUrl: undefined,
-  },
-];
+// Empty by default. Once a real call provider (Aircall / Ringover /
+// autre) est wired, remplacer par la query GraphQL correspondante.
+const MOCK_CALLS: Call[] = [];
 
 const Container = styled.div`
   flex: 1 1 auto;
