@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
+  IconCalendarEvent,
   IconFileText,
   IconHome,
   IconLock,
@@ -72,6 +73,12 @@ const items: NavItem[] = [
   { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
   { label: 'Appels', Icon: IconPhone, path: '/calls', badge: 'Beta' },
   { label: 'Factures', Icon: IconFileText, path: '/invoices' },
+  {
+    label: 'Rendez-vous',
+    Icon: IconCalendarEvent,
+    path: '/rendez-vous',
+    locked: true,
+  },
   {
     label: 'Audit SEO/GEO',
     Icon: IconWorldWww,
