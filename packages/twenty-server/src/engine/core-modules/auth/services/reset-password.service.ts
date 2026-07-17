@@ -90,16 +90,26 @@ export class ResetPasswordService {
     });
 
     if (existingToken) {
-      const timeToWait = ms(
-        differenceInMilliseconds(existingToken.expiresAt, new Date()),
-        { long: true },
+      // Buzzle: message user-friendly en français, sans jargon technique.
+      // On humanise la durée restante en minutes / heures directement.
+      const remainingMs = differenceInMilliseconds(
+        existingToken.expiresAt,
+        new Date(),
       );
+      const remainingMinutes = Math.max(1, Math.ceil(remainingMs / 60000));
+      const humanWait =
+        remainingMinutes < 60
+          ? `${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`
+          : (() => {
+              const h = Math.ceil(remainingMinutes / 60);
+              return `${h} heure${h > 1 ? 's' : ''}`;
+            })();
 
       throw new AuthException(
-        `Token has already been generated. Please wait for ${timeToWait} to generate again.`,
+        `Password reset already requested. Wait ${humanWait} before trying again.`,
         AuthExceptionCode.INVALID_INPUT,
         {
-          userFriendlyMessage: msg`Password reset token has already been generated. Please wait for ${timeToWait} to generate again.`,
+          userFriendlyMessage: `Demande déjà effectuée il y a quelques minutes. Veuillez patienter ${humanWait} avant de refaire la demande.`,
         },
       );
     }
