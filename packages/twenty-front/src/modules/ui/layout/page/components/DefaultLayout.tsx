@@ -6,7 +6,11 @@ import { InformationBannerIsImpersonating } from '@/information-banner/component
 import { KeyboardShortcutMenu } from '@/keyboard-shortcut-menu/components/KeyboardShortcutMenu';
 import { LayoutCustomizationBar } from '@/layout-customization/components/LayoutCustomizationBar';
 import { AppNavigationDrawer } from '@/navigation/components/AppNavigationDrawer';
-import { MobileNavigationBar } from '@/navigation/components/MobileNavigationBar';
+import {
+  BuzzleMobileHeader,
+  buzzleMobileDrawerOpenState,
+} from '@/buzzle-workspace-nav/BuzzleMobileHeader';
+import { useAtom } from 'jotai';
 import { PageDragDropProvider } from '@/navigation-menu-item/display/dnd/providers/PageDragDropProvider';
 import { useShowFullscreen } from '@/ui/layout/fullscreen/hooks/useShowFullscreen';
 import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
@@ -56,8 +60,9 @@ const StyledPageContainer = styled.div`
 // reads `themeCssVariables.grayScale.gray3` / font colors / hover
 // backgrounds resolves to Ink + white / white-transparents.
 // Nothing else in the app is affected because CSS variables cascade
-// scope-locally.
-const StyledNavigationDrawerWrapper = styled.div`
+// scope-locally. On mobile, the wrapper switches to a fixed overlay
+// controlled by `buzzleMobileDrawerOpenState`.
+const StyledNavigationDrawerWrapper = styled.div<{ mobileOpen?: boolean }>`
   flex-shrink: 0;
 
   --t-gray-scale-gray3: #14141c;
@@ -89,8 +94,41 @@ const StyledNavigationDrawerWrapper = styled.div`
   background: #14141c;
   color: #ffffff;
 
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    z-index: 60;
+    transform: ${({ mobileOpen }) =>
+      mobileOpen ? 'translateX(0)' : 'translateX(-100%)'};
+    transition: transform 0.22s ease-out;
+    box-shadow: ${({ mobileOpen }) =>
+      mobileOpen ? '0 0 40px rgba(0, 0, 0, 0.35)' : 'none'};
+  }
+
   @media print {
     display: none;
+  }
+`;
+
+const StyledMobileBackdrop = styled.div<{ visible: boolean }>`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: ${({ visible }) => (visible ? 'block' : 'none')};
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 50;
+  }
+`;
+
+const StyledMobileHeaderWrap = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
   }
 `;
 
@@ -110,6 +148,7 @@ const StyledMainContainer = styled.div`
 export const DefaultLayout = () => {
   const isMobile = useIsMobile();
   const useShowFullScreen = useShowFullscreen();
+  const [isDrawerOpen, setIsDrawerOpen] = useAtom(buzzleMobileDrawerOpenState);
 
   return (
     <>
@@ -118,13 +157,30 @@ export const DefaultLayout = () => {
           <AppErrorBoundary FallbackComponent={AppFullScreenErrorFallback}>
             <InformationBannerIsImpersonating />
             <LayoutCustomizationBar />
+            {isMobile && !useShowFullScreen && (
+              <StyledMobileHeaderWrap>
+                <BuzzleMobileHeader />
+              </StyledMobileHeaderWrap>
+            )}
             <StyledPageContainer>
               <PageDragDropProvider>
                 <KeyboardShortcutMenu />
                 {useShowFullScreen ? null : (
-                  <StyledNavigationDrawerWrapper>
-                    <AppNavigationDrawer />
-                  </StyledNavigationDrawerWrapper>
+                  <>
+                    <StyledMobileBackdrop
+                      visible={isMobile && isDrawerOpen}
+                      onClick={() => setIsDrawerOpen(false)}
+                      aria-hidden="true"
+                    />
+                    <StyledNavigationDrawerWrapper
+                      mobileOpen={isMobile && isDrawerOpen}
+                      onClick={() => {
+                        if (isMobile) setIsDrawerOpen(false);
+                      }}
+                    >
+                      <AppNavigationDrawer />
+                    </StyledNavigationDrawerWrapper>
+                  </>
                 )}
                 <StyledMainContainer>
                   <AppErrorBoundary FallbackComponent={AppPageErrorFallback}>
@@ -133,7 +189,6 @@ export const DefaultLayout = () => {
                 </StyledMainContainer>
               </PageDragDropProvider>
             </StyledPageContainer>
-            {isMobile && <MobileNavigationBar />}
           </AppErrorBoundary>
         </StyledLayout>
       </FileUploadProvider>
