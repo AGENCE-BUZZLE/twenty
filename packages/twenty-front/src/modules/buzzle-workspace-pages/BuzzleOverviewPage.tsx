@@ -1066,6 +1066,7 @@ export const BuzzleOverviewPage = () => {
       QUOTED: 0,
       VALIDATED: 0,
       CANCELLED: 0,
+      OFF_TOPIC: 0,
     };
     for (const c of contacts) {
       const s = typeof c.status === 'string' ? c.status : 'NEW';
@@ -1093,6 +1094,7 @@ export const BuzzleOverviewPage = () => {
     seg('Devis envoyés', contactByStatus.QUOTED, VioletColor),
     seg('Validés', contactByStatus.VALIDATED, '#22b972'),
     seg('Annulés', contactByStatus.CANCELLED, '#8a8b91'),
+    seg('Hors sujet', contactByStatus.OFF_TOPIC, '#dc2626'),
   ];
 
   const overdueTrend = overdueInvoices.length > 0 ? 'down' : 'up';

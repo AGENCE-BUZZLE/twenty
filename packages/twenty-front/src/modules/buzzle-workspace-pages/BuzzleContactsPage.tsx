@@ -31,14 +31,16 @@ const STATUS_META: Record<
   QUOTED: { label: 'Devis envoyé', bg: '#ede4ff', fg: '#4a2fb8' },
   VALIDATED: { label: 'Validé', bg: '#e0f3e5', fg: '#136d34' },
   CANCELLED: { label: 'Annulé', bg: '#efede6', fg: '#57574f' },
+  OFF_TOPIC: { label: 'Hors sujet', bg: '#fbe5e5', fg: '#8a1a1a' },
 };
-const STATUS_ORDER = ['NEW', 'QUOTED', 'VALIDATED', 'CANCELLED'];
+const STATUS_ORDER = ['NEW', 'QUOTED', 'VALIDATED', 'CANCELLED', 'OFF_TOPIC'];
 
 const STATUS_DOT_COLOR: Record<string, string> = {
   NEW: '#3d5efc',
   QUOTED: '#5b4bff',
   VALIDATED: '#187a4a',
   CANCELLED: '#8a8b91',
+  OFF_TOPIC: '#dc2626',
 };
 
 const Container = styled.div`

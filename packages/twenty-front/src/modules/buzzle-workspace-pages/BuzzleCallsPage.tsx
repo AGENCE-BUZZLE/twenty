@@ -18,7 +18,7 @@ const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 const VioletColor = '#7e37fe';
 
-type CallStatus = 'NEW' | 'QUOTED' | 'VALIDATED' | 'CANCELLED';
+type CallStatus = 'NEW' | 'QUOTED' | 'VALIDATED' | 'CANCELLED' | 'OFF_TOPIC';
 
 type Call = {
   id: string;
@@ -518,6 +518,7 @@ const STATUS_DOT_COLOR: Record<CallStatus, string> = {
   QUOTED: '#5b4bff',
   VALIDATED: '#187a4a',
   CANCELLED: '#8a8b91',
+  OFF_TOPIC: '#dc2626',
 };
 
 const EmptyState = styled.div`
@@ -533,9 +534,16 @@ const STATUS_META: Record<CallStatus, { label: string; bg: string; fg: string }>
   QUOTED: { label: 'Devis envoyé', bg: '#efe4ff', fg: '#4a1d99' },
   VALIDATED: { label: 'Validé', bg: '#e3f4ea', fg: '#187a4a' },
   CANCELLED: { label: 'Annulé', bg: '#efede6', fg: '#5a5540' },
+  OFF_TOPIC: { label: 'Hors sujet', bg: '#fbe5e5', fg: '#8a1a1a' },
 };
 
-const STATUS_ORDER: CallStatus[] = ['NEW', 'QUOTED', 'VALIDATED', 'CANCELLED'];
+const STATUS_ORDER: CallStatus[] = [
+  'NEW',
+  'QUOTED',
+  'VALIDATED',
+  'CANCELLED',
+  'OFF_TOPIC',
+];
 
 // ---------- Icons ----------
 

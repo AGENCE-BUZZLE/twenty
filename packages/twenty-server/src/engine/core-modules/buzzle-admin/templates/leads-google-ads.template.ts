@@ -69,6 +69,7 @@ export const leadsGoogleAdsTemplate: BuzzleWorkspaceTemplate = {
             { label: 'Devis envoyé', value: 'QUOTED', color: 'purple', position: 1 },
             { label: 'Validé', value: 'VALIDATED', color: 'green', position: 2 },
             { label: 'Annulé', value: 'CANCELLED', color: 'gray', position: 3 },
+            { label: 'Hors sujet', value: 'OFF_TOPIC', color: 'red', position: 4 },
           ],
         },
         // Champs cachés - stockés pour OCT, invisibles côté client
