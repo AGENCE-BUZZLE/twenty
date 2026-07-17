@@ -69,6 +69,9 @@ const Container = styled.div`
     margin-left: auto;
     margin-right: auto;
   }
+  @media (max-width: 768px) {
+    padding: 16px 12px 32px;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -77,6 +80,11 @@ const HeaderRow = styled.div`
   justify-content: space-between;
   gap: 20px;
   margin-bottom: 24px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
 `;
 
 const HeaderText = styled.div`
@@ -350,6 +358,14 @@ const FooterBar = styled.div`
   justify-content: space-between;
   gap: 12px;
   margin-top: 24px;
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+    & > * {
+      justify-content: center;
+    }
+  }
 `;
 
 const FooterFiller = styled.div`

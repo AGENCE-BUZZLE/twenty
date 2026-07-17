@@ -56,6 +56,9 @@ const Container = styled.div`
     margin-left: auto;
     margin-right: auto;
   }
+  @media (max-width: 768px) {
+    padding: 16px 12px 24px;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -64,6 +67,11 @@ const HeaderRow = styled.div`
   justify-content: space-between;
   margin-bottom: 16px;
   gap: 20px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
 `;
 
 const HeaderText = styled.div``;
@@ -338,6 +346,15 @@ const TableWrap = styled.div`
   border: 1px solid ${HairlineColor};
   border-radius: 12px;
   background: ${SurfaceColor};
+  @media (max-width: 768px) {
+    overflow-x: auto;
+  }
+`;
+
+const TableInner = styled.div`
+  @media (max-width: 768px) {
+    min-width: 640px;
+  }
 `;
 
 const Table = styled.table`
@@ -1039,6 +1056,7 @@ export const BuzzleContactsPage = () => {
       </Grid>
 
       <TableWrap>
+        <TableInner>
         <Table>
           <thead>
             <tr>
@@ -1145,6 +1163,7 @@ export const BuzzleContactsPage = () => {
             })}
           </tbody>
         </Table>
+        </TableInner>
       </TableWrap>
 
       <BuzzlePagination

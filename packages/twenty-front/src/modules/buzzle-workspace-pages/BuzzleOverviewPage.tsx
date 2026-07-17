@@ -63,6 +63,9 @@ const Container = styled.div`
     margin-left: auto;
     margin-right: auto;
   }
+  @media (max-width: 768px) {
+    padding: 16px 12px 24px;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -71,6 +74,11 @@ const HeaderRow = styled.div`
   justify-content: space-between;
   margin-bottom: 16px;
   gap: 20px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
 `;
 
 const HeaderText = styled.div``;

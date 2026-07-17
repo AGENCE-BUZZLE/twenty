@@ -63,6 +63,9 @@ const Container = styled.div`
     margin-left: auto;
     margin-right: auto;
   }
+  @media (max-width: 768px) {
+    padding: 16px 12px 24px;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -71,6 +74,11 @@ const HeaderRow = styled.div`
   justify-content: space-between;
   margin-bottom: 16px;
   gap: 20px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
 `;
 
 const HeaderText = styled.div``;
@@ -375,6 +383,15 @@ const Table = styled.div`
   border-radius: 12px;
   background: ${SurfaceColor};
   overflow: hidden;
+  @media (max-width: 768px) {
+    overflow-x: auto;
+  }
+`;
+
+const TableInner = styled.div`
+  @media (max-width: 768px) {
+    min-width: 720px;
+  }
 `;
 
 const TableHead = styled.div`
@@ -1033,6 +1050,7 @@ export const BuzzleInvoicesPage = () => {
       </Grid>
 
       <Table>
+        <TableInner>
         <TableHead>
           <div>N° facture</div>
           <div>Date</div>
@@ -1080,6 +1098,7 @@ export const BuzzleInvoicesPage = () => {
             </TableRow>
           );
         })}
+        </TableInner>
       </Table>
 
       <BuzzlePagination
