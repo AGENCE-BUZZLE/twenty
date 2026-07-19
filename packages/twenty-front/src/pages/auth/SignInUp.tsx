@@ -11,6 +11,7 @@ import { styled } from '@linaria/react';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 
+import { BuzzleAuthBackground } from '@/auth/components/BuzzleAuthBackground';
 import { EmailVerificationSent } from '@/auth/sign-in-up/components/EmailVerificationSent';
 import { SignInUpGlobalScopeForm } from '@/auth/sign-in-up/components/SignInUpGlobalScopeForm';
 import { SignInUpStandardContent } from '@/auth/sign-in-up/components/SignInUpStandardContent';
@@ -47,11 +48,15 @@ const StyledLoaderContainer = styled.div`
   width: 100%;
 `;
 
+// Buzzle: the sign-in shell runs on top of the animated cells background
+// (identical to home.agence-buzzle.com's hero). We keep it non-scrollable
+// at the outer level — the card handles its own vertical rhythm — and
+// scrollable only when the viewport can't fit the card.
 const StyledBackground = styled.div`
-  background: ${themeCssVariables.background.secondary};
+  position: relative;
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  min-height: 100dvh;
   overflow-y: auto;
   width: 100%;
 `;
@@ -93,39 +98,46 @@ export const SignInUp = () => {
 
   const isGlobalScope = isDefaultDomain && isMultiWorkspaceEnabled;
 
+  // Buzzle: titles are hardcoded FR so the sign-in screen never boots
+  // into English even during the brief window before Lingui's FR
+  // catalog resolves. `t` is intentionally kept as a dep for consistency
+  // with the previous shape but no longer read.
   const title = useMemo(() => {
+    void t;
     if (isDefined(workspaceInviteHash)) {
       const workspaceName = workspaceFromInviteHash?.displayName ?? '';
-      return t`Join ${workspaceName} team`;
+      return workspaceName !== ''
+        ? `Rejoindre ${workspaceName}`
+        : 'Rejoindre l’équipe';
     }
 
     if (signInUpStep === SignInUpStep.WorkspaceSelection) {
-      return t`Choose a Workspace`;
+      return 'Choisissez un espace';
     }
 
     if (signInUpStep === SignInUpStep.WorkspaceCreation) {
-      return t`Create your workspace`;
+      return 'Créer votre espace';
     }
 
     if (signInUpStep === SignInUpStep.TwoFactorAuthenticationProvision) {
-      return t`Setup your 2FA`;
+      return 'Configurer la double authentification';
     }
 
     if (signInUpStep === SignInUpStep.TwoFactorAuthenticationVerification) {
-      return t`Verify code from the app`;
+      return 'Entrer le code de votre application';
     }
 
     if (isGlobalScope) {
-      return t`Welcome to Twenty`;
+      return 'Bienvenue !';
     }
 
     const workspaceName = workspacePublicData?.displayName;
 
-    if (!workspaceName) {
-      return t`Welcome to your workspace`;
+    if (workspaceName === undefined || workspaceName === null || workspaceName === '') {
+      return 'Bienvenue !';
     }
 
-    return t`Welcome, ${workspaceName}.`;
+    return `Bienvenue, ${workspaceName}.`;
   }, [
     workspaceInviteHash,
     signInUpStep,
@@ -208,6 +220,7 @@ export const SignInUp = () => {
     </OnboardingLayout>
   ) : (
     <StyledBackground>
+      <BuzzleAuthBackground />
       {signInUpStep === SignInUpStep.EmailVerification ? (
         <ModalContent isVerticallyCentered isHorizontallyCentered>
           <EmailVerificationSent email={searchParams.get('email')} />
