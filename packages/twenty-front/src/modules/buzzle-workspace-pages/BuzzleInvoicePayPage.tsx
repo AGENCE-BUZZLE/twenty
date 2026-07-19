@@ -622,7 +622,7 @@ export const BuzzleInvoicePayPage = () => {
             <PageTitle>Aucun solde à régler</PageTitle>
           </HeaderText>
           <HeaderActions>
-            <BuzzleWorkspacesButton />
+            <BuzzleWorkspacesButton hideOnMobile />
           </HeaderActions>
         </HeaderRow>
         <NoticeBox>
@@ -653,7 +653,7 @@ export const BuzzleInvoicePayPage = () => {
           <PageTitle>Effectuer un règlement</PageTitle>
         </HeaderText>
         <HeaderActions>
-          <BuzzleWorkspacesButton />
+          <BuzzleWorkspacesButton hideOnMobile />
         </HeaderActions>
       </HeaderRow>
 

@@ -1337,7 +1337,7 @@ export const BuzzleOverviewPage = () => {
             onCustomStartChange={setCustomStart}
             onCustomEndChange={setCustomEnd}
           />
-          <BuzzleWorkspacesButton />
+          <BuzzleWorkspacesButton hideOnMobile />
         </HeaderActions>
       </HeaderRow>
 

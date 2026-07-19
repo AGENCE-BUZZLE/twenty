@@ -1,15 +1,14 @@
 import { styled } from '@linaria/react';
 
+import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 
-// Mobile header for the Buzzle CRM. Replaces Twenty's bottom
-// MobileNavigationBar with an Ink header on top: hamburger left, Buzzle
-// wordmark centered. The workspace avatar is intentionally not shown
-// here because the same switcher already lives in each page's beige
-// header (avoids visual duplication). The hamburger toggles Twenty's
-// `isNavigationDrawerExpandedState` so the drawer content is actually
-// mounted with the correct width, unlike a custom overlay.
+// Mobile header for the Buzzle CRM. Sticky Ink bar with hamburger left,
+// Buzzle wordmark centered, workspace switcher on the right. The switcher
+// lives only here on mobile (pages hide their own copy) so the beige
+// header on each page stays clean. Hamburger flips to a cross when the
+// drawer is open so the user can close it from the same button.
 
 const InkColor = '#14141c';
 
@@ -64,6 +63,15 @@ const LogoImg = styled.img`
   -webkit-user-drag: none;
 `;
 
+// The switcher trigger is styled for a light background; on the Ink
+// header we invert its currentColor so the ring / hover stay legible.
+const WorkspaceSlot = styled.div`
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  color: #ffffff;
+`;
+
 const IconMenu = () => (
   <svg
     width="22"
@@ -82,6 +90,23 @@ const IconMenu = () => (
   </svg>
 );
 
+const IconClose = () => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <line x1="6" y1="6" x2="18" y2="18" />
+    <line x1="18" y1="6" x2="6" y2="18" />
+  </svg>
+);
+
 export const BuzzleMobileHeader = () => {
   const [isExpanded, setIsExpanded] = useAtomState(
     isNavigationDrawerExpandedState,
@@ -91,13 +116,17 @@ export const BuzzleMobileHeader = () => {
     <Header>
       <HamburgerButton
         aria-label={isExpanded ? 'Fermer le menu' : 'Ouvrir le menu'}
+        aria-expanded={isExpanded}
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <IconMenu />
+        {isExpanded ? <IconClose /> : <IconMenu />}
       </HamburgerButton>
       <LogoWrap>
         <LogoImg src="/images/buzzle-white.png" alt="Buzzle" />
       </LogoWrap>
+      <WorkspaceSlot>
+        <BuzzleWorkspacesButton />
+      </WorkspaceSlot>
     </Header>
   );
 };

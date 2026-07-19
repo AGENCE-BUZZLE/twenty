@@ -20,9 +20,14 @@ const InkColor = '#14141c';
 const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
-const Wrap = styled.div`
+const Wrap = styled.div<{ hideOnMobile?: boolean }>`
   position: relative;
   display: inline-block;
+
+  ${({ hideOnMobile }) =>
+    hideOnMobile === true
+      ? `@media (max-width: 768px) { display: none; }`
+      : ''}
 `;
 
 const Trigger = styled.button`
@@ -48,12 +53,17 @@ const Menu = styled.div`
   top: calc(100% + 8px);
   right: 0;
   min-width: 260px;
+  max-width: min(320px, calc(100vw - 24px));
   background: ${SurfaceColor};
   border: 1px solid ${InkColor};
   border-radius: 12px;
   padding: 8px;
   box-shadow: 0 12px 32px rgba(20, 20, 28, 0.14);
   z-index: 40;
+
+  @media (max-width: 480px) {
+    min-width: 240px;
+  }
 `;
 
 const MenuHead = styled.div`
@@ -93,7 +103,13 @@ const ActiveTag = styled.span`
   color: ${MutedColor};
 `;
 
-export const BuzzleWorkspacesButton = () => {
+type BuzzleWorkspacesButtonProps = {
+  hideOnMobile?: boolean;
+};
+
+export const BuzzleWorkspacesButton = ({
+  hideOnMobile = false,
+}: BuzzleWorkspacesButtonProps = {}) => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const availableWorkspaces = useAtomStateValue(availableWorkspacesState);
   const { openWorkspace, pendingWorkspaceId } = useBuzzleImpersonateWorkspace();
@@ -130,7 +146,7 @@ export const BuzzleWorkspacesButton = () => {
   ];
 
   return (
-    <Wrap ref={wrapRef}>
+    <Wrap ref={wrapRef} hideOnMobile={hideOnMobile}>
       <Trigger
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="menu"

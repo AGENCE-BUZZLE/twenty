@@ -140,7 +140,7 @@ export const BuzzleSettingsLayout = ({
               </TabPill>
             )}
           </TabStrip>
-          <BuzzleWorkspacesButton />
+          <BuzzleWorkspacesButton hideOnMobile />
         </HeaderActions>
       </HeaderRow>
       {children}

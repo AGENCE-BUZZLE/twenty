@@ -681,7 +681,7 @@ export const BuzzleCallsPage = () => {
             onCustomStartChange={setCustomStart}
             onCustomEndChange={setCustomEnd}
           />
-          <BuzzleWorkspacesButton />
+          <BuzzleWorkspacesButton hideOnMobile />
         </HeaderActions>
       </HeaderRow>
 

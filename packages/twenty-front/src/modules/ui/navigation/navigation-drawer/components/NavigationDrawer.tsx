@@ -23,7 +23,6 @@ import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 import { MOBILE_VIEWPORT, themeCssVariables } from 'twenty-ui/theme-constants';
 import { NavigationDrawerBackButton } from './NavigationDrawerBackButton';
-import { NavigationDrawerHeader } from './NavigationDrawerHeader';
 
 export type NavigationDrawerProps = {
   children?: ReactNode;
@@ -130,16 +129,14 @@ export const NavigationDrawer = ({
             </>
           ) : (
             <>
-              {/* Buzzle: brand mark on top, workspace switcher at the
-                  bottom. Twenty's NavigationDrawerHeader is retained on
-                  mobile because it also handles the drawer-close button. */}
-              {isMobile ? (
-                <NavigationDrawerHeader showCollapseButton={true} />
-              ) : (
-                <BuzzleLogoHeader />
-              )}
+              {/* Buzzle: on desktop we keep our brand mark at the top and
+                  the settings footer at the bottom. On mobile there is
+                  no top workspace switcher (that lives in the Ink header)
+                  and no drawer-close button (the hamburger handles it) —
+                  the footer stays so Paramètres remain accessible. */}
+              {!isMobile && <BuzzleLogoHeader />}
               {children}
-              {!isMobile && <BuzzleSettingsFooter />}
+              <BuzzleSettingsFooter />
             </>
           )}
         </StyledContainer>

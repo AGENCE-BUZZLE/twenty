@@ -10,6 +10,10 @@ import {
   IconWorldWww,
 } from 'twenty-ui/icon';
 
+import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
+import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
+import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
+
 // Fixed Buzzle drawer nav (client-side). Pipeline and Mon profil are
 // intentionally absent: the pipeline lives inside the Contacts view via
 // status filtering, and profile settings live under the workspace
@@ -122,9 +126,14 @@ const activeIconStyle: React.CSSProperties = {
 export const BuzzleWorkspaceNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const setIsDrawerExpanded = useSetAtomState(isNavigationDrawerExpandedState);
 
   const handleClick = (path: string) => {
     navigate(path);
+    if (isMobile) {
+      setIsDrawerExpanded(false);
+    }
   };
 
   const renderItem = (item: NavItem) => {
