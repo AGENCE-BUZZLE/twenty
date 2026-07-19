@@ -76,8 +76,7 @@ const HeaderRow = styled.div`
   margin-bottom: 16px;
   gap: 20px;
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
+    align-items: center;
     gap: 12px;
   }
 `;
@@ -91,6 +90,11 @@ const PageTitle = styled.h1`
   letter-spacing: -0.024em;
   color: ${InkColor};
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+    letter-spacing: -0.018em;
+  }
 `;
 
 const HeaderActions = styled.div`
