@@ -4,11 +4,10 @@ import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesB
 import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 
-// Mobile header for the Buzzle CRM. Sticky Ink bar with hamburger left,
-// Buzzle wordmark centered, workspace switcher on the right. The switcher
-// lives only here on mobile (pages hide their own copy) so the beige
-// header on each page stays clean. Hamburger flips to a cross when the
-// drawer is open so the user can close it from the same button.
+// Mobile header for the Buzzle CRM. Sticky Ink bar laid out as a
+// 3-column grid so the wordmark stays perfectly centred no matter how
+// wide the hamburger or the workspace switcher get. Hamburger flips to
+// a cross when the drawer is open.
 
 const InkColor = '#14141c';
 
@@ -18,9 +17,10 @@ const Header = styled.header`
   left: 0;
   right: 0;
   z-index: 30;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 10px 14px;
   background: ${InkColor};
   color: #ffffff;
@@ -28,12 +28,12 @@ const Header = styled.header`
 `;
 
 const HamburgerButton = styled.button`
-  flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  justify-self: start;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent;
   color: #ffffff;
   cursor: pointer;
@@ -47,26 +47,21 @@ const HamburgerButton = styled.button`
 `;
 
 const LogoWrap = styled.div`
-  flex: 1 1 auto;
-  display: flex;
+  justify-self: center;
+  display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  padding-left: 4px;
-  min-width: 0;
 `;
 
 const LogoImg = styled.img`
-  height: 22px;
+  height: 30px;
   width: auto;
   display: block;
   user-select: none;
   -webkit-user-drag: none;
 `;
 
-// The switcher trigger is styled for a light background; on the Ink
-// header we invert its currentColor so the ring / hover stay legible.
 const WorkspaceSlot = styled.div`
-  flex: 0 0 auto;
+  justify-self: end;
   display: inline-flex;
   align-items: center;
   color: #ffffff;
@@ -74,8 +69,8 @@ const WorkspaceSlot = styled.div`
 
 const IconMenu = () => (
   <svg
-    width="22"
-    height="22"
+    width="18"
+    height="18"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -92,8 +87,8 @@ const IconMenu = () => (
 
 const IconClose = () => (
   <svg
-    width="22"
-    height="22"
+    width="18"
+    height="18"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -125,7 +120,7 @@ export const BuzzleMobileHeader = () => {
         <LogoImg src="/images/buzzle-white.png" alt="Buzzle" />
       </LogoWrap>
       <WorkspaceSlot>
-        <BuzzleWorkspacesButton />
+        <BuzzleWorkspacesButton size="lg" />
       </WorkspaceSlot>
     </Header>
   );

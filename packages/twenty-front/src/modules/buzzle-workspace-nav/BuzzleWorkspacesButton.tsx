@@ -20,14 +20,19 @@ const InkColor = '#14141c';
 const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
-const Wrap = styled.div<{ hideOnMobile?: boolean }>`
+// hideOnMobile is exposed as a static data attribute rather than a
+// prop-interpolated CSS block. Linaria's zero-runtime engine cannot
+// splice a whole `@media` block from a prop callback — the rule needs
+// to live in the stylesheet and only match when the attribute is set.
+const Wrap = styled.div`
   position: relative;
   display: inline-block;
 
-  ${({ hideOnMobile }) =>
-    hideOnMobile === true
-      ? `@media (max-width: 768px) { display: none; }`
-      : ''}
+  &[data-hide-on-mobile] {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
 `;
 
 const Trigger = styled.button`
@@ -45,6 +50,11 @@ const Trigger = styled.button`
   transition: opacity 0.12s;
   &:hover {
     opacity: 0.75;
+  }
+
+  &[data-size='lg'] {
+    width: 40px;
+    height: 40px;
   }
 `;
 
@@ -105,10 +115,12 @@ const ActiveTag = styled.span`
 
 type BuzzleWorkspacesButtonProps = {
   hideOnMobile?: boolean;
+  size?: 'md' | 'lg';
 };
 
 export const BuzzleWorkspacesButton = ({
   hideOnMobile = false,
+  size = 'md',
 }: BuzzleWorkspacesButtonProps = {}) => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const availableWorkspaces = useAtomStateValue(availableWorkspacesState);
@@ -146,20 +158,21 @@ export const BuzzleWorkspacesButton = ({
   ];
 
   return (
-    <Wrap ref={wrapRef} hideOnMobile={hideOnMobile}>
+    <Wrap ref={wrapRef} data-hide-on-mobile={hideOnMobile ? '' : undefined}>
       <Trigger
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={currentWorkspace?.displayName || 'Workspace'}
         title={currentWorkspace?.displayName || 'Workspace'}
+        data-size={size}
       >
         <Avatar
           placeholder={currentWorkspace?.displayName || ''}
           avatarUrl={getAbsoluteImageUrl(
             currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
           )}
-          size="md"
+          size={size === 'lg' ? 'lg' : 'md'}
         />
       </Trigger>
       {open && (
