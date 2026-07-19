@@ -12,7 +12,10 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 import { workspaceAuthBypassProvidersState } from '@/workspace/states/workspaceAuthBypassProvidersState';
 import { useCallback } from 'react';
-import { SOURCE_LOCALE, type APP_LOCALES } from 'twenty-shared/translations';
+import { type APP_LOCALES } from 'twenty-shared/translations';
+
+// Buzzle white-label : fallback FR quand le membre n'a pas encore de locale.
+const BUZZLE_DEFAULT_LOCALE: keyof typeof APP_LOCALES = 'fr-FR';
 import { type ObjectPermissions } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { type ColorScheme } from 'twenty-ui/input';
@@ -88,7 +91,7 @@ export const useLoadCurrentUser = () => {
       workspaceMember = {
         ...user.workspaceMember,
         colorScheme: user.workspaceMember?.colorScheme as ColorScheme,
-        locale: user.workspaceMember?.locale ?? SOURCE_LOCALE,
+        locale: user.workspaceMember?.locale ?? BUZZLE_DEFAULT_LOCALE,
       };
 
       setCurrentWorkspaceMember(workspaceMember);
@@ -96,7 +99,7 @@ export const useLoadCurrentUser = () => {
       // Initialize unified format preferences state
       initializeFormatPreferences(workspaceMember);
       dynamicActivate(
-        (workspaceMember.locale as keyof typeof APP_LOCALES) ?? SOURCE_LOCALE,
+        (workspaceMember.locale as keyof typeof APP_LOCALES) ?? BUZZLE_DEFAULT_LOCALE,
       );
     }
 

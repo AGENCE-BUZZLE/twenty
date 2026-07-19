@@ -84,7 +84,7 @@ export const FooterNote = ({
         et notre{' '}
         {secondaryAgreement === 'dataProcessingAgreement' ? (
           <a href={DPA_URL} target="_blank" rel="noopener noreferrer">
-            Data Processing Agreement
+            Accord de traitement des données
           </a>
         ) : (
           <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
