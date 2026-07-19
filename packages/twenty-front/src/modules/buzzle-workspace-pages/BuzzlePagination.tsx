@@ -150,7 +150,7 @@ export const BuzzlePagination = ({
       </Summary>
       <Controls>
         <PageButton
-          aria-label="Page precedente"
+          aria-label="Page précédente"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
         >
