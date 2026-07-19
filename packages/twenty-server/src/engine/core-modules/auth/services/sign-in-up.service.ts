@@ -364,27 +364,13 @@ export class SignInUpService {
     },
     queryRunner?: QueryRunner,
   ) {
-    if (shouldShowConnectAccountStep) {
-      await this.onboardingService.setOnboardingConnectAccountPending(
-        {
-          userId: user.id,
-          workspaceId: workspace.id,
-          value: true,
-        },
-        queryRunner,
-      );
-    }
+    // Buzzle: we don't ship Gmail / Outlook sync nor a browser extension,
+    // so we skip the "Connecter votre compte" and "Installer les apps"
+    // onboarding steps altogether. Only Create profile (and Invite team,
+    // when set elsewhere) remain in the flow.
+    void shouldShowConnectAccountStep;
 
     await this.onboardingService.setOnboardingCreateProfilePending(
-      {
-        userId: user.id,
-        workspaceId: workspace.id,
-        value: true,
-      },
-      queryRunner,
-    );
-
-    await this.onboardingService.setOnboardingInstallAppsPending(
       {
         userId: user.id,
         workspaceId: workspace.id,
@@ -667,13 +653,8 @@ export class SignInUpService {
             queryRunner,
           );
 
-          await this.onboardingService.setOnboardingInviteTeamPending(
-            {
-              workspaceId: workspace.id,
-              value: true,
-            },
-            queryRunner,
-          );
+          // Buzzle: member management is done from the super-admin cockpit,
+          // clients don't need to invite teammates during onboarding.
 
           // Click-through DPA: the DPA is incorporated by reference into the
           // ToS/signup, so acceptance = execution. Only relevant on Twenty's

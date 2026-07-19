@@ -190,11 +190,11 @@ export const CreateProfile = () => {
     <StyledOnboardingStepPage>
       <StyledOnboardingStepHeading>
         <OnboardingStepAnimatedItem index={0}>
-          <StyledOnboardingStepTitle>{t`Create profile`}</StyledOnboardingStepTitle>
+          <StyledOnboardingStepTitle>Créer votre profil</StyledOnboardingStepTitle>
         </OnboardingStepAnimatedItem>
         <OnboardingStepAnimatedItem index={1}>
           <StyledOnboardingStepSubtitle>
-            {t`How you'll appear to teammates and agents.`}
+            {`Ces informations apparaîtront pour votre équipe Buzzle.`}
           </StyledOnboardingStepSubtitle>
         </OnboardingStepAnimatedItem>
       </StyledOnboardingStepHeading>
@@ -217,7 +217,7 @@ export const CreateProfile = () => {
                 }) => (
                   <TextInput
                     autoFocus
-                    label={t`First Name`}
+                    label="Prénom"
                     value={value}
                     onFocus={() => setIsEditingMode(true)}
                     onBlur={() => {
@@ -225,7 +225,7 @@ export const CreateProfile = () => {
                       setIsEditingMode(false);
                     }}
                     onChange={onChange}
-                    placeholder={t`Tim`}
+                    placeholder="Clément"
                     error={error?.message}
                     fullWidth
                   />
@@ -241,7 +241,7 @@ export const CreateProfile = () => {
                   fieldState: { error },
                 }) => (
                   <TextInput
-                    label={t`Last name`}
+                    label="Nom"
                     value={value}
                     onFocus={() => setIsEditingMode(true)}
                     onBlur={() => {
@@ -249,7 +249,7 @@ export const CreateProfile = () => {
                       setIsEditingMode(false);
                     }}
                     onChange={onChange}
-                    placeholder={t`Apple`}
+                    placeholder="Lavis"
                     error={error?.message}
                     fullWidth
                   />
@@ -262,7 +262,7 @@ export const CreateProfile = () => {
             control={control}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label={t`Job Title`}
+                label="Poste"
                 value={value}
                 onFocus={() => setIsEditingMode(true)}
                 onBlur={() => {
@@ -270,7 +270,7 @@ export const CreateProfile = () => {
                   setIsEditingMode(false);
                 }}
                 onChange={onChange}
-                placeholder={t`Head of Partnerships`}
+                placeholder="Gérant"
                 fullWidth
               />
             )}
@@ -281,7 +281,7 @@ export const CreateProfile = () => {
       <OnboardingStepAnimatedItem index={3}>
         <StyledButtonContainer>
           <MainButton
-            title={t`Continue`}
+            title="Continuer"
             onClick={handleSubmit(onSubmit)}
             disabled={!isValid || isSubmitting || isNavigating}
             fullWidth
