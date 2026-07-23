@@ -50,6 +50,12 @@ const DEFAULT_STATUS_META: Record<string, StatusMeta> = {
     fg: '#57574f',
     dot: '#8a8b91',
   },
+  CANCELLED: {
+    label: 'Annulé',
+    bg: '#efede6',
+    fg: '#57574f',
+    dot: '#8a8b91',
+  },
   OFF_TOPIC: {
     label: 'Hors sujet',
     bg: '#fbe5e5',
@@ -58,7 +64,15 @@ const DEFAULT_STATUS_META: Record<string, StatusMeta> = {
   },
 };
 
-const DEFAULT_ORDER = ['NEW', 'CONTACTED', 'QUOTED', 'WON', 'LOST', 'OFF_TOPIC'];
+const DEFAULT_ORDER = [
+  'NEW',
+  'CONTACTED',
+  'QUOTED',
+  'WON',
+  'LOST',
+  'CANCELLED',
+  'OFF_TOPIC',
+];
 
 type WorkspaceStatusConfig = {
   order: string[];
@@ -68,7 +82,10 @@ type WorkspaceStatusConfig = {
 // Clé : subdomain du workspace
 const WORKSPACE_STATUS_CONFIG: Record<string, WorkspaceStatusConfig> = {
   'galaxy-glass': {
-    order: ['NEW', 'QUOTED', 'WON', 'OFF_TOPIC'],
+    // Ordre du dropdown : Nouveau → En cours → Effectué → Annulé (gestion
+    // interne, ne touche pas les conversions Google Ads déjà comptées) →
+    // Hors sujet (rétracte la conversion Nouveau lead côté OCT).
+    order: ['NEW', 'QUOTED', 'WON', 'CANCELLED', 'OFF_TOPIC'],
     overrides: {
       QUOTED: { label: 'En cours' },
       WON: { label: 'Effectué' },
