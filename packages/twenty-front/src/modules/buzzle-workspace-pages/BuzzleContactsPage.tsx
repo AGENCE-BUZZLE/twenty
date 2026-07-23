@@ -395,65 +395,130 @@ const EmptyStateTitle = styled.div`
   color: ${InkColor};
 `;
 
-// ---------- Drawer ----------
+// ---------- Modal (centered detail view) ----------
 
 const Backdrop = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(20, 20, 28, 0.35);
+  background: rgba(20, 20, 28, 0.48);
+  backdrop-filter: blur(2px);
   z-index: 40;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-`;
+  justify-content: center;
+  padding: 24px;
+  animation: buzzle-modal-fade 0.14s ease-out;
 
-const Drawer = styled.div`
-  width: 460px;
-  max-width: 100vw;
-  height: 100%;
-  background: ${SurfaceColor};
-  border-left: 1px solid ${HairlineColor};
-  padding: 28px 32px 32px;
-  overflow-y: auto;
-`;
-
-const DrawerHead = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-`;
-
-const DrawerTitle = styled.h2`
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 22px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  margin: 0;
-`;
-
-const CloseButton = styled.button`
-  background: transparent;
-  border: 1px solid ${HairlineColor};
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  color: ${InkColor};
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  font-size: 12px;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-  &:hover {
-    background: ${InkColor};
-    color: ${SurfaceColor};
-    border-color: ${InkColor};
+  @keyframes buzzle-modal-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 `;
 
-const FieldRow = styled.div`
-  padding: 12px 0;
+const Modal = styled.div`
+  width: 100%;
+  max-width: 640px;
+  max-height: min(85vh, 720px);
+  background: ${SurfaceColor};
+  border-radius: 14px;
+  box-shadow:
+    0 24px 48px rgba(20, 20, 28, 0.28),
+    0 4px 12px rgba(20, 20, 28, 0.14);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: buzzle-modal-rise 0.18s ease-out;
+
+  @keyframes buzzle-modal-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+`;
+
+const ModalHead = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 26px 18px;
   border-bottom: 1px solid ${HairlineColor};
+`;
+
+const ModalTitleWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+`;
+
+const ModalTitle = styled.h2`
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.014em;
+  color: ${InkColor};
+  margin: 0;
+  line-height: 1.15;
+`;
+
+const ModalSubtitle = styled.div`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: ${MutedColor};
+`;
+
+const CloseButton = styled.button`
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: ${MutedColor};
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  &:hover {
+    background: rgba(20, 20, 28, 0.06);
+    color: ${InkColor};
+  }
+`;
+
+const ModalBody = styled.div`
+  padding: 8px 26px 22px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+`;
+
+const FieldGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 22px;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const FieldRow = styled.div<{ full?: boolean }>`
+  padding: 14px 0;
+  border-bottom: 1px solid ${HairlineColor};
+  ${({ full }) => (full === true ? 'grid-column: 1 / -1;' : '')}
   &:last-child {
     border-bottom: 0;
   }
@@ -462,17 +527,18 @@ const FieldRow = styled.div`
 const FieldLabel = styled.div`
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: ${MutedColor};
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 `;
 
 const FieldValue = styled.div`
   color: ${InkColor};
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.55;
   white-space: pre-wrap;
+  word-break: break-word;
 `;
 
 // ---------- Icons ----------
@@ -856,15 +922,14 @@ export const BuzzleContactsPage = () => {
             <tr>
               <Th style={{ width: 200 }}>Date</Th>
               <Th>Nom complet</Th>
-              <Th style={{ width: 200 }}>Téléphone</Th>
-              <Th style={{ width: 240, textAlign: 'right' }}>Détail</Th>
+              <Th style={{ width: 240, textAlign: 'right' }}>Informations</Th>
               <Th style={{ width: 160, textAlign: 'right' }}>Statut</Th>
             </tr>
           </thead>
           <tbody>
             {notInitialised && (
               <TableRow>
-                <Td colSpan={5}>
+                <Td colSpan={4}>
                   <EmptyStateCell>
                     <EmptyStateTitle>
                       Ce workspace n'est pas encore initialisé
@@ -878,7 +943,7 @@ export const BuzzleContactsPage = () => {
 
             {!notInitialised && loading && visibleContacts.length === 0 && (
               <TableRow>
-                <Td colSpan={5}>
+                <Td colSpan={4}>
                   <EmptyStateCell>Chargement des contacts.</EmptyStateCell>
                 </Td>
               </TableRow>
@@ -886,7 +951,7 @@ export const BuzzleContactsPage = () => {
 
             {!notInitialised && !loading && visibleContacts.length === 0 && (
               <TableRow>
-                <Td colSpan={5}>
+                <Td colSpan={4}>
                   <EmptyStateCell>
                     <EmptyStateTitle>Aucun contact sur cette période</EmptyStateTitle>
                     Ajustez le filtre en haut à droite pour élargir la vue.
@@ -912,12 +977,9 @@ export const BuzzleContactsPage = () => {
                     </NameCell>
                   </Td>
                   <Td>
-                    <PhoneCell>{displayPhone(row.phone)}</PhoneCell>
-                  </Td>
-                  <Td>
                     <RightAlign>
                       <ViewButton onClick={() => setDetailRecord(row)}>
-                        <IconEye /> Voir les informations
+                        <IconEye /> Voir les infos
                       </ViewButton>
                     </RightAlign>
                   </Td>
@@ -967,35 +1029,95 @@ export const BuzzleContactsPage = () => {
         onPageChange={setPage}
       />
 
-      {detailRecord && (
-        <Backdrop onClick={() => setDetailRecord(null)}>
-          <Drawer onClick={(e) => e.stopPropagation()}>
-            <DrawerHead>
-              <DrawerTitle>
-                {(typeof detailRecord.name === 'string' && detailRecord.name) ||
-                  'Détail du contact'}
-              </DrawerTitle>
-              <CloseButton onClick={() => setDetailRecord(null)}>
-                <IconClose /> Fermer
-              </CloseButton>
-            </DrawerHead>
-            <FieldRow>
-              <FieldLabel>Reçu le</FieldLabel>
-              <FieldValue>{formatDateTime(detailRecord.createdAt)}</FieldValue>
-            </FieldRow>
-            {DETAIL_FIELDS.map(({ key, label, render }) => {
-              const value = render(detailRecord[key]);
-              if (!value) return null;
-              return (
-                <FieldRow key={key}>
-                  <FieldLabel>{label}</FieldLabel>
-                  <FieldValue>{value}</FieldValue>
-                </FieldRow>
-              );
-            })}
-          </Drawer>
-        </Backdrop>
-      )}
+      {detailRecord &&
+        (() => {
+          const detailStatus =
+            typeof detailRecord.status === 'string' ? detailRecord.status : 'NEW';
+          const detailStatusMeta = getStatusMeta(detailStatus);
+          const isDetailMenuOpen = openStatusMenuFor === `detail-${detailRecord.id}`;
+          const activeFields = DETAIL_FIELDS.map(({ key, label, render }) => ({
+            key,
+            label,
+            value: render(detailRecord[key]),
+          })).filter((f) => f.value !== '');
+          return (
+            <Backdrop onClick={() => setDetailRecord(null)}>
+              <Modal onClick={(e) => e.stopPropagation()}>
+                <ModalHead>
+                  <ModalTitleWrap>
+                    <ModalSubtitle>
+                      Reçu le {formatDateTime(detailRecord.createdAt)}
+                    </ModalSubtitle>
+                    <ModalTitle>
+                      {(typeof detailRecord.name === 'string' &&
+                        detailRecord.name) ||
+                        'Détail du contact'}
+                    </ModalTitle>
+                    <div>
+                      <StatusPill
+                        bg={detailStatusMeta.bg}
+                        fg={detailStatusMeta.fg}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenStatusMenuFor(
+                            isDetailMenuOpen ? null : `detail-${detailRecord.id}`,
+                          );
+                        }}
+                      >
+                        {detailStatusMeta.label}
+                        <IconChevronDown />
+                        {isDetailMenuOpen && (
+                          <StatusMenu onClick={(e) => e.stopPropagation()}>
+                            {STATUS_ORDER.map((s) => {
+                              const m = STATUS_META[s];
+                              return (
+                                <StatusMenuItem
+                                  key={s}
+                                  onClick={() =>
+                                    handleStatusChange(detailRecord.id, s)
+                                  }
+                                >
+                                  <StatusDot color={m.dot} />
+                                  {m.label}
+                                </StatusMenuItem>
+                              );
+                            })}
+                          </StatusMenu>
+                        )}
+                      </StatusPill>
+                    </div>
+                  </ModalTitleWrap>
+                  <CloseButton
+                    onClick={() => setDetailRecord(null)}
+                    aria-label="Fermer"
+                  >
+                    <IconClose />
+                  </CloseButton>
+                </ModalHead>
+                <ModalBody>
+                  <FieldGrid>
+                    {activeFields.map(({ key, label, value }) => {
+                      const isLong = value.length > 60 || key === 'message' || key === 'notes';
+                      return (
+                        <FieldRow key={key} full={isLong}>
+                          <FieldLabel>{label}</FieldLabel>
+                          <FieldValue>{value}</FieldValue>
+                        </FieldRow>
+                      );
+                    })}
+                    {activeFields.length === 0 && (
+                      <FieldRow full>
+                        <FieldValue>
+                          Aucune information supplémentaire pour ce contact.
+                        </FieldValue>
+                      </FieldRow>
+                    )}
+                  </FieldGrid>
+                </ModalBody>
+              </Modal>
+            </Backdrop>
+          );
+        })()}
     </Container>
   );
 };
