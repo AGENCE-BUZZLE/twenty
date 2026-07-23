@@ -515,10 +515,13 @@ const FieldGrid = styled.div`
   }
 `;
 
-const FieldRow = styled.div<{ full?: boolean }>`
+const FieldRow = styled.div`
   padding: 14px 0;
   border-bottom: 1px solid ${HairlineColor};
-  ${({ full }) => (full === true ? 'grid-column: 1 / -1;' : '')}
+
+  &[data-full] {
+    grid-column: 1 / -1;
+  }
   &:last-child {
     border-bottom: 0;
   }
@@ -1099,14 +1102,14 @@ export const BuzzleContactsPage = () => {
                     {activeFields.map(({ key, label, value }) => {
                       const isLong = value.length > 60 || key === 'message' || key === 'notes';
                       return (
-                        <FieldRow key={key} full={isLong}>
+                        <FieldRow key={key} data-full={isLong ? '' : undefined}>
                           <FieldLabel>{label}</FieldLabel>
                           <FieldValue>{value}</FieldValue>
                         </FieldRow>
                       );
                     })}
                     {activeFields.length === 0 && (
-                      <FieldRow full>
+                      <FieldRow data-full>
                         <FieldValue>
                           Aucune information supplémentaire pour ce contact.
                         </FieldValue>
