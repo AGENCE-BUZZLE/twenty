@@ -621,9 +621,7 @@ export const BuzzleContactsPage = () => {
     skip: !contactObject,
   });
 
-  const { updateOneRecord } = useUpdateOneRecord({
-    objectNameSingular: 'contact',
-  });
+  const { updateOneRecord } = useUpdateOneRecord();
 
   const [detailRecord, setDetailRecord] = useState<ObjectRecord | null>(null);
   const [openStatusMenuFor, setOpenStatusMenuFor] = useState<string | null>(
@@ -745,11 +743,13 @@ export const BuzzleContactsPage = () => {
     setOpenStatusMenuFor(null);
     try {
       await updateOneRecord({
+        objectNameSingular: 'contact',
         idToUpdate: recordId,
         updateOneRecordInput: { status: next },
       });
-    } catch {
-      // no-op; toast handled globally
+    } catch (error) {
+      // oxlint-disable-next-line no-console
+      console.error('[BuzzleContacts] status update failed', error);
     }
   };
 
