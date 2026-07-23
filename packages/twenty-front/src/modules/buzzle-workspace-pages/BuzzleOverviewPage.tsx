@@ -1156,79 +1156,6 @@ export const BuzzleOverviewPage = () => {
     fields: BuzzleLeadDrawerField[];
   } | null>(null);
 
-  // Build drawer fields from a contact / call and open the drawer. Mirrors
-  // the "Voir les informations" behavior on the /contacts page.
-  const openContactDrawer = (contactId: string) => {
-    const record = allContacts.find((c) => c.id === contactId);
-
-    if (!record) return;
-    const name =
-      typeof record.name === 'string' && record.name.trim().length > 0
-        ? record.name
-        : 'Détail du contact';
-    const phone = (() => {
-      const p = record.phone as {
-        primaryPhoneCallingCode?: string;
-        primaryPhoneNumber?: string;
-      } | null | undefined;
-
-      if (!p || typeof p !== 'object') return '';
-
-      return `${p.primaryPhoneCallingCode ?? ''} ${p.primaryPhoneNumber ?? ''}`.trim();
-    })();
-    const email = (() => {
-      const e = record.email as { primaryEmail?: string } | null | undefined;
-
-      if (!e || typeof e !== 'object') return '';
-
-      return e.primaryEmail ?? '';
-    })();
-
-    setDetailDrawer({
-      title: name,
-      fields: [
-        {
-          label: 'Reçu le',
-          value: typeof record.createdAt === 'string'
-            ? new Date(record.createdAt).toLocaleString('fr-FR', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-            : '',
-        },
-        { label: 'Email', value: email },
-        { label: 'Téléphone', value: phone },
-        {
-          label: 'Message',
-          value: typeof record.message === 'string' ? record.message : '',
-        },
-        {
-          label: 'Statut',
-          value: typeof record.status === 'string' ? record.status : '',
-        },
-        {
-          label: 'Google Click ID',
-          value: typeof record.gclid === 'string' ? record.gclid : '',
-        },
-        {
-          label: 'UTM Source',
-          value: typeof record.utmSource === 'string' ? record.utmSource : '',
-        },
-        {
-          label: 'UTM Medium',
-          value: typeof record.utmMedium === 'string' ? record.utmMedium : '',
-        },
-        {
-          label: 'UTM Campaign',
-          value:
-            typeof record.utmCampaign === 'string' ? record.utmCampaign : '',
-        },
-      ],
-    });
-  };
 
   const openCallDrawer = (callId: string) => {
     const record = MOCK_CALLS.find((c) => c.id === callId);
@@ -1641,8 +1568,11 @@ export const BuzzleOverviewPage = () => {
                           onClick={() => {
                             const rawId = lead.id.replace(/^(contact|call)-/, '');
 
-                            if (lead.kind === 'contact') openContactDrawer(rawId);
-                            else openCallDrawer(rawId);
+                            if (lead.kind === 'contact') {
+                              navigate(`/contacts/${rawId}`);
+                              return;
+                            }
+                            openCallDrawer(rawId);
                           }}
                         >
                           <IconEye />

@@ -1,5 +1,6 @@
 import { styled } from '@linaria/react';
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
@@ -291,25 +292,25 @@ const NameCell = styled.div`
   color: ${InkColor};
 `;
 
-const PhoneCell = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12.5px;
-  color: ${InkColor};
-`;
-
 const ViewButton = styled.button`
   background: transparent;
   color: ${InkColor};
   border: 1px solid ${HairlineColor};
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 8px;
-  font-size: 12.5px;
-  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  gap: 8px;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s;
   &:hover {
     background: ${InkColor};
     color: ${SurfaceColor};
@@ -395,168 +396,12 @@ const EmptyStateTitle = styled.div`
   color: ${InkColor};
 `;
 
-// ---------- Modal (centered detail view) ----------
-
-const Backdrop = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(20, 20, 28, 0.48);
-  backdrop-filter: blur(2px);
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: buzzle-modal-fade 0.14s ease-out;
-
-  @keyframes buzzle-modal-fade {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-`;
-
-const Modal = styled.div`
-  width: 100%;
-  max-width: 640px;
-  max-height: min(85vh, 720px);
-  background: ${SurfaceColor};
-  border-radius: 14px;
-  box-shadow:
-    0 24px 48px rgba(20, 20, 28, 0.28),
-    0 4px 12px rgba(20, 20, 28, 0.14);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: buzzle-modal-rise 0.18s ease-out;
-
-  @keyframes buzzle-modal-rise {
-    from {
-      opacity: 0;
-      transform: translateY(8px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-`;
-
-const ModalHead = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 22px 26px 18px;
-  border-bottom: 1px solid ${HairlineColor};
-`;
-
-const ModalTitleWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-`;
-
-const ModalTitle = styled.h2`
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.014em;
-  color: ${InkColor};
-  margin: 0;
-  line-height: 1.15;
-`;
-
-const ModalSubtitle = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-`;
-
-const CloseButton = styled.button`
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: ${MutedColor};
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.12s, color 0.12s;
-  &:hover {
-    background: rgba(20, 20, 28, 0.06);
-    color: ${InkColor};
-  }
-`;
-
-const ModalBody = styled.div`
-  padding: 8px 26px 22px;
-  overflow-y: auto;
-  flex: 1 1 auto;
-`;
-
-const FieldGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 22px;
-
-  @media (max-width: 520px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const FieldRow = styled.div`
-  padding: 14px 0;
-  border-bottom: 1px solid ${HairlineColor};
-
-  &[data-full] {
-    grid-column: 1 / -1;
-  }
-  &:last-child {
-    border-bottom: 0;
-  }
-`;
-
-const FieldLabel = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  margin-bottom: 6px;
-`;
-
-const FieldValue = styled.div`
-  color: ${InkColor};
-  font-size: 13.5px;
-  line-height: 1.55;
-  white-space: pre-wrap;
-  word-break: break-word;
-`;
-
 // ---------- Icons ----------
 
 const IconEye = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
     <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-
-const IconClose = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
@@ -620,59 +465,11 @@ const displayPhone = (rawPhone: unknown): string => {
   return `${p.primaryPhoneCallingCode ?? ''} ${p.primaryPhoneNumber}`.trim();
 };
 
-const displayEmail = (rawEmail: unknown): string => {
-  if (typeof rawEmail === 'string') return rawEmail;
-  if (!rawEmail || typeof rawEmail !== 'object') return '';
-  const e = rawEmail as { primaryEmail?: string };
-  return e.primaryEmail ?? '';
-};
-
-const displayAmount = (rawAmount: unknown): string => {
-  if (!rawAmount || typeof rawAmount !== 'object') return '';
-  const a = rawAmount as { amountMicros?: number; currencyCode?: string };
-  if (typeof a.amountMicros !== 'number') return '';
-  const value = a.amountMicros / 1_000_000;
-  try {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: a.currencyCode ?? 'EUR',
-    }).format(value);
-  } catch {
-    return `${value}`;
-  }
-};
-
-const DETAIL_FIELDS: Array<{
-  key: string;
-  label: string;
-  render: (raw: unknown) => string;
-}> = [
-  { key: 'email', label: 'Email', render: displayEmail },
-  { key: 'phone', label: 'Téléphone', render: displayPhone },
-  { key: 'message', label: 'Message', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'quoteAmount', label: 'Montant du devis', render: displayAmount },
-  {
-    key: 'notes',
-    label: 'Notes internes',
-    render: (v) => {
-      if (typeof v === 'string') return v;
-      if (v && typeof v === 'object') {
-        const blocks = (v as { blocknote?: string }).blocknote;
-        return typeof blocks === 'string' ? blocks : '';
-      }
-      return '';
-    },
-  },
-  { key: 'gclid', label: 'Google Click ID', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'fbclid', label: 'Facebook Click ID', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'utmSource', label: 'UTM Source', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'utmMedium', label: 'UTM Medium', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'utmCampaign', label: 'UTM Campaign', render: (v) => (typeof v === 'string' ? v : '') },
-];
 
 type Period = 'today' | 'week' | 'month' | 'custom';
 
 export const BuzzleContactsPage = () => {
+  const navigate = useNavigate();
   const { findActiveObjectMetadataItemByNamePlural } =
     useFilteredObjectMetadataItems();
   const contactObject =
@@ -692,7 +489,6 @@ export const BuzzleContactsPage = () => {
 
   const { updateOneRecord } = useUpdateOneRecord();
 
-  const [detailRecord, setDetailRecord] = useState<ObjectRecord | null>(null);
   const [openStatusMenuFor, setOpenStatusMenuFor] = useState<string | null>(
     null,
   );
@@ -981,8 +777,8 @@ export const BuzzleContactsPage = () => {
                   </Td>
                   <Td>
                     <RightAlign>
-                      <ViewButton onClick={() => setDetailRecord(row)}>
-                        <IconEye /> Voir les infos
+                      <ViewButton onClick={() => navigate(`/contacts/${row.id}`)}>
+                        <IconEye /> Informations
                       </ViewButton>
                     </RightAlign>
                   </Td>
@@ -1032,95 +828,6 @@ export const BuzzleContactsPage = () => {
         onPageChange={setPage}
       />
 
-      {detailRecord &&
-        (() => {
-          const detailStatus =
-            typeof detailRecord.status === 'string' ? detailRecord.status : 'NEW';
-          const detailStatusMeta = getStatusMeta(detailStatus);
-          const isDetailMenuOpen = openStatusMenuFor === `detail-${detailRecord.id}`;
-          const activeFields = DETAIL_FIELDS.map(({ key, label, render }) => ({
-            key,
-            label,
-            value: render(detailRecord[key]),
-          })).filter((f) => f.value !== '');
-          return (
-            <Backdrop onClick={() => setDetailRecord(null)}>
-              <Modal onClick={(e) => e.stopPropagation()}>
-                <ModalHead>
-                  <ModalTitleWrap>
-                    <ModalSubtitle>
-                      Reçu le {formatDateTime(detailRecord.createdAt)}
-                    </ModalSubtitle>
-                    <ModalTitle>
-                      {(typeof detailRecord.name === 'string' &&
-                        detailRecord.name) ||
-                        'Détail du contact'}
-                    </ModalTitle>
-                    <div>
-                      <StatusPill
-                        bg={detailStatusMeta.bg}
-                        fg={detailStatusMeta.fg}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenStatusMenuFor(
-                            isDetailMenuOpen ? null : `detail-${detailRecord.id}`,
-                          );
-                        }}
-                      >
-                        {detailStatusMeta.label}
-                        <IconChevronDown />
-                        {isDetailMenuOpen && (
-                          <StatusMenu onClick={(e) => e.stopPropagation()}>
-                            {STATUS_ORDER.map((s) => {
-                              const m = STATUS_META[s];
-                              return (
-                                <StatusMenuItem
-                                  key={s}
-                                  onClick={() =>
-                                    handleStatusChange(detailRecord.id, s)
-                                  }
-                                >
-                                  <StatusDot color={m.dot} />
-                                  {m.label}
-                                </StatusMenuItem>
-                              );
-                            })}
-                          </StatusMenu>
-                        )}
-                      </StatusPill>
-                    </div>
-                  </ModalTitleWrap>
-                  <CloseButton
-                    onClick={() => setDetailRecord(null)}
-                    aria-label="Fermer"
-                  >
-                    <IconClose />
-                  </CloseButton>
-                </ModalHead>
-                <ModalBody>
-                  <FieldGrid>
-                    {activeFields.map(({ key, label, value }) => {
-                      const isLong = value.length > 60 || key === 'message' || key === 'notes';
-                      return (
-                        <FieldRow key={key} data-full={isLong ? '' : undefined}>
-                          <FieldLabel>{label}</FieldLabel>
-                          <FieldValue>{value}</FieldValue>
-                        </FieldRow>
-                      );
-                    })}
-                    {activeFields.length === 0 && (
-                      <FieldRow data-full>
-                        <FieldValue>
-                          Aucune information supplémentaire pour ce contact.
-                        </FieldValue>
-                      </FieldRow>
-                    )}
-                  </FieldGrid>
-                </ModalBody>
-              </Modal>
-            </Backdrop>
-          );
-        })()}
     </Container>
   );
 };

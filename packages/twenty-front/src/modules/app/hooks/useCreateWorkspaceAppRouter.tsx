@@ -14,6 +14,7 @@ import { BuzzleMembersSettings } from '@/buzzle-settings/BuzzleMembersSettings';
 import { BuzzleProfileSettings } from '@/buzzle-settings/BuzzleProfileSettings';
 import { BuzzleWorkspaceSettings } from '@/buzzle-settings/BuzzleWorkspaceSettings';
 import { BuzzleCallsPage } from '@/buzzle-workspace-pages/BuzzleCallsPage';
+import { BuzzleContactDetailPage } from '@/buzzle-workspace-pages/BuzzleContactDetailPage';
 import { BuzzleContactsPage } from '@/buzzle-workspace-pages/BuzzleContactsPage';
 import { BuzzleInvoicePayPage } from '@/buzzle-workspace-pages/BuzzleInvoicePayPage';
 import { BuzzleInvoicesPage } from '@/buzzle-workspace-pages/BuzzleInvoicesPage';
@@ -185,6 +186,10 @@ const createWorkspaceAppRouter = (
               />
               <Route path="/overview" element={<BuzzleOverviewPage />} />
               <Route path="/contacts" element={<BuzzleContactsPage />} />
+              <Route
+                path="/contacts/:contactId"
+                element={<BuzzleContactDetailPage />}
+              />
               <Route path="/calls" element={<BuzzleCallsPage />} />
               <Route path="/invoices" element={<BuzzleInvoicesPage />} />
               <Route
