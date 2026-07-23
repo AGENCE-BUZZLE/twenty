@@ -9,6 +9,7 @@ import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { BuzzleLeadDrawer, type BuzzleLeadDrawerField } from '@/buzzle-workspace-pages/BuzzleLeadDrawer';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
+import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
@@ -804,6 +805,8 @@ export const BuzzleOverviewPage = () => {
   const displayName = currentUser?.firstName ?? '';
   const workspaceName = currentWorkspace?.displayName ?? 'votre workspace';
 
+  const { order: STATUS_ORDER, meta: STATUS_META } = useBuzzleStatusConfig();
+
   const apolloCoreClient = useApolloCoreClient();
 
   const { findActiveObjectMetadataItemByNamePlural } =
@@ -940,23 +943,15 @@ export const BuzzleOverviewPage = () => {
 
   const contactTotal = contacts.length;
   const contactByStatus = useMemo(() => {
-    const buckets: Record<string, number> = {
-      NEW: 0,
-      QUOTED: 0,
-      VALIDATED: 0,
-      CANCELLED: 0,
-      OFF_TOPIC: 0,
-    };
+    const buckets: Record<string, number> = {};
     for (const c of contacts) {
       const s = typeof c.status === 'string' ? c.status : 'NEW';
-
-      if (buckets[s] !== undefined) buckets[s] += 1;
+      buckets[s] = (buckets[s] ?? 0) + 1;
     }
-
     return buckets;
   }, [contacts]);
-  const contactNewCount = contactByStatus.NEW;
-  const contactValidatedCount = contactByStatus.VALIDATED;
+  const contactNewCount = contactByStatus.NEW ?? 0;
+  const contactValidatedCount = contactByStatus.WON ?? 0;
 
   const MOCK_CALLS_TOTAL = calls.length;
   const MOCK_CALLS_QUALIFIED = 0;
@@ -968,13 +963,11 @@ export const BuzzleOverviewPage = () => {
     pct: (count / totalContactsForBar) * 100,
     color,
   });
-  const distribution = [
-    seg('Nouveaux', contactByStatus.NEW, '#f2b400'),
-    seg('Devis envoyés', contactByStatus.QUOTED, VioletColor),
-    seg('Validés', contactByStatus.VALIDATED, '#22b972'),
-    seg('Annulés', contactByStatus.CANCELLED, '#8a8b91'),
-    seg('Hors sujet', contactByStatus.OFF_TOPIC, '#dc2626'),
-  ];
+  // Distribution alignée sur l'ordre de la config statut du workspace ;
+  // on n'affiche que les statuts effectivement utilisés côté client.
+  const distribution = STATUS_ORDER.map((s) =>
+    seg(STATUS_META[s]?.label ?? s, contactByStatus[s] ?? 0, STATUS_META[s]?.dot ?? MutedColor),
+  );
 
   const overdueTrend = overdueInvoices.length > 0 ? 'down' : 'up';
   const overdueSummary =

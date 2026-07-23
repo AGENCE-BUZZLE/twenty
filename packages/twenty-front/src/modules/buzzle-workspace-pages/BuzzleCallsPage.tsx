@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
+import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 
 const PAGE_SIZE = 10;
 
@@ -19,7 +20,7 @@ const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 const VioletColor = '#7e37fe';
 
-type CallStatus = 'NEW' | 'QUOTED' | 'VALIDATED' | 'CANCELLED' | 'OFF_TOPIC';
+type CallStatus = string;
 
 type Call = {
   id: string;
@@ -397,14 +398,6 @@ const StatusDot = styled.span<{ color: string }>`
   flex-shrink: 0;
 `;
 
-const STATUS_DOT_COLOR: Record<CallStatus, string> = {
-  NEW: '#3d5efc',
-  QUOTED: '#5b4bff',
-  VALIDATED: '#187a4a',
-  CANCELLED: '#8a8b91',
-  OFF_TOPIC: '#dc2626',
-};
-
 const EmptyState = styled.div`
   padding: 60px 22px;
   text-align: center;
@@ -412,22 +405,6 @@ const EmptyState = styled.div`
   font-size: 14px;
   line-height: 1.6;
 `;
-
-const STATUS_META: Record<CallStatus, { label: string; bg: string; fg: string }> = {
-  NEW: { label: 'Nouveau', bg: '#e3ecff', fg: '#1a3fb0' },
-  QUOTED: { label: 'Devis envoyé', bg: '#efe4ff', fg: '#4a1d99' },
-  VALIDATED: { label: 'Validé', bg: '#e3f4ea', fg: '#187a4a' },
-  CANCELLED: { label: 'Annulé', bg: '#efede6', fg: '#5a5540' },
-  OFF_TOPIC: { label: 'Hors sujet', bg: '#fbe5e5', fg: '#8a1a1a' },
-};
-
-const STATUS_ORDER: CallStatus[] = [
-  'NEW',
-  'QUOTED',
-  'VALIDATED',
-  'CANCELLED',
-  'OFF_TOPIC',
-];
 
 // ---------- Icons ----------
 
@@ -559,6 +536,12 @@ const formatDurationLabel = (totalSec: number): string => {
 type Period = 'today' | 'week' | 'month' | 'custom';
 
 export const BuzzleCallsPage = () => {
+  const {
+    order: STATUS_ORDER,
+    meta: STATUS_META,
+    getMeta: getStatusMeta,
+  } = useBuzzleStatusConfig();
+
   const [calls, setCalls] = useState<Call[]>(MOCK_CALLS);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -773,7 +756,7 @@ export const BuzzleCallsPage = () => {
         )}
 
         {pagedCalls.map((call) => {
-          const meta = STATUS_META[call.status];
+          const meta = getStatusMeta(call.status);
           const isMenuOpen = openMenuId === call.id;
 
           return (
@@ -802,7 +785,7 @@ export const BuzzleCallsPage = () => {
                             key={s}
                             onClick={() => handleStatusChange(call.id, s)}
                           >
-                            <StatusDot color={STATUS_DOT_COLOR[s]} />
+                            <StatusDot color={m.dot} />
                             {m.label}
                           </StatusMenuItem>
                         );

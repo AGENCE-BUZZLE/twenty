@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
+import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
@@ -23,26 +24,6 @@ const SurfaceColor = '#ffffff';
 const HairlineColor = '#d6d2c7';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 const VioletColor = '#7e37fe';
-
-const STATUS_META: Record<
-  string,
-  { label: string; bg: string; fg: string }
-> = {
-  NEW: { label: 'Nouveau', bg: '#e3ecff', fg: '#1a3fb0' },
-  QUOTED: { label: 'Devis envoyé', bg: '#ede4ff', fg: '#4a2fb8' },
-  VALIDATED: { label: 'Validé', bg: '#e0f3e5', fg: '#136d34' },
-  CANCELLED: { label: 'Annulé', bg: '#efede6', fg: '#57574f' },
-  OFF_TOPIC: { label: 'Hors sujet', bg: '#fbe5e5', fg: '#8a1a1a' },
-};
-const STATUS_ORDER = ['NEW', 'QUOTED', 'VALIDATED', 'CANCELLED', 'OFF_TOPIC'];
-
-const STATUS_DOT_COLOR: Record<string, string> = {
-  NEW: '#3d5efc',
-  QUOTED: '#5b4bff',
-  VALIDATED: '#187a4a',
-  CANCELLED: '#8a8b91',
-  OFF_TOPIC: '#dc2626',
-};
 
 const Container = styled.div`
   flex: 1 1 auto;
@@ -628,6 +609,12 @@ export const BuzzleContactsPage = () => {
   const contactObject =
     findActiveObjectMetadataItemByNamePlural('contacts') ?? undefined;
 
+  const {
+    order: STATUS_ORDER,
+    meta: STATUS_META,
+    getMeta: getStatusMeta,
+  } = useBuzzleStatusConfig();
+
   const { records, loading } = useFindManyRecords({
     objectNameSingular: 'contact',
     orderBy: [{ createdAt: 'DescNullsLast' }],
@@ -731,7 +718,7 @@ export const BuzzleContactsPage = () => {
       allContacts.filter(
         (r) =>
           typeof r.status === 'string' &&
-          r.status === 'VALIDATED' &&
+          r.status === 'WON' &&
           inRange(typeof r.createdAt === 'string' ? r.createdAt : null),
       ),
     [allContacts, periodRange],
@@ -910,7 +897,7 @@ export const BuzzleContactsPage = () => {
 
             {pagedRows.map((row) => {
               const status = typeof row.status === 'string' ? row.status : 'NEW';
-              const meta = STATUS_META[status] ?? STATUS_META.NEW;
+              const meta = getStatusMeta(status);
               const isMenuOpen = openStatusMenuFor === row.id;
               return (
                 <TableRow key={row.id}>
@@ -955,7 +942,7 @@ export const BuzzleContactsPage = () => {
                                   key={s}
                                   onClick={() => handleStatusChange(row.id, s)}
                                 >
-                                  <StatusDot color={STATUS_DOT_COLOR[s]} />
+                                  <StatusDot color={m.dot} />
                                   {m.label}
                                 </StatusMenuItem>
                               );
