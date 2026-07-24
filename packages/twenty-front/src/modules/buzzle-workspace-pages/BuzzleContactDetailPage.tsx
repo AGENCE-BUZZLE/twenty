@@ -276,9 +276,15 @@ const MapFrame = styled.div`
   background: #efede6;
   border: 1px solid ${HairlineColor};
 
+  /* OSM's embed iframe injects its own attribution strip at the very
+     bottom ("Signaler un problème · © Contributeurs OpenStreetMap · Faire
+     un don"). We can't style cross-origin iframe content, so we extend
+     the iframe past the container and clip that strip via overflow. */
   iframe {
+    position: absolute;
+    inset: 0 0 -40px 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% + 40px);
     border: 0;
     display: block;
   }
