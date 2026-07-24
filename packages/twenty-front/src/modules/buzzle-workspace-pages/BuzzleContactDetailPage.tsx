@@ -2,10 +2,12 @@ import { styled } from '@linaria/react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { currentUserState } from '@/auth/states/currentUserState';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 // Buzzle: dedicated lead detail page. One unified card with two columns
 // (identity + context on the left, map + attribution on the right). The
@@ -352,6 +354,68 @@ const PlateSearchLink = styled.a`
   }
 `;
 
+// Super-admin only drawer at the bottom of the fiche lead — hides
+// technical attribution data (gclid, UTMs, OCT push) from clients.
+const AdminDrawerCard = styled.div`
+  background: ${SurfaceColor};
+  border: 1px solid ${HairlineColor};
+  border-radius: 14px;
+  margin-top: 16px;
+  overflow: hidden;
+`;
+
+const AdminDrawerToggle = styled.button`
+  width: 100%;
+  background: transparent;
+  color: ${InkColor};
+  border: 0;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: ${MutedColor};
+  transition: background 0.12s, color 0.12s;
+  &:hover {
+    background: rgba(20, 20, 28, 0.04);
+    color: ${InkColor};
+  }
+`;
+
+const AdminDrawerToggleLeft = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const AdminDrawerBadge = styled.span`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: ${InkColor};
+  color: ${SurfaceColor};
+  padding: 3px 8px;
+  border-radius: 999px;
+`;
+
+const AdminDrawerChevron = styled.span<{ open: boolean }>`
+  display: inline-flex;
+  transition: transform 0.2s;
+  transform: ${({ open }) => (open ? 'rotate(180deg)' : 'rotate(0deg)')};
+`;
+
+const AdminDrawerBody = styled.div`
+  padding: 4px 22px 20px;
+  border-top: 1px solid ${HairlineColor};
+`;
+
 const AttributionMono = styled.code`
   font-family: 'JetBrains Mono', monospace;
   font-size: 11.5px;
@@ -581,6 +645,10 @@ export const BuzzleContactDetailPage = () => {
 
   const [openStatusMenu, setOpenStatusMenu] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [attributionOpen, setAttributionOpen] = useState(false);
+
+  const currentUser = useAtomStateValue(currentUserState);
+  const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
 
   const { record, loading, refetch } = useFindOneRecord({
     objectNameSingular: 'contact',
@@ -866,56 +934,72 @@ export const BuzzleContactDetailPage = () => {
               </div>
             )}
 
-            {hasAttribution && (
-              <div>
-                <SectionTitle>Attribution</SectionTitle>
-                <KVGrid>
-                  {gclid !== '' && (
-                    <>
-                      <KVLabel>gclid</KVLabel>
-                      <KVValue>
-                        <AttributionMono>{gclid.slice(0, 20)}…</AttributionMono>
-                      </KVValue>
-                    </>
-                  )}
-                  {fbclid !== '' && (
-                    <>
-                      <KVLabel>fbclid</KVLabel>
-                      <KVValue>
-                        <AttributionMono>{fbclid.slice(0, 20)}…</AttributionMono>
-                      </KVValue>
-                    </>
-                  )}
-                  {utmSource !== '' && (
-                    <>
-                      <KVLabel>utm source</KVLabel>
-                      <KVValue>{utmSource}</KVValue>
-                    </>
-                  )}
-                  {utmMedium !== '' && (
-                    <>
-                      <KVLabel>utm medium</KVLabel>
-                      <KVValue>{utmMedium}</KVValue>
-                    </>
-                  )}
-                  {utmCampaign !== '' && (
-                    <>
-                      <KVLabel>utm campaign</KVLabel>
-                      <KVValue>{utmCampaign}</KVValue>
-                    </>
-                  )}
-                  {octPushedAt !== '' && (
-                    <>
-                      <KVLabel>Google Ads</KVLabel>
-                      <KVValue>{formatDateTime(octPushedAt)}</KVValue>
-                    </>
-                  )}
-                </KVGrid>
-              </div>
-            )}
           </RightCol>
         </Body>
       </Card>
+
+      {isSuperAdmin && hasAttribution && (
+        <AdminDrawerCard>
+          <AdminDrawerToggle
+            onClick={() => setAttributionOpen((prev) => !prev)}
+            aria-expanded={attributionOpen}
+          >
+            <AdminDrawerToggleLeft>
+              <AdminDrawerBadge>Admin</AdminDrawerBadge>
+              Attribution
+            </AdminDrawerToggleLeft>
+            <AdminDrawerChevron open={attributionOpen}>
+              <IconChevronDown />
+            </AdminDrawerChevron>
+          </AdminDrawerToggle>
+          {attributionOpen && (
+            <AdminDrawerBody>
+              <KVGrid>
+                {gclid !== '' && (
+                  <>
+                    <KVLabel>gclid</KVLabel>
+                    <KVValue>
+                      <AttributionMono>{gclid.slice(0, 32)}…</AttributionMono>
+                    </KVValue>
+                  </>
+                )}
+                {fbclid !== '' && (
+                  <>
+                    <KVLabel>fbclid</KVLabel>
+                    <KVValue>
+                      <AttributionMono>{fbclid.slice(0, 32)}…</AttributionMono>
+                    </KVValue>
+                  </>
+                )}
+                {utmSource !== '' && (
+                  <>
+                    <KVLabel>utm source</KVLabel>
+                    <KVValue>{utmSource}</KVValue>
+                  </>
+                )}
+                {utmMedium !== '' && (
+                  <>
+                    <KVLabel>utm medium</KVLabel>
+                    <KVValue>{utmMedium}</KVValue>
+                  </>
+                )}
+                {utmCampaign !== '' && (
+                  <>
+                    <KVLabel>utm campaign</KVLabel>
+                    <KVValue>{utmCampaign}</KVValue>
+                  </>
+                )}
+                {octPushedAt !== '' && (
+                  <>
+                    <KVLabel>Google Ads</KVLabel>
+                    <KVValue>{formatDateTime(octPushedAt)}</KVValue>
+                  </>
+                )}
+              </KVGrid>
+            </AdminDrawerBody>
+          )}
+        </AdminDrawerCard>
+      )}
     </Container>
   );
 };
