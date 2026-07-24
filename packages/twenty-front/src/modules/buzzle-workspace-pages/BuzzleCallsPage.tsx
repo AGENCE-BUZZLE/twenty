@@ -406,6 +406,110 @@ const EmptyState = styled.div`
   line-height: 1.6;
 `;
 
+// ---------- Beta modal ----------
+
+const BETA_MODAL_KEY = 'buzzle-calls-beta-notice-seen-v1';
+
+const BetaBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 28, 0.48);
+  backdrop-filter: blur(2px);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: buzzle-beta-fade 0.14s ease-out;
+
+  @keyframes buzzle-beta-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+
+const BetaModal = styled.div`
+  width: 100%;
+  max-width: 480px;
+  background: ${SurfaceColor};
+  border-radius: 14px;
+  box-shadow:
+    0 24px 48px rgba(20, 20, 28, 0.28),
+    0 4px 12px rgba(20, 20, 28, 0.14);
+  padding: 28px 30px 24px;
+  animation: buzzle-beta-rise 0.18s ease-out;
+
+  @keyframes buzzle-beta-rise {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+`;
+
+const BetaKicker = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ede4ff;
+  color: #4a2fb8;
+  border-radius: 999px;
+  padding: 4px 12px 4px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 14px;
+`;
+
+const BetaKickerDot = styled.span`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: ${VioletColor};
+`;
+
+const BetaTitle = styled.h2`
+  margin: 0 0 10px;
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.014em;
+  color: ${InkColor};
+  line-height: 1.2;
+`;
+
+const BetaBody = styled.div`
+  color: rgba(20, 20, 28, 0.72);
+  font-size: 14px;
+  line-height: 1.55;
+  margin-bottom: 20px;
+
+  p { margin: 0 0 10px; }
+  p:last-child { margin-bottom: 0; }
+`;
+
+const BetaActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+`;
+
+const BetaButton = styled.button`
+  background: ${InkColor};
+  color: ${SurfaceColor};
+  border: 0;
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.12s;
+  &:hover { opacity: 0.85; }
+`;
+
 // ---------- Icons ----------
 
 const IconPlay = () => (
@@ -545,6 +649,27 @@ export const BuzzleCallsPage = () => {
   const [calls, setCalls] = useState<Call[]>(MOCK_CALLS);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+
+  // One-shot beta notice: shows on first visit per browser, then remembers
+  // the dismiss in localStorage so we never bother the user again.
+  const [showBetaNotice, setShowBetaNotice] = useState(false);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(BETA_MODAL_KEY) !== '1') {
+        setShowBetaNotice(true);
+      }
+    } catch {
+      setShowBetaNotice(true);
+    }
+  }, []);
+  const dismissBetaNotice = () => {
+    try {
+      localStorage.setItem(BETA_MODAL_KEY, '1');
+    } catch {
+      // ignore quota errors
+    }
+    setShowBetaNotice(false);
+  };
 
   // Period selector, aligné sur les autres pages.
   const [period, setPeriod] = useState<Period>('month');
@@ -822,6 +947,33 @@ export const BuzzleCallsPage = () => {
         totalItems={visibleCalls.length}
         onPageChange={setPage}
       />
+
+      {showBetaNotice && (
+        <BetaBackdrop onClick={dismissBetaNotice}>
+          <BetaModal onClick={(e) => e.stopPropagation()}>
+            <BetaKicker>
+              <BetaKickerDot />
+              Bêta
+            </BetaKicker>
+            <BetaTitle>Le suivi des appels arrive bientôt</BetaTitle>
+            <BetaBody>
+              <p>
+                Cette section est encore en cours de finalisation. Aucun
+                appel affiché ici n'est réel pour le moment — vous
+                verrez apparaître vos vrais appels dès que la connexion
+                à votre standard téléphonique sera activée.
+              </p>
+              <p>
+                On vous préviendra directement dans le CRM au moment du
+                déploiement. Merci de votre patience.
+              </p>
+            </BetaBody>
+            <BetaActions>
+              <BetaButton onClick={dismissBetaNotice}>Compris</BetaButton>
+            </BetaActions>
+          </BetaModal>
+        </BetaBackdrop>
+      )}
     </Container>
   );
 };
