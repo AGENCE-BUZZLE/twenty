@@ -1,5 +1,5 @@
 import { styled } from '@linaria/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
@@ -7,10 +7,10 @@ import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatus
 import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 
-// Buzzle: detail page for a single lead. Replaces the previous inline
-// popup/drawer with a dedicated route so each lead has its own URL,
-// browser history entry, share-able link. Same design language as the
-// rest of the CRM.
+// Buzzle: dedicated lead detail page. One unified card with two columns
+// (identity + context on the left, map + attribution on the right). The
+// map pins the postal code parsed from the lead's message via France's
+// free public geocoder (api-adresse.data.gouv.fr — no API key needed).
 
 const InkColor = '#14141c';
 const SurfaceColor = '#ffffff';
@@ -69,27 +69,51 @@ const BackButton = styled.button`
   }
 `;
 
-const HeaderCard = styled.div`
+const Card = styled.div`
   background: ${SurfaceColor};
   border: 1px solid ${HairlineColor};
-  border-radius: 14px;
-  padding: 22px 26px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
+  border-radius: 16px;
+  overflow: hidden;
+`;
 
-  @media (max-width: 640px) {
-    flex-direction: column;
-    align-items: stretch;
+// Two-column body: left identity + info, right map + attribution.
+const Body = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 
-const HeaderText = styled.div`
+const LeftCol = styled.div`
+  padding: 26px 30px 28px;
+  min-width: 0;
+`;
+
+const RightCol = styled.div`
+  background: #fafaf7;
+  border-left: 1px solid ${HairlineColor};
+  padding: 26px 26px 28px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 20px;
+
+  @media (max-width: 900px) {
+    border-left: 0;
+    border-top: 1px solid ${HairlineColor};
+  }
+`;
+
+const HeaderBlock = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+`;
+
+const HeaderText = styled.div`
   min-width: 0;
 `;
 
@@ -99,13 +123,14 @@ const ReceivedAt = styled.div`
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: ${MutedColor};
+  margin-bottom: 6px;
 `;
 
 const ContactName = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.018em;
   color: ${InkColor};
   margin: 0;
   line-height: 1.15;
@@ -114,13 +139,6 @@ const ContactName = styled.h1`
     font-size: 22px;
     letter-spacing: -0.014em;
   }
-`;
-
-const HeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
 `;
 
 const StatusPill = styled.button<{ bg: string; fg: string }>`
@@ -139,6 +157,7 @@ const StatusPill = styled.button<{ bg: string; fg: string }>`
   letter-spacing: 0.06em;
   text-transform: uppercase;
   position: relative;
+  flex-shrink: 0;
 `;
 
 const StatusMenu = styled.div`
@@ -180,61 +199,119 @@ const StatusDot = styled.span<{ color: string }>`
   flex-shrink: 0;
 `;
 
-const Card = styled.div`
-  background: ${SurfaceColor};
-  border: 1px solid ${HairlineColor};
-  border-radius: 14px;
-  padding: 22px 26px;
-  margin-bottom: 16px;
+// Info rows — clean, tight, no bordered cards.
+const Section = styled.section`
+  padding-top: 18px;
+  border-top: 1px solid ${HairlineColor};
+  margin-top: 18px;
+
+  &:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+    margin-top: 0;
+  }
 `;
 
-const CardTitle = styled.h2`
+const SectionTitle = styled.h2`
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: ${MutedColor};
-  margin: 0 0 14px;
+  margin: 0 0 12px;
 `;
 
-const FieldGrid = styled.div`
+const KVGrid = styled.dl`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 26px;
+  grid-template-columns: 130px minmax(0, 1fr);
+  row-gap: 10px;
+  column-gap: 16px;
+  margin: 0;
 
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+  @media (max-width: 520px) {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
   }
 `;
 
-const Field = styled.div`
-  padding: 12px 0;
-  border-bottom: 1px solid ${HairlineColor};
+const KVLabel = styled.dt`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: ${MutedColor};
+  padding-top: 2px;
+`;
 
-  &[data-full] {
-    grid-column: 1 / -1;
-  }
-  &:last-child {
-    border-bottom: 0;
+const KVValue = styled.dd`
+  color: ${InkColor};
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  word-break: break-word;
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(20, 20, 28, 0.35);
   }
 `;
 
-const FieldLabel = styled.div`
+const LongBlock = styled.div`
+  color: ${InkColor};
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+`;
+
+// Map card
+const MapFrame = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #efede6;
+  border: 1px solid ${HairlineColor};
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+`;
+
+const MapCaption = styled.div`
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: ${MutedColor};
-  margin-bottom: 6px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
-const FieldValue = styled.div`
+const MapPlaceholder = styled.div`
+  padding: 30px 16px;
+  text-align: center;
+  color: ${MutedColor};
+  font-size: 13px;
+  line-height: 1.5;
+`;
+
+const AttributionMono = styled.code`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
   color: ${InkColor};
-  font-size: 14px;
-  line-height: 1.55;
-  white-space: pre-wrap;
-  word-break: break-word;
+  background: rgba(20, 20, 28, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  word-break: break-all;
 `;
 
 const EmptyState = styled.div`
@@ -275,6 +352,18 @@ const IconChevronDown = () => (
     aria-hidden="true"
   >
     <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const IconPin = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z" />
   </svg>
 );
 
@@ -331,73 +420,75 @@ const displayNotes = (raw: unknown): string => {
   return '';
 };
 
-type DetailField = {
-  key: string;
-  label: string;
-  full?: boolean;
-  render: (raw: unknown) => string;
+// Extract a French 5-digit postal code from arbitrary text. Falls back
+// to any 5-digit run if the "Code postal :" prefix is absent.
+const extractPostalCode = (text: unknown): string | null => {
+  if (typeof text !== 'string' || text.length === 0) return null;
+  const labelled = text.match(/code\s*postal\s*[:\-]?\s*(\d{5})/i);
+  if (labelled !== null) return labelled[1];
+  const any = text.match(/\b(\d{5})\b/);
+  return any !== null ? any[1] : null;
 };
 
-const COORDINATES_FIELDS: DetailField[] = [
-  { key: 'email', label: 'Email', render: displayEmail },
-  { key: 'phone', label: 'Téléphone', render: displayPhone },
-];
+type GeoResult = { lat: number; lon: number; city: string };
 
-const CONTEXT_FIELDS: DetailField[] = [
-  {
-    key: 'message',
-    label: 'Message reçu',
-    full: true,
-    render: (v) => (typeof v === 'string' ? v : ''),
-  },
-  {
-    key: 'notes',
-    label: 'Notes internes',
-    full: true,
-    render: displayNotes,
-  },
-  {
-    key: 'quoteAmount',
-    label: 'Montant du devis',
-    render: displayAmount,
-  },
-];
+// Look up a French postal code via api-adresse.data.gouv.fr (free, no key,
+// government service, no CORS restriction).
+const geocodePostal = async (postal: string): Promise<GeoResult | null> => {
+  try {
+    const res = await fetch(
+      `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(postal)}&type=municipality&limit=1`,
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      features?: Array<{
+        geometry?: { coordinates?: [number, number] };
+        properties?: { city?: string; name?: string; label?: string };
+      }>;
+    };
+    const feat = data.features?.[0];
+    const coords = feat?.geometry?.coordinates;
+    if (!coords) return null;
+    const [lon, lat] = coords;
+    const city = feat?.properties?.city ?? feat?.properties?.name ?? feat?.properties?.label ?? postal;
+    return { lat, lon, city };
+  } catch {
+    return null;
+  }
+};
 
-const ATTRIBUTION_FIELDS: DetailField[] = [
-  { key: 'gclid', label: 'Google Click ID', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'fbclid', label: 'Facebook Click ID', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'utmSource', label: 'UTM Source', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'utmMedium', label: 'UTM Medium', render: (v) => (typeof v === 'string' ? v : '') },
-  { key: 'utmCampaign', label: 'UTM Campaign', render: (v) => (typeof v === 'string' ? v : '') },
-  {
-    key: 'octPushedAt',
-    label: 'Conversion Google Ads',
-    render: (v) => (typeof v === 'string' && v.length > 0 ? formatDateTime(v) : ''),
-  },
-];
+const useGeocodedPostal = (postal: string | null) => {
+  const [state, setState] = useState<{
+    loading: boolean;
+    result: GeoResult | null;
+  }>({ loading: postal !== null, result: null });
 
-const renderCard = (
-  title: string,
-  fields: DetailField[],
-  record: Record<string, unknown>,
-) => {
-  const rows = fields
-    .map((f) => ({ ...f, value: f.render(record[f.key]) }))
-    .filter((f) => f.value !== '');
-  if (rows.length === 0) return null;
-  return (
-    <Card>
-      <CardTitle>{title}</CardTitle>
-      <FieldGrid>
-        {rows.map(({ key, label, value, full }) => (
-          <Field key={key} data-full={full === true ? '' : undefined}>
-            <FieldLabel>{label}</FieldLabel>
-            <FieldValue>{value}</FieldValue>
-          </Field>
-        ))}
-      </FieldGrid>
-    </Card>
-  );
+  useEffect(() => {
+    let cancelled = false;
+    if (postal === null) {
+      setState({ loading: false, result: null });
+      return;
+    }
+    setState({ loading: true, result: null });
+    void geocodePostal(postal).then((result) => {
+      if (!cancelled) setState({ loading: false, result });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [postal]);
+
+  return state;
+};
+
+const osmEmbedUrl = ({ lat, lon }: GeoResult) => {
+  // Small bounding box around the pin for a city-level zoom.
+  const d = 0.04;
+  const left = lon - d;
+  const right = lon + d;
+  const top = lat + d * 0.7;
+  const bottom = lat - d * 0.7;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${lat}%2C${lon}`;
 };
 
 export const BuzzleContactDetailPage = () => {
@@ -420,7 +511,6 @@ export const BuzzleContactDetailPage = () => {
 
   const { updateOneRecord } = useUpdateOneRecord();
 
-  // Close the status menu on outside click / Escape for a proper feel.
   useEffect(() => {
     if (!openStatusMenu) return;
     const onKey = (event: KeyboardEvent) => {
@@ -429,6 +519,13 @@ export const BuzzleContactDetailPage = () => {
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [openStatusMenu]);
+
+  const messageText =
+    record !== undefined && typeof record.message === 'string'
+      ? record.message
+      : '';
+  const postal = useMemo(() => extractPostalCode(messageText), [messageText]);
+  const geo = useGeocodedPostal(postal);
 
   const handleStatusChange = async (next: string) => {
     if (contactId === undefined) return;
@@ -478,8 +575,8 @@ export const BuzzleContactDetailPage = () => {
         </TopRow>
         <Card>
           <EmptyState>
-            Ce contact est introuvable — il a peut-être été supprimé ou vous
-            n'y avez pas accès depuis cet espace.
+            Ce contact est introuvable — il a peut-être été supprimé ou
+            vous n'y avez pas accès depuis cet espace.
           </EmptyState>
         </Card>
       </Container>
@@ -495,6 +592,27 @@ export const BuzzleContactDetailPage = () => {
       ? record.name
       : 'Contact sans nom';
 
+  const email = displayEmail(record.email);
+  const phone = displayPhone(record.phone);
+  const amount = displayAmount(record.quoteAmount);
+  const notes = displayNotes(record.notes);
+  const gclid = typeof record.gclid === 'string' ? record.gclid : '';
+  const fbclid = typeof record.fbclid === 'string' ? record.fbclid : '';
+  const utmSource = typeof record.utmSource === 'string' ? record.utmSource : '';
+  const utmMedium = typeof record.utmMedium === 'string' ? record.utmMedium : '';
+  const utmCampaign =
+    typeof record.utmCampaign === 'string' ? record.utmCampaign : '';
+  const octPushedAt =
+    typeof record.octPushedAt === 'string' ? record.octPushedAt : '';
+
+  const hasAttribution =
+    gclid !== '' ||
+    fbclid !== '' ||
+    utmSource !== '' ||
+    utmMedium !== '' ||
+    utmCampaign !== '' ||
+    octPushedAt !== '';
+
   return (
     <Container>
       <TopRow>
@@ -505,47 +623,201 @@ export const BuzzleContactDetailPage = () => {
         <BuzzleWorkspacesButton hideOnMobile />
       </TopRow>
 
-      <HeaderCard>
-        <HeaderText>
-          <ReceivedAt>
-            Reçu le {formatDateTime(record.createdAt as string | null)}
-          </ReceivedAt>
-          <ContactName>{contactName}</ContactName>
-        </HeaderText>
-        <HeaderActions>
-          <StatusPill
-            bg={statusMeta.bg}
-            fg={statusMeta.fg}
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpenStatusMenu((prev) => !prev);
-            }}
-          >
-            {statusMeta.label}
-            <IconChevronDown />
-            {openStatusMenu && (
-              <StatusMenu onClick={(e) => e.stopPropagation()}>
-                {STATUS_ORDER.map((s) => {
-                  const m = STATUS_META[s];
-                  return (
-                    <StatusMenuItem
-                      key={s}
-                      onClick={() => handleStatusChange(s)}
-                    >
-                      <StatusDot color={m.dot} />
-                      {m.label}
-                    </StatusMenuItem>
-                  );
-                })}
-              </StatusMenu>
-            )}
-          </StatusPill>
-        </HeaderActions>
-      </HeaderCard>
+      <Card>
+        <Body>
+          <LeftCol>
+            <HeaderBlock>
+              <HeaderText>
+                <ReceivedAt>
+                  Reçu le {formatDateTime(record.createdAt as string | null)}
+                </ReceivedAt>
+                <ContactName>{contactName}</ContactName>
+              </HeaderText>
+              <StatusPill
+                bg={statusMeta.bg}
+                fg={statusMeta.fg}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenStatusMenu((prev) => !prev);
+                }}
+              >
+                {statusMeta.label}
+                <IconChevronDown />
+                {openStatusMenu && (
+                  <StatusMenu onClick={(e) => e.stopPropagation()}>
+                    {STATUS_ORDER.map((s) => {
+                      const m = STATUS_META[s];
+                      return (
+                        <StatusMenuItem
+                          key={s}
+                          onClick={() => handleStatusChange(s)}
+                        >
+                          <StatusDot color={m.dot} />
+                          {m.label}
+                        </StatusMenuItem>
+                      );
+                    })}
+                  </StatusMenu>
+                )}
+              </StatusPill>
+            </HeaderBlock>
 
-      {renderCard('Coordonnées', COORDINATES_FIELDS, record)}
-      {renderCard('Contexte du lead', CONTEXT_FIELDS, record)}
-      {renderCard('Attribution', ATTRIBUTION_FIELDS, record)}
+            <Section>
+              <SectionTitle>Coordonnées</SectionTitle>
+              <KVGrid>
+                {email !== '' && (
+                  <>
+                    <KVLabel>Email</KVLabel>
+                    <KVValue>
+                      <a href={`mailto:${email}`}>{email}</a>
+                    </KVValue>
+                  </>
+                )}
+                {phone !== '' && (
+                  <>
+                    <KVLabel>Téléphone</KVLabel>
+                    <KVValue>
+                      <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
+                    </KVValue>
+                  </>
+                )}
+                {postal !== null && (
+                  <>
+                    <KVLabel>Code postal</KVLabel>
+                    <KVValue>
+                      {postal}
+                      {geo.result !== null && ` · ${geo.result.city}`}
+                    </KVValue>
+                  </>
+                )}
+                {email === '' && phone === '' && postal === null && (
+                  <KVValue>Aucune coordonnée renseignée.</KVValue>
+                )}
+              </KVGrid>
+            </Section>
+
+            {messageText !== '' && (
+              <Section>
+                <SectionTitle>Message reçu</SectionTitle>
+                <LongBlock>{messageText}</LongBlock>
+              </Section>
+            )}
+
+            {(notes !== '' || amount !== '') && (
+              <Section>
+                <SectionTitle>Contexte commercial</SectionTitle>
+                <KVGrid>
+                  {amount !== '' && (
+                    <>
+                      <KVLabel>Montant devis</KVLabel>
+                      <KVValue>{amount}</KVValue>
+                    </>
+                  )}
+                  {notes !== '' && (
+                    <>
+                      <KVLabel>Notes internes</KVLabel>
+                      <KVValue>{notes}</KVValue>
+                    </>
+                  )}
+                </KVGrid>
+              </Section>
+            )}
+          </LeftCol>
+
+          <RightCol>
+            {postal !== null ? (
+              <div>
+                <SectionTitle>Localisation</SectionTitle>
+                {geo.loading && (
+                  <MapFrame>
+                    <MapPlaceholder>Chargement de la carte…</MapPlaceholder>
+                  </MapFrame>
+                )}
+                {!geo.loading && geo.result !== null && (
+                  <>
+                    <MapFrame>
+                      <iframe
+                        title={`Carte ${geo.result.city}`}
+                        src={osmEmbedUrl(geo.result)}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    </MapFrame>
+                    <MapCaption>
+                      <IconPin />
+                      {geo.result.city} · {postal}
+                    </MapCaption>
+                  </>
+                )}
+                {!geo.loading && geo.result === null && (
+                  <MapFrame>
+                    <MapPlaceholder>
+                      Impossible de localiser le code postal {postal}.
+                    </MapPlaceholder>
+                  </MapFrame>
+                )}
+              </div>
+            ) : (
+              <div>
+                <SectionTitle>Localisation</SectionTitle>
+                <MapFrame>
+                  <MapPlaceholder>
+                    Aucun code postal renseigné dans le message.
+                  </MapPlaceholder>
+                </MapFrame>
+              </div>
+            )}
+
+            {hasAttribution && (
+              <div>
+                <SectionTitle>Attribution</SectionTitle>
+                <KVGrid>
+                  {gclid !== '' && (
+                    <>
+                      <KVLabel>gclid</KVLabel>
+                      <KVValue>
+                        <AttributionMono>{gclid.slice(0, 20)}…</AttributionMono>
+                      </KVValue>
+                    </>
+                  )}
+                  {fbclid !== '' && (
+                    <>
+                      <KVLabel>fbclid</KVLabel>
+                      <KVValue>
+                        <AttributionMono>{fbclid.slice(0, 20)}…</AttributionMono>
+                      </KVValue>
+                    </>
+                  )}
+                  {utmSource !== '' && (
+                    <>
+                      <KVLabel>utm source</KVLabel>
+                      <KVValue>{utmSource}</KVValue>
+                    </>
+                  )}
+                  {utmMedium !== '' && (
+                    <>
+                      <KVLabel>utm medium</KVLabel>
+                      <KVValue>{utmMedium}</KVValue>
+                    </>
+                  )}
+                  {utmCampaign !== '' && (
+                    <>
+                      <KVLabel>utm campaign</KVLabel>
+                      <KVValue>{utmCampaign}</KVValue>
+                    </>
+                  )}
+                  {octPushedAt !== '' && (
+                    <>
+                      <KVLabel>Google Ads</KVLabel>
+                      <KVValue>{formatDateTime(octPushedAt)}</KVValue>
+                    </>
+                  )}
+                </KVGrid>
+              </div>
+            )}
+          </RightCol>
+        </Body>
+      </Card>
     </Container>
   );
 };
