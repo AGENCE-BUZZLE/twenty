@@ -310,6 +310,56 @@ const MapPlaceholder = styled.div`
   line-height: 1.5;
 `;
 
+// External search button — surfaces the plate in a Google search that
+// often reveals the vehicle model via LeBonCoin/Argus/AutoScout listings.
+const PlateSearchRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+`;
+
+const PlateChip = styled.span`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  background: #14141c;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 2px solid #14141c;
+  box-shadow: inset 0 0 0 2px #ffffff;
+`;
+
+const PlateSearchLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid ${HairlineColor};
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: ${InkColor};
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s;
+  &:hover {
+    background: ${InkColor};
+    color: ${SurfaceColor};
+    border-color: ${InkColor};
+  }
+`;
+
 const AttributionMono = styled.code`
   font-family: 'JetBrains Mono', monospace;
   font-size: 11.5px;
@@ -358,6 +408,23 @@ const IconChevronDown = () => (
     aria-hidden="true"
   >
     <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const IconSearch = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.4"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="11" cy="11" r="7" />
+    <line x1="21" y1="21" x2="16.5" y2="16.5" />
   </svg>
 );
 
@@ -434,6 +501,20 @@ const extractPostalCode = (text: unknown): string | null => {
   if (labelled !== null) return labelled[1];
   const any = text.match(/\b(\d{5})\b/);
   return any !== null ? any[1] : null;
+};
+
+// Extract a French license plate from the "Vehicule :" line of the lead
+// message. Supports both SIV format (AB-123-CD / AB 123 CD / AB123CD)
+// and pre-2009 FNI format (0000 ABC 00). Returns a canonical dashed
+// representation ready for a search URL.
+const extractPlate = (text: unknown): string | null => {
+  if (typeof text !== 'string' || text.length === 0) return null;
+  const up = text.toUpperCase();
+  const siv = up.match(/\b([A-Z]{2})[\s-]?(\d{3})[\s-]?([A-Z]{2})\b/);
+  if (siv !== null) return `${siv[1]}-${siv[2]}-${siv[3]}`;
+  const fni = up.match(/\b(\d{1,4})[\s-]?([A-Z]{1,3})[\s-]?(\d{1,3})\b/);
+  if (fni !== null) return `${fni[1]} ${fni[2]} ${fni[3]}`;
+  return null;
 };
 
 type GeoResult = { lat: number; lon: number; city: string };
@@ -531,6 +612,7 @@ export const BuzzleContactDetailPage = () => {
       ? record.message
       : '';
   const postal = useMemo(() => extractPostalCode(messageText), [messageText]);
+  const plate = useMemo(() => extractPlate(messageText), [messageText]);
   const geo = useGeocodedPostal(postal);
 
   const handleStatusChange = async (next: string) => {
@@ -709,10 +791,28 @@ export const BuzzleContactDetailPage = () => {
               </Section>
             )}
 
-            {(notes !== '' || amount !== '') && (
+            {(notes !== '' || amount !== '' || plate !== null) && (
               <Section>
                 <SectionTitle>Contexte commercial</SectionTitle>
                 <KVGrid>
+                  {plate !== null && (
+                    <>
+                      <KVLabel>Plaque</KVLabel>
+                      <KVValue>
+                        <PlateSearchRow>
+                          <PlateChip>{plate}</PlateChip>
+                          <PlateSearchLink
+                            href={`https://www.google.com/search?q=${encodeURIComponent('plaque ' + plate)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <IconSearch />
+                            Rechercher en ligne
+                          </PlateSearchLink>
+                        </PlateSearchRow>
+                      </KVValue>
+                    </>
+                  )}
                   {amount !== '' && (
                     <>
                       <KVLabel>Montant devis</KVLabel>
