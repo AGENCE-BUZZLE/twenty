@@ -46,26 +46,18 @@ const TopRow = styled.div`
 const BackButton = styled.button`
   background: transparent;
   color: ${InkColor};
-  border: 1px solid ${HairlineColor};
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  border: 0;
+  padding: 4px 2px;
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition:
-    background 0.12s,
-    color 0.12s,
-    border-color 0.12s;
+  transition: opacity 0.12s;
   &:hover {
-    background: ${InkColor};
-    color: ${SurfaceColor};
-    border-color: ${InkColor};
+    opacity: 0.7;
   }
 `;
 
