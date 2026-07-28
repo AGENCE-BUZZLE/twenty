@@ -21,29 +21,19 @@ const LogoBlock = styled.div`
   padding: 0 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
   width: max-content;
   z-index: 3;
 `;
 
+// Unified "Buzzle CRM" wordmark: single generated PNG so the "CRM"
+// glyphs match the Buzzle typeface at the exact cap height and stay
+// perfectly aligned across every zoom level.
 const LogoImg = styled.img`
-  height: 30px;
+  height: 34px;
   width: auto;
   display: block;
   user-select: none;
   -webkit-user-drag: none;
-`;
-
-// "CRM" wordmark rendered next to the Buzzle logo image so the top-left
-// reads as a single "Buzzle CRM" mark. Uses Inter Tight to match the
-// weight and letter-spacing of the Buzzle wordmark closely.
-const CrmWordmark = styled.span`
-  font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #ffffff;
-  line-height: 1;
 `;
 
 const Actions = styled.div`
@@ -334,8 +324,7 @@ export const BuzzleOverviewShellHeader = ({
   return (
     <>
       <LogoBlock aria-label="Buzzle CRM">
-        <LogoImg src="/images/buzzle-white.png" alt="Buzzle" />
-        <CrmWordmark>CRM</CrmWordmark>
+        <LogoImg src="/images/buzzle-crm-white.png" alt="Buzzle CRM" />
       </LogoBlock>
       <Actions>
         <BuzzlePeriodPicker
