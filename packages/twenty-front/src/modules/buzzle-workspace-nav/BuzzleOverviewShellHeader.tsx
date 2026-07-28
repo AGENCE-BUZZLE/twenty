@@ -39,45 +39,55 @@ const Actions = styled.div`
   gap: 10px;
   height: 64px;
   z-index: 2;
+
+  // All three chips (period picker + notifications + workspace switcher)
+  // share the exact same 40px height so the top-bar reads as a single
+  // row of aligned controls. The workspace switcher is a circle so its
+  // width also gets bumped from 36 to 40.
+  > button,
+  > div > button {
+    height: 40px !important;
+  }
+  > div > button[type='button'][aria-label] {
+    width: 40px !important;
+  }
 `;
 
 const NotifChip = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 42px;
+  height: 40px;
   padding: 0 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  font-size: 13.5px;
-  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid #14141c;
+  background: #ffffff;
   color: #14141c;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
   cursor: pointer;
   transition:
-    background 140ms ease,
-    transform 140ms ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
-  font-family: inherit;
+    background 0.12s,
+    color 0.12s;
 
   &:hover {
-    background: #ffffff;
-    transform: translateY(-1px);
+    background: rgba(20, 20, 28, 0.06);
   }
 `;
 
 const NotifCount = styled.span`
-  min-width: 22px;
-  height: 22px;
+  min-width: 20px;
+  height: 20px;
   border-radius: 999px;
   background: #7e37fe;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   display: inline-grid;
   place-items: center;
-  padding: 0 6px;
+  padding: 0 5px;
+  margin-left: 2px;
 `;
 
 // Wrap the workspace switcher so its dark-drawer CSS variables (which
