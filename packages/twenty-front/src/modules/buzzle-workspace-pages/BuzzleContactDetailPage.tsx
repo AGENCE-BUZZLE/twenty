@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { currentUserState } from '@/auth/states/currentUserState';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
+import { useBuzzleUnreadLeads } from '@/buzzle-workspace-nav/useBuzzleUnreadLeads';
 import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
@@ -657,6 +658,15 @@ export const BuzzleContactDetailPage = () => {
   });
 
   const { updateOneRecord } = useUpdateOneRecord();
+
+  // Opening a lead's detail page counts as reading it — bump the
+  // notifications cursor so this lead disappears from the top-bar bell.
+  const { markOneRead } = useBuzzleUnreadLeads();
+  useEffect(() => {
+    if (record !== undefined && typeof record.createdAt === 'string') {
+      markOneRead(record.createdAt);
+    }
+  }, [record, markOneRead]);
 
   useEffect(() => {
     if (!openStatusMenu) return;

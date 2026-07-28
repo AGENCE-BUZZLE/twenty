@@ -10,8 +10,10 @@ import {
   IconWorldWww,
 } from 'twenty-ui/icon';
 
+import { currentUserState } from '@/auth/states/currentUserState';
 import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
 import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 
 // Fixed Buzzle drawer nav (client-side). Pipeline and Mon profil are
@@ -75,7 +77,12 @@ type NavItem = {
 const items: NavItem[] = [
   { label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
   { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
-  { label: 'Appels', Icon: IconPhone, path: '/calls', badge: 'Beta' },
+  {
+    label: 'Appels',
+    Icon: IconPhone,
+    path: '/calls',
+    locked: true,
+  },
   { label: 'Factures', Icon: IconFileText, path: '/invoices' },
   {
     label: 'Rendez-vous',
@@ -128,6 +135,10 @@ export const BuzzleWorkspaceNav = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const setIsDrawerExpanded = useSetAtomState(isNavigationDrawerExpandedState);
+  // Super admins bypass every "locked" flag — those pages are only
+  // hidden to protect the client-facing view.
+  const currentUser = useAtomStateValue(currentUserState);
+  const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
 
   const handleClick = (path: string) => {
     navigate(path);
@@ -138,8 +149,9 @@ export const BuzzleWorkspaceNav = () => {
 
   const renderItem = (item: NavItem) => {
     const IconCmp = item.Icon;
+    const locked = item.locked === true && !isSuperAdmin;
 
-    if (item.locked === true) {
+    if (locked) {
       return (
         <LockedItem
           key={item.path}

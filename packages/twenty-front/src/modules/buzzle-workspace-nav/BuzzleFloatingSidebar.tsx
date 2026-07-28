@@ -11,6 +11,9 @@ import {
   IconWorldWww,
 } from 'twenty-ui/icon';
 
+import { currentUserState } from '@/auth/states/currentUserState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+
 // Floating pill sidebar used on the /overview shell. Each nav item is
 // an icon-only pill (56x56) with a tooltip label on hover. Active item
 // is Ink filled with white icon. Locked items are dimmed and inert.
@@ -126,10 +129,10 @@ const items: NavItem[] = [
   { key: 'contacts', label: 'Contacts', Icon: IconUsers, path: '/contacts' },
   {
     key: 'calls',
-    label: 'Appels · Beta',
+    label: 'Appels · Bientôt',
     Icon: IconPhone,
     path: '/calls',
-    badge: true,
+    locked: true,
   },
   { key: 'invoices', label: 'Factures', Icon: IconFileText, path: '/invoices' },
   {
@@ -151,6 +154,10 @@ const items: NavItem[] = [
 export const BuzzleFloatingSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  // Super admins have access to every locked destination — the lock is
+  // only there to hide the WIP pages from client users.
+  const currentUser = useAtomStateValue(currentUserState);
+  const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
 
   const isActive = (path: string): boolean => {
     if (path === '/overview') {
@@ -162,8 +169,11 @@ export const BuzzleFloatingSidebar = () => {
     );
   };
 
+  const isReallyLocked = (item: NavItem): boolean =>
+    item.locked === true && !isSuperAdmin;
+
   const handleClick = (item: NavItem) => {
-    if (item.locked === true) return;
+    if (isReallyLocked(item)) return;
     navigate(item.path);
   };
 
@@ -172,20 +182,21 @@ export const BuzzleFloatingSidebar = () => {
       {items.map((item) => {
         const IconCmp = item.Icon;
         const active = isActive(item.path);
+        const locked = isReallyLocked(item);
         return (
           <Pill
             key={item.key}
             type="button"
             data-active={active}
-            data-locked={item.locked === true}
+            data-locked={locked}
             onClick={() => handleClick(item)}
             aria-label={item.label}
             aria-current={active ? 'page' : undefined}
-            aria-disabled={item.locked === true}
+            aria-disabled={locked}
           >
             <IconCmp size={22} />
             {item.badge && <Dot />}
-            {item.locked === true && (
+            {locked && (
               <LockCorner aria-hidden="true">
                 <IconLock size={11} />
               </LockCorner>
