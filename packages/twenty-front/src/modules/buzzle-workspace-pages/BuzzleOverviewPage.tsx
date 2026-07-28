@@ -472,16 +472,26 @@ const LowerGrid = styled.div`
   }
 `;
 
+// Chart + Activity cards match the validated V9 mockup exactly: white
+// surface with 1px hairline border, generous radius, dark ink text,
+// muted ink for meta/axis. Both cards share the same visual DNA so the
+// split reads as a single pair.
+
+const CardSurface = `
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  padding: 22px;
+`;
+
 const ChartCard = styled.div`
-  background: ${InkColor};
-  color: ${SurfaceColor};
-  border-radius: 18px;
-  padding: 16px 20px 12px;
+  ${CardSurface}
   position: relative;
   overflow: visible;
-  height: 320px;
+  height: 360px;
   display: flex;
   flex-direction: column;
+  color: ${InkColor};
 `;
 
 const ChartCardHead = styled.div`
@@ -490,42 +500,46 @@ const ChartCardHead = styled.div`
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 `;
 
 const ChartCardTitle = styled.div`
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 18px;
-  font-weight: 500;
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: ${InkColor};
 `;
 
 const ChartCardSub = styled.div`
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
-  margin-top: 4px;
+  color: ${MutedColor};
+  font-size: 12.5px;
+  margin-top: 3px;
 `;
 
 const ChannelPills = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 999px;
-  padding: 4px;
+  gap: 2px;
+  background: rgba(20, 20, 28, 0.05);
+  border-radius: 10px;
+  padding: 3px;
 `;
 
 const ChannelPill = styled.button<{ active?: boolean }>`
-  padding: 6px 14px;
-  border-radius: 999px;
+  padding: 6px 12px;
+  border-radius: 8px;
   border: 0;
-  background: ${({ active }) => (active ? SurfaceColor : 'transparent')};
-  color: ${({ active }) => (active ? InkColor : SurfaceColor)};
+  background: ${({ active }) => (active ? '#ffffff' : 'transparent')};
+  color: ${({ active }) => (active ? InkColor : MutedColor)};
+  box-shadow: ${({ active }) =>
+    active ? '0 1px 2px rgba(0, 0, 0, 0.06)' : 'none'};
   font-family: 'Inter', sans-serif;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   &:hover:not(:disabled) {
-    background: ${({ active }) => (active ? SurfaceColor : 'rgba(255,255,255,0.14)')};
+    color: ${InkColor};
   }
 `;
 
@@ -546,14 +560,14 @@ const ChartTooltip = styled.div`
   position: absolute;
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(20, 20, 28, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: ${SurfaceColor};
+  background: #14141c;
+  color: #ffffff;
   pointer-events: none;
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   min-width: 130px;
   z-index: 3;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 `;
 
 const ChartTooltipLabel = styled.div`
@@ -567,25 +581,24 @@ const ChartTooltipLabel = styled.div`
 const ChartTooltipValue = styled.div`
   font-family: 'Inter Tight', sans-serif;
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 600;
   margin-top: 2px;
+  color: #ffffff;
 `;
 
 const ChartTooltipTrend = styled.div`
-  color: #c6f1c1;
+  color: rgba(255, 255, 255, 0.7);
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   margin-top: 4px;
 `;
 
 const LeadsCard = styled.div`
-  background: ${InkColor};
-  color: ${SurfaceColor};
-  border-radius: 18px;
-  padding: 16px 18px 12px;
+  ${CardSurface}
   display: flex;
   flex-direction: column;
-  height: 320px;
+  height: 360px;
+  color: ${InkColor};
 `;
 
 const LeadsScroll = styled.div`
@@ -597,7 +610,7 @@ const LeadsScroll = styled.div`
     width: 6px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(20, 20, 28, 0.12);
     border-radius: 999px;
   }
 `;
@@ -607,37 +620,47 @@ const LeadsHead = styled.div`
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 `;
 
 const LeadsHeadRight = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
+  background: rgba(20, 20, 28, 0.05);
+  border-radius: 10px;
+  padding: 3px;
 `;
 
 const LeadsFilter = styled.button<{ active?: boolean }>`
-  background: transparent;
+  background: ${({ active }) => (active ? '#ffffff' : 'transparent')};
   border: 0;
-  color: ${({ active }) => (active ? SurfaceColor : 'rgba(255,255,255,0.55)')};
-  padding: 4px 6px;
+  color: ${({ active }) => (active ? InkColor : MutedColor)};
+  padding: 6px 12px;
+  border-radius: 8px;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: ${({ active }) => (active ? 500 : 400)};
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid
-    ${({ active }) => (active ? '#c9b7ff' : 'transparent')};
-  transition: color 0.12s, border-color 0.12s;
+  box-shadow: ${({ active }) =>
+    active ? '0 1px 2px rgba(0, 0, 0, 0.06)' : 'none'};
+  transition: color 0.12s, background 0.12s;
+  &:hover:not(:disabled) {
+    color: ${InkColor};
+  }
 `;
 
 const LeadDayLabel = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: rgba(255, 255, 255, 0.55);
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(20, 20, 28, 0.4);
   text-transform: uppercase;
-  padding: 12px 0 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 4px 8px;
+  &:first-of-type {
+    padding-top: 0;
+  }
 `;
 
 const LeadRow = styled.div`
@@ -645,16 +668,17 @@ const LeadRow = styled.div`
   grid-template-columns: 40px 1fr auto;
   gap: 12px;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  &:last-of-type {
-    border-bottom: 0;
+  padding: 12px 8px;
+  border-radius: 12px;
+  transition: background 140ms ease;
+  &:hover {
+    background: rgba(20, 20, 28, 0.03);
   }
 `;
 
 const LeadIcon = styled.span<{ tint: string; color: string }>`
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: ${({ tint }) => tint};
   color: ${({ color }) => color};
@@ -665,14 +689,16 @@ const LeadIcon = styled.span<{ tint: string; color: string }>`
 
 const LeadName = styled.div`
   font-family: 'Inter', sans-serif;
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${InkColor};
 `;
 
 const LeadMeta = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.55);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: ${MutedColor};
+  margin-top: 2px;
 `;
 
 const LeadRight = styled.div`
@@ -682,15 +708,15 @@ const LeadRight = styled.div`
 `;
 
 const LeadTime = styled.span`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.55);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: ${MutedColor};
 `;
 
 const LeadEyeButton = styled.button`
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: ${SurfaceColor};
+  border: 1px solid rgba(20, 20, 28, 0.12);
+  color: ${InkColor};
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -699,35 +725,36 @@ const LeadEyeButton = styled.button`
   align-items: center;
   justify-content: center;
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(20, 20, 28, 0.05);
   }
 `;
 
 const LeadsEmpty = styled.div`
-  color: rgba(255, 255, 255, 0.55);
+  color: ${MutedColor};
   font-size: 13px;
   padding: 24px 0;
   text-align: center;
 `;
 
 const SeeAllRow = styled.button`
-  margin-top: auto;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: ${SurfaceColor};
-  padding: 14px 18px;
-  border-radius: 14px;
+  margin-top: 14px;
+  background: transparent;
+  border: 1px dashed rgba(20, 20, 28, 0.12);
+  color: ${MutedColor};
+  padding: 10px 14px;
+  border-radius: 10px;
   font-family: 'Inter', sans-serif;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   width: 100%;
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    color: ${InkColor};
+    border-color: ${MutedColor};
   }
 `;
 
@@ -1565,7 +1592,7 @@ export const BuzzleOverviewPage = () => {
                   x2={chartPadding.left + innerW}
                   y1={chartPadding.top + innerH - frac * innerH}
                   y2={chartPadding.top + innerH - frac * innerH}
-                  stroke="rgba(255,255,255,0.06)"
+                  stroke="rgba(20,20,28,0.06)"
                   strokeDasharray="3 4"
                 />
               ))}
@@ -1583,7 +1610,7 @@ export const BuzzleOverviewPage = () => {
                   }
                   fontFamily="'JetBrains Mono', monospace"
                   fontSize="10"
-                  fill="rgba(255,255,255,0.4)"
+                  fill="rgba(20,20,28,0.4)"
                   textAnchor="end"
                 >
                   {val}
@@ -1618,7 +1645,7 @@ export const BuzzleOverviewPage = () => {
                     y={chartPadding.top + innerH + 18}
                     fontFamily="'JetBrains Mono', monospace"
                     fontSize="10"
-                    fill="rgba(255,255,255,0.4)"
+                    fill="rgba(20,20,28,0.4)"
                     textAnchor="middle"
                   >
                     {p.label}
@@ -1633,16 +1660,16 @@ export const BuzzleOverviewPage = () => {
                     x2={points[tooltipIdx].x}
                     y1={chartPadding.top}
                     y2={chartPadding.top + innerH}
-                    stroke="rgba(255,255,255,0.14)"
+                    stroke="rgba(20,20,28,0.14)"
                     strokeDasharray="3 3"
                   />
                   <circle
                     cx={points[tooltipIdx].x}
                     cy={points[tooltipIdx].y}
                     r="5"
-                    fill={VioletColor}
-                    stroke={InkColor}
-                    strokeWidth="3"
+                    fill="#ffffff"
+                    stroke={VioletColor}
+                    strokeWidth="2.5"
                   />
                 </>
               )}
@@ -1673,8 +1700,8 @@ export const BuzzleOverviewPage = () => {
         <LeadsCard>
           <LeadsHead>
             <div>
-              <DarkCardTitle>Leads</DarkCardTitle>
-              <DarkCardSub>Activité récente</DarkCardSub>
+              <ChartCardTitle>Activité récente</ChartCardTitle>
+              <ChartCardSub>Derniers leads entrants</ChartCardSub>
             </div>
             <LeadsHeadRight>
               <LeadsFilter
@@ -1710,12 +1737,10 @@ export const BuzzleOverviewPage = () => {
                       <LeadIcon
                         tint={
                           lead.kind === 'contact'
-                            ? 'rgba(126, 55, 254, 0.28)'
-                            : 'rgba(34, 185, 114, 0.24)'
+                            ? 'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)'
+                            : 'linear-gradient(135deg, #16a34a 0%, #065f46 100%)'
                         }
-                        color={
-                          lead.kind === 'contact' ? '#c9b7ff' : '#a7f4c9'
-                        }
+                        color="#ffffff"
                       >
                         {lead.kind === 'contact' ? <IconUsers /> : <IconPhone />}
                       </LeadIcon>

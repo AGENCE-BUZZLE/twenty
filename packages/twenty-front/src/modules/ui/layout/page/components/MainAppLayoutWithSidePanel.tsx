@@ -9,6 +9,11 @@ import { useLocation, useOutlet } from 'react-router-dom';
 import { AppPath } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
+// The Buzzle overview shell owns its own full-width layout — hide the
+// desktop side panel so the stage card can extend flush to the viewport
+// edge (it would otherwise reserve ~400px of empty space on the right).
+const OVERVIEW_SHELL_PATHS = new Set<string>(['/overview', '/']);
+
 const ROUTE_SECTION_DATA_ATTRIBUTE = 'data-main-app-route-section';
 
 const APP_TO_SETTINGS_TRANSITION_DURATION_IN_SECONDS = 0.3;
@@ -128,6 +133,8 @@ const MainAppLayoutOutlet = () => {
 
 export const MainAppLayoutWithSidePanel = () => {
   const isMobile = useIsMobile();
+  const { pathname } = useLocation();
+  const isOverviewShell = !isMobile && OVERVIEW_SHELL_PATHS.has(pathname);
 
   useCommandMenuHotKeys();
 
@@ -136,7 +143,11 @@ export const MainAppLayoutWithSidePanel = () => {
       <StyledContent>
         <MainAppLayoutOutlet />
       </StyledContent>
-      {isMobile ? <CommandMenuForMobile /> : <SidePanelForDesktop />}
+      {isMobile ? (
+        <CommandMenuForMobile />
+      ) : isOverviewShell ? null : (
+        <SidePanelForDesktop />
+      )}
     </StyledRow>
   );
 };
