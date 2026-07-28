@@ -12,8 +12,13 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 // lead bumps the cursor to that lead's createdAt so it drops from the list
 // without hiding leads that arrived later.
 
+// Bump the version suffix to force every workspace's notif cursor to
+// reset on the next page load (Clément asked for a one-shot reset on
+// Galaxy Glass — since localStorage is per-origin and we key by
+// workspace id, this only affects users who had a cursor from the
+// previous build; a fresh install stays empty).
 const storageKey = (workspaceId: string | null | undefined): string =>
-  `buzzle-notif-lastread:${workspaceId ?? 'default'}`;
+  `buzzle-notif-lastread-v2:${workspaceId ?? 'default'}`;
 
 const readCursor = (workspaceId: string | null | undefined): number => {
   if (typeof window === 'undefined') return 0;
