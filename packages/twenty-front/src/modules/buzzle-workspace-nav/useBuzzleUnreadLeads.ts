@@ -45,14 +45,24 @@ export type UnreadLead = {
 };
 
 const contactDisplayName = (contact: Record<string, unknown>): string => {
-  const name = contact.name as
-    | { firstName?: string | null; lastName?: string | null }
-    | null
-    | undefined;
-  const first = (name?.firstName ?? '').trim();
-  const last = (name?.lastName ?? '').trim();
-  const full = `${first} ${last}`.trim();
-  return full.length > 0 ? full : 'Lead sans nom';
+  const nameField = contact.name;
+  // Buzzle client forms (Galaxy Glass, BF, etc.) push the full name as
+  // a plain string into `contact.name` — Twenty's default schema stores
+  // it as `{ firstName, lastName }`. Support both shapes.
+  if (typeof nameField === 'string' && nameField.trim().length > 0) {
+    return nameField.trim();
+  }
+  if (nameField !== null && typeof nameField === 'object') {
+    const obj = nameField as {
+      firstName?: string | null;
+      lastName?: string | null;
+    };
+    const first = (obj.firstName ?? '').trim();
+    const last = (obj.lastName ?? '').trim();
+    const full = `${first} ${last}`.trim();
+    if (full.length > 0) return full;
+  }
+  return 'Lead sans nom';
 };
 
 const contactPhone = (contact: Record<string, unknown>): string => {
