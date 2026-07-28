@@ -685,6 +685,10 @@ const LeadIcon = styled.span<{ tint: string; color: string }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 `;
 
 const LeadName = styled.div`
@@ -820,6 +824,32 @@ const formatShortDate = (raw?: string | null): string => {
   }
 };
 
+// 4-color gradient palette for lead avatars — same as the V9 mockup.
+const AVATAR_GRADIENTS = [
+  'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)', // violet
+  'linear-gradient(135deg, #16a34a 0%, #065f46 100%)', // green
+  'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)', // orange
+  'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', // blue
+] as const;
+
+const hashName = (name: string): number => {
+  let h = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return h;
+};
+
+const avatarGradient = (name: string): string =>
+  AVATAR_GRADIENTS[hashName(name || '?') % AVATAR_GRADIENTS.length];
+
+const avatarInitials = (name: string): string => {
+  const parts = (name || '?').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
 const monthLabel = (): string => {
   return new Date()
     .toLocaleDateString('fr-FR', { month: 'short', day: '2-digit' })
@@ -836,6 +866,9 @@ const monthLabel = (): string => {
 const ShellGrid = styled.div`
   position: relative;
   z-index: 1;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
   min-height: 100dvh;
   display: grid;
   grid-template-columns: 76px 1fr;
@@ -846,6 +879,7 @@ const ShellGrid = styled.div`
   align-items: stretch;
   overflow-y: auto;
   color: ${InkColor};
+  box-sizing: border-box;
 `;
 
 const Stage = styled.main`
@@ -1598,7 +1632,7 @@ export const BuzzleOverviewPage = () => {
               ))}
 
               {/* Y axis labels */}
-              {[0, Math.ceil(chartMax / 2), chartMax].map((val, i) => (
+              {[0, 0.25, 0.5, 0.75, 1].map((frac) => Math.round(frac * chartMax)).map((val, i) => (
                 <text
                   key={i}
                   x={chartPadding.left - 8}
@@ -1634,7 +1668,7 @@ export const BuzzleOverviewPage = () => {
 
               {/* X axis labels — every nth point to avoid crowding */}
               {points.map((p, i) => {
-                const skip = Math.max(1, Math.floor(points.length / 6));
+                const skip = Math.max(1, Math.floor(points.length / 4));
 
                 if (i % skip !== 0 && i !== points.length - 1) return null;
 
@@ -1735,14 +1769,10 @@ export const BuzzleOverviewPage = () => {
                   {dayLeads.map((lead) => (
                     <LeadRow key={lead.id}>
                       <LeadIcon
-                        tint={
-                          lead.kind === 'contact'
-                            ? 'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)'
-                            : 'linear-gradient(135deg, #16a34a 0%, #065f46 100%)'
-                        }
+                        tint={avatarGradient(lead.name)}
                         color="#ffffff"
                       >
-                        {lead.kind === 'contact' ? <IconUsers /> : <IconPhone />}
+                        {avatarInitials(lead.name)}
                       </LeadIcon>
                       <div>
                         <LeadName>{lead.name}</LeadName>
