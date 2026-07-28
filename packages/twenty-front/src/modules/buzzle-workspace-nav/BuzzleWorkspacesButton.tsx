@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react';
 import { useEffect, useRef, useState } from 'react';
 import { Avatar } from 'twenty-ui/data-display';
+import { IconChevronDown } from 'twenty-ui/icon';
 
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
@@ -56,6 +57,40 @@ const Trigger = styled.button`
     width: 40px;
     height: 40px;
   }
+`;
+
+const PillTrigger = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 6px 0 6px;
+  border-radius: 999px;
+  border: 1px solid ${InkColor};
+  background: ${SurfaceColor};
+  color: ${InkColor};
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: background 0.12s;
+  &:hover {
+    background: ${SurfaceColor};
+  }
+`;
+
+const PillLabel = styled.span`
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 4px;
+`;
+
+const PillCaret = styled.span`
+  display: inline-flex;
+  color: rgba(20, 20, 28, 0.55);
+  padding-right: 8px;
 `;
 
 const Menu = styled.div`
@@ -116,11 +151,13 @@ const ActiveTag = styled.span`
 type BuzzleWorkspacesButtonProps = {
   hideOnMobile?: boolean;
   size?: 'md' | 'lg';
+  variant?: 'circle' | 'pill';
 };
 
 export const BuzzleWorkspacesButton = ({
   hideOnMobile = false,
   size = 'md',
+  variant = 'circle',
 }: BuzzleWorkspacesButtonProps = {}) => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const availableWorkspaces = useAtomStateValue(availableWorkspacesState);
@@ -157,24 +194,48 @@ export const BuzzleWorkspacesButton = ({
     ...availableWorkspaces.availableWorkspacesForSignUp,
   ];
 
+  const workspaceName = currentWorkspace?.displayName || 'Workspace';
+
   return (
     <Wrap ref={wrapRef} data-hide-on-mobile={hideOnMobile ? '' : undefined}>
-      <Trigger
-        onClick={() => setOpen((prev) => !prev)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={currentWorkspace?.displayName || 'Workspace'}
-        title={currentWorkspace?.displayName || 'Workspace'}
-        data-size={size}
-      >
-        <Avatar
-          placeholder={currentWorkspace?.displayName || ''}
-          avatarUrl={getAbsoluteImageUrl(
-            currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
-          )}
-          size={size === 'lg' ? 'lg' : 'md'}
-        />
-      </Trigger>
+      {variant === 'pill' ? (
+        <PillTrigger
+          onClick={() => setOpen((prev) => !prev)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={workspaceName}
+          title={workspaceName}
+        >
+          <Avatar
+            placeholder={workspaceName}
+            avatarUrl={getAbsoluteImageUrl(
+              currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
+            )}
+            size="sm"
+          />
+          <PillLabel>{workspaceName}</PillLabel>
+          <PillCaret>
+            <IconChevronDown size={14} />
+          </PillCaret>
+        </PillTrigger>
+      ) : (
+        <Trigger
+          onClick={() => setOpen((prev) => !prev)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={workspaceName}
+          title={workspaceName}
+          data-size={size}
+        >
+          <Avatar
+            placeholder={workspaceName}
+            avatarUrl={getAbsoluteImageUrl(
+              currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
+            )}
+            size={size === 'lg' ? 'lg' : 'md'}
+          />
+        </Trigger>
+      )}
       {open && (
         <Menu role="menu">
           <MenuHead>Workspaces disponibles</MenuHead>

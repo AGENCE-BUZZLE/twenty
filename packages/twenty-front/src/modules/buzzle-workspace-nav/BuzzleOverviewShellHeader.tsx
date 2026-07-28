@@ -40,16 +40,17 @@ const Actions = styled.div`
   height: 64px;
   z-index: 2;
 
-  // All three chips (period picker + notifications + workspace switcher)
-  // share the exact same 40px height so the top-bar reads as a single
-  // row of aligned controls. The workspace switcher is a circle so its
-  // width also gets bumped from 36 to 40.
+  // Force every child chip (period picker, notifications, workspace
+  // pill) to the same 40 px height and keep their background solid
+  // white on hover — the default period picker greys out on hover
+  // which broke the row's white-chip rhythm on the Ink shell.
   > button,
   > div > button {
     height: 40px !important;
   }
-  > div > button[type='button'][aria-label] {
-    width: 40px !important;
+  > button:hover,
+  > div > button:hover {
+    background: #ffffff !important;
   }
 `;
 
@@ -67,13 +68,6 @@ const NotifChip = styled.button`
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
-  transition:
-    background 0.12s,
-    color 0.12s;
-
-  &:hover {
-    background: rgba(20, 20, 28, 0.06);
-  }
 `;
 
 const NotifCount = styled.span`
@@ -154,7 +148,7 @@ export const BuzzleOverviewShellHeader = ({
           <NotifCount>0</NotifCount>
         </NotifChip>
         <WorkspaceWrap>
-          <BuzzleWorkspacesButton hideOnMobile />
+          <BuzzleWorkspacesButton hideOnMobile variant="pill" />
         </WorkspaceWrap>
       </Actions>
     </>
