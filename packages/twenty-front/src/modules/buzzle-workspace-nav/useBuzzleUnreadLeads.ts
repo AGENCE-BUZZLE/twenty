@@ -47,10 +47,7 @@ const contactDisplayName = (contact: Record<string, unknown>): string => {
   const first = (name?.firstName ?? '').trim();
   const last = (name?.lastName ?? '').trim();
   const full = `${first} ${last}`.trim();
-  if (full.length > 0) return full;
-  const primary = (contact as { phone?: { primaryPhoneNumber?: string | null } })
-    .phone?.primaryPhoneNumber;
-  return primary && primary.trim().length > 0 ? primary : 'Lead sans nom';
+  return full.length > 0 ? full : 'Lead sans nom';
 };
 
 const contactPhone = (contact: Record<string, unknown>): string => {

@@ -206,13 +206,6 @@ const NotifName = styled.div`
   color: #14141c;
 `;
 
-const NotifMeta = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 11.5px;
-  color: rgba(20, 20, 28, 0.55);
-  margin-top: 1px;
-`;
-
 const NotifTime = styled.span`
   font-family: 'Inter', sans-serif;
   font-size: 11.5px;
@@ -396,10 +389,7 @@ export const BuzzleOverviewShellHeader = ({
                       >
                         {avatarInitials(lead.name)}
                       </NotifAvatar>
-                      <div>
-                        <NotifName>{lead.name}</NotifName>
-                        <NotifMeta>{lead.phone || 'Nouveau lead'}</NotifMeta>
-                      </div>
+                      <NotifName>{lead.name}</NotifName>
                       <NotifTime>{formatRelative(lead.createdAt)}</NotifTime>
                     </NotifItem>
                   ))}
