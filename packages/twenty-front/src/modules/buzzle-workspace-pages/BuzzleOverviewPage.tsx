@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { currentUserState } from '@/auth/states/currentUserState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
+import { BuzzleFloatingSidebar } from '@/buzzle-workspace-nav/BuzzleFloatingSidebar';
+import { BuzzleOverviewShellHeader } from '@/buzzle-workspace-nav/BuzzleOverviewShellHeader';
 import { BuzzleLeadDrawer, type BuzzleLeadDrawerField } from '@/buzzle-workspace-pages/BuzzleLeadDrawer';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
@@ -13,6 +15,7 @@ import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatus
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
+import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 // Buzzle workspace overview.
@@ -796,10 +799,207 @@ const monthLabel = (): string => {
     .toUpperCase();
 };
 
+// ---------- Ink shell layout (desktop only) ----------
+
+// Full-viewport grid that hosts the floating pill sidebar (col 1), the
+// logo + chips top-bar (row 1 spanning both cols by way of the header
+// component), and the white Stage card (col 2, row 2). The Ink cells
+// background is mounted by DefaultLayout when the /overview route is
+// active.
+const ShellGrid = styled.div`
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  grid-template-rows: auto 1fr;
+  column-gap: 16px;
+  row-gap: 14px;
+  padding: 20px;
+  align-items: stretch;
+  overflow-y: auto;
+  color: ${InkColor};
+`;
+
+const Stage = styled.main`
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 28px;
+  padding: 26px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  min-width: 0;
+  color: ${InkColor};
+
+  @media (max-width: 768px) {
+    grid-column: 1;
+    grid-row: 1;
+    border-radius: 20px;
+    padding: 18px 16px;
+  }
+`;
+
+const StageHead = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 2px 22px 2px;
+  gap: 12px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+const StageTitle = styled.h2`
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: ${InkColor};
+`;
+
+const KpiRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+  @media (max-width: 1120px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+// Tile uses CSS variables to switch its color palette when the accent
+// data-attribute is set. Children (label, value, footer, badge) simply
+// read from --tile-label / --tile-value / --tile-footer / --tile-badge-*
+// so Linaria doesn't need to resolve any styled-component references.
+const Tile = styled.div`
+  --tile-label: ${MutedColor};
+  --tile-value: ${InkColor};
+  --tile-footer: ${MutedColor};
+  --tile-badge-color: #16a34a;
+  --tile-badge-bg: rgba(22, 163, 74, 0.08);
+  --tile-badge-color-down: #dc2626;
+  --tile-badge-bg-down: rgba(220, 38, 38, 0.08);
+
+  border-radius: 22px;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 172px;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
+  }
+
+  &[data-accent='true'] {
+    --tile-label: rgba(255, 255, 255, 0.72);
+    --tile-value: #ffffff;
+    --tile-footer: rgba(255, 255, 255, 0.78);
+    --tile-badge-color: #ffffff;
+    --tile-badge-bg: rgba(255, 255, 255, 0.16);
+    --tile-badge-color-down: #ffffff;
+    --tile-badge-bg-down: rgba(255, 255, 255, 0.16);
+
+    background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
+    color: #ffffff;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  &[data-accent='true']::after {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+`;
+
+const TileLabel = styled.div`
+  font-size: 13px;
+  color: var(--tile-label);
+  font-weight: 500;
+`;
+
+const TileValue = styled.div`
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 14px 0 10px 0;
+  color: var(--tile-value);
+`;
+
+const TileFooter = styled.div`
+  font-size: 12.5px;
+  color: var(--tile-footer);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+`;
+
+const TileBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--tile-badge-color);
+  background: var(--tile-badge-bg);
+  &[data-tone='down'] {
+    color: var(--tile-badge-color-down);
+    background: var(--tile-badge-bg-down);
+  }
+`;
+
+const SplitRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  @media (max-width: 1120px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+// Light card variant used inside the Stage (chart + activity split).
+// The existing dark Chart/Leads cards are dropped in as-is inside these
+// wrappers so the charting code and lead list logic don't have to move.
+const StageCardLight = styled.div`
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  padding: 22px;
+`;
+
 type Period = 'today' | 'week' | 'month' | 'custom';
 
 export const BuzzleOverviewPage = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const currentUser = useAtomStateValue(currentUserState);
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const displayName = currentUser?.firstName ?? '';
@@ -1246,94 +1446,56 @@ export const BuzzleOverviewPage = () => {
     }
   };
 
-  return (
-    <Container>
-      <HeaderRow>
-        <HeaderText>
-          <PageTitle>Vue d'ensemble</PageTitle>
-        </HeaderText>
-        <HeaderActions>
-          <BuzzlePeriodPicker
-            period={period}
-            onPeriodChange={setPeriod}
-            customStart={customStart}
-            customEnd={customEnd}
-            onCustomStartChange={setCustomStart}
-            onCustomEndChange={setCustomEnd}
-          />
-          <BuzzleWorkspacesButton hideOnMobile />
-        </HeaderActions>
-      </HeaderRow>
+  const contactsAllTime = allContacts.length;
 
-      <Grid>
-        <VioletCard>
-          <VioletHead>
-            <VioletTrend tone={overdueTrend}>
-              <IconArrowUp /> {overdueSummary}
-            </VioletTrend>
-          </VioletHead>
+  const kpiTiles = (
+    <KpiRow>
+      <Tile data-accent="true" onClick={() => navigate('/invoices')}>
+        <TileLabel>Factures · solde à régler</TileLabel>
+        <TileValue>
+          {formatEuro(pendingBalance)}
+        </TileValue>
+        <TileFooter>
+          <TileBadge data-tone={overdueInvoices.length > 0 ? 'down' : 'up'}>
+            {pendingCount} en attente
+          </TileBadge>
+          <span>
+            {overdueInvoices.length > 0
+              ? `dont ${overdueInvoices.length} en retard`
+              : 'tout est à jour'}
+          </span>
+        </TileFooter>
+      </Tile>
 
-          <div>
-            <VioletBalanceLabel>Solde à régler</VioletBalanceLabel>
-            <VioletBalanceValue>{formatEuro(pendingBalance)}</VioletBalanceValue>
-            {lastOverdue ? (
-              <VioletBalanceSub>
-                Dernière en retard · <b>{lastOverdue.number}</b> émise le{' '}
-                {formatShortDate(lastOverdue.date)}
-              </VioletBalanceSub>
-            ) : pendingCount > 0 ? (
-              <VioletBalanceSub>
-                {pendingCount} facture{pendingCount > 1 ? 's' : ''} en attente de règlement
-              </VioletBalanceSub>
-            ) : (
-              <VioletBalanceSub>Aucune facture en retard, tout est à jour.</VioletBalanceSub>
-            )}
-          </div>
+      <Tile>
+        <TileLabel>Leads</TileLabel>
+        <TileValue>{contactTotal}</TileValue>
+        <TileFooter>
+          <TileBadge>sur la période</TileBadge>
+        </TileFooter>
+      </Tile>
 
-          <CtaRow>
-            <CtaPrimary onClick={() => navigate('/invoices')}>
-              Voir les factures <IconArrowRight />
-            </CtaPrimary>
-          </CtaRow>
-        </VioletCard>
+      <Tile>
+        <TileLabel>Contacts</TileLabel>
+        <TileValue>{contactsAllTime}</TileValue>
+        <TileFooter>
+          <TileBadge>total base</TileBadge>
+        </TileFooter>
+      </Tile>
 
-        <DarkCard>
-          <DarkCardHead>
-            <div>
-              <DarkCardTitle>Mon activité</DarkCardTitle>
-            </div>
-          </DarkCardHead>
+      <Tile>
+        <TileLabel>Appels</TileLabel>
+        <TileValue>{MOCK_CALLS_TOTAL}</TileValue>
+        <TileFooter>
+          <TileBadge>sur la période</TileBadge>
+        </TileFooter>
+      </Tile>
+    </KpiRow>
+  );
 
-          <AssetGrid>
-            <AssetCard>
-              <AssetHead>
-                <AssetIcon tint="rgba(126, 55, 254, 0.28)" color="#c9b7ff">
-                  <IconUsers />
-                </AssetIcon>
-                <div>
-                  <AssetName>Contacts</AssetName>
-                </div>
-              </AssetHead>
-              <AssetValue>{contactTotal}</AssetValue>
-            </AssetCard>
-
-            <AssetCard>
-              <AssetHead>
-                <AssetIcon tint="rgba(34, 185, 114, 0.24)" color="#a7f4c9">
-                  <IconPhone />
-                </AssetIcon>
-                <div>
-                  <AssetName>Appels</AssetName>
-                </div>
-              </AssetHead>
-              <AssetValue>{MOCK_CALLS_TOTAL}</AssetValue>
-            </AssetCard>
-          </AssetGrid>
-        </DarkCard>
-      </Grid>
-
-      <LowerGrid>
-        <ChartCard>
+  const chartAndLeadsSections = (
+    <>
+      <ChartCard>
           <ChartCardHead>
             <div>
               <ChartCardTitle>Leads</ChartCardTitle>
@@ -1596,15 +1758,65 @@ export const BuzzleOverviewPage = () => {
             </SeeAllRow>
           )}
         </LeadsCard>
-      </LowerGrid>
+    </>
+  );
 
-      {detailDrawer && (
-        <BuzzleLeadDrawer
-          title={detailDrawer.title}
-          fields={detailDrawer.fields}
-          onClose={() => setDetailDrawer(null)}
+  const leadDrawer = detailDrawer && (
+    <BuzzleLeadDrawer
+      title={detailDrawer.title}
+      fields={detailDrawer.fields}
+      onClose={() => setDetailDrawer(null)}
+    />
+  );
+
+  if (!isMobile) {
+    return (
+      <ShellGrid>
+        <BuzzleFloatingSidebar />
+        <BuzzleOverviewShellHeader
+          period={period}
+          onPeriodChange={setPeriod}
+          customStart={customStart}
+          customEnd={customEnd}
+          onCustomStartChange={setCustomStart}
+          onCustomEndChange={setCustomEnd}
         />
-      )}
+        <Stage>
+          <StageHead>
+            <StageTitle>Vue d'ensemble</StageTitle>
+          </StageHead>
+          {kpiTiles}
+          <LowerGrid>{chartAndLeadsSections}</LowerGrid>
+        </Stage>
+        {leadDrawer}
+      </ShellGrid>
+    );
+  }
+
+  return (
+    <Container>
+      <HeaderRow>
+        <HeaderText>
+          <PageTitle>Vue d'ensemble</PageTitle>
+        </HeaderText>
+        <HeaderActions>
+          <BuzzlePeriodPicker
+            period={period}
+            onPeriodChange={setPeriod}
+            customStart={customStart}
+            customEnd={customEnd}
+            onCustomStartChange={setCustomStart}
+            onCustomEndChange={setCustomEnd}
+          />
+          <BuzzleWorkspacesButton hideOnMobile />
+        </HeaderActions>
+      </HeaderRow>
+
+      {kpiTiles}
+
+      <LowerGrid>{chartAndLeadsSections}</LowerGrid>
+
+      {leadDrawer}
     </Container>
   );
 };

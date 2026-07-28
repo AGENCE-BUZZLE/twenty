@@ -7,14 +7,20 @@ import { KeyboardShortcutMenu } from '@/keyboard-shortcut-menu/components/Keyboa
 import { LayoutCustomizationBar } from '@/layout-customization/components/LayoutCustomizationBar';
 import { AppNavigationDrawer } from '@/navigation/components/AppNavigationDrawer';
 import { BuzzleMobileHeader } from '@/buzzle-workspace-nav/BuzzleMobileHeader';
+import { BuzzleInkShellBackground } from '@/buzzle-workspace-nav/BuzzleInkShellBackground';
 import { PageDragDropProvider } from '@/navigation-menu-item/display/dnd/providers/PageDragDropProvider';
 import { useShowFullscreen } from '@/ui/layout/fullscreen/hooks/useShowFullscreen';
 import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { styled } from '@linaria/react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 const StyledLayout = styled.div`
   background: ${themeCssVariables.grayScale.gray3};
+
+  &[data-shell='overview'] {
+    background: transparent;
+  }
+
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -89,6 +95,10 @@ const StyledNavigationDrawerWrapper = styled.div`
   background: #14141c;
   color: #ffffff;
 
+  &[data-shell='overview'] {
+    display: none;
+  }
+
   @media print {
     display: none;
   }
@@ -118,11 +128,21 @@ const StyledMainContainer = styled.div`
 export const DefaultLayout = () => {
   const isMobile = useIsMobile();
   const useShowFullScreen = useShowFullscreen();
+  const location = useLocation();
+  // Route-conditional shell: /overview renders its own Ink shell
+  // (floating pill sidebar + logo top-bar + card stage) so we hide
+  // the default gray background and desktop drawer.
+  const isOverviewShell =
+    !isMobile &&
+    !useShowFullScreen &&
+    (location.pathname === '/overview' || location.pathname === '/');
+  const shellAttr = isOverviewShell ? 'overview' : undefined;
 
   return (
     <>
       <FileUploadProvider>
-        <StyledLayout>
+        {isOverviewShell && <BuzzleInkShellBackground />}
+        <StyledLayout data-shell={shellAttr}>
           <AppErrorBoundary FallbackComponent={AppFullScreenErrorFallback}>
             <InformationBannerIsImpersonating />
             <LayoutCustomizationBar />
@@ -135,7 +155,7 @@ export const DefaultLayout = () => {
               <PageDragDropProvider>
                 <KeyboardShortcutMenu />
                 {useShowFullScreen ? null : (
-                  <StyledNavigationDrawerWrapper>
+                  <StyledNavigationDrawerWrapper data-shell={shellAttr}>
                     <AppNavigationDrawer />
                   </StyledNavigationDrawerWrapper>
                 )}
