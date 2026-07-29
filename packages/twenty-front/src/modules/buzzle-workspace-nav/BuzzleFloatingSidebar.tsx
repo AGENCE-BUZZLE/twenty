@@ -144,10 +144,9 @@ const items: NavItem[] = [
   },
   {
     key: 'seo',
-    label: 'Audit SEO/GEO · Bientôt',
+    label: 'Audit SEO/GEO',
     Icon: IconWorldWww,
     path: '/audit-seo-geo',
-    locked: true,
   },
 ];
 

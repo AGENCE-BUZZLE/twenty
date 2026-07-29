@@ -13,6 +13,7 @@ import { BuzzleCockpit } from '@/buzzle-admin/pages/BuzzleCockpit';
 import { BuzzleMembersSettings } from '@/buzzle-settings/BuzzleMembersSettings';
 import { BuzzleProfileSettings } from '@/buzzle-settings/BuzzleProfileSettings';
 import { BuzzleWorkspaceSettings } from '@/buzzle-settings/BuzzleWorkspaceSettings';
+import { BuzzleAuditGalaxyGlassPage } from '@/buzzle-workspace-pages/BuzzleAuditGalaxyGlassPage';
 import { BuzzleCallsPage } from '@/buzzle-workspace-pages/BuzzleCallsPage';
 import { BuzzleContactDetailPage } from '@/buzzle-workspace-pages/BuzzleContactDetailPage';
 import { BuzzleContactsPage } from '@/buzzle-workspace-pages/BuzzleContactsPage';
@@ -195,6 +196,10 @@ const createWorkspaceAppRouter = (
               <Route
                 path="/invoices/pay"
                 element={<BuzzleInvoicePayPage />}
+              />
+              <Route
+                path="/audit-seo-geo"
+                element={<BuzzleAuditGalaxyGlassPage />}
               />
               {/* Buzzle: settings are limited to Profil + Membres. Any
                   other Twenty settings URL is redirected to Profil. */}
