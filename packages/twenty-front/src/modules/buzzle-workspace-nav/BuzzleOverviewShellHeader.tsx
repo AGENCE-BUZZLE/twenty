@@ -15,10 +15,11 @@ import type { BuzzlePeriod } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
 // the grid · logo is grid cell (col 1, row 1), chips fill (col 2, row 1).
 
 const LogoBlock = styled.div`
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 1;
+  justify-self: start;
   height: 64px;
-  padding: 0 8px;
+  padding: 0 4px;
   display: flex;
   align-items: center;
   width: max-content;
@@ -43,6 +44,7 @@ const LogoImg = styled.img`
 const Actions = styled.div`
   grid-column: 2;
   grid-row: 1;
+  justify-self: end;
   display: flex;
   align-items: center;
   justify-content: flex-end;

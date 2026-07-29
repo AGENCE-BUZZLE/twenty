@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IconBell } from 'twenty-ui/icon';
 
+import { BuzzleFloatingHamburger } from '@/buzzle-workspace-nav/BuzzleFloatingHamburger';
 import { BuzzleFloatingSidebar } from '@/buzzle-workspace-nav/BuzzleFloatingSidebar';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { useBuzzleUnreadLeads } from '@/buzzle-workspace-nav/useBuzzleUnreadLeads';
@@ -41,11 +42,14 @@ const ShellGrid = styled.div`
   }
 `;
 
+// Logo now sits in column 2 row 1 (aligned with the Stage card's left
+// edge). The hamburger takes column 1 row 1 above the pill sidebar.
 const LogoBlock = styled.div`
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 1;
+  justify-self: start;
   height: 64px;
-  padding: 0 8px;
+  padding: 0 4px;
   display: flex;
   align-items: center;
   width: max-content;
@@ -67,6 +71,7 @@ const LogoImg = styled.img`
 const Actions = styled.div`
   grid-column: 2;
   grid-row: 1;
+  justify-self: end;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -411,6 +416,7 @@ export const BuzzleWorkspaceShell = ({
           <BuzzleWorkspacesButton hideOnMobile variant="pill" />
         </WorkspaceWrap>
       </Actions>
+      <BuzzleFloatingHamburger />
       <BuzzleFloatingSidebar />
       <Stage>{children}</Stage>
     </ShellGrid>

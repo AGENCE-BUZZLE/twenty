@@ -121,7 +121,7 @@ const Tip = styled.span`
   }
 `;
 
-type NavItem = {
+export type BuzzleNavItem = {
   key: string;
   label: string;
   Icon: ComponentType<{ size?: number }>;
@@ -130,7 +130,9 @@ type NavItem = {
   locked?: boolean;
 };
 
-const items: NavItem[] = [
+type NavItem = BuzzleNavItem;
+
+export const BUZZLE_NAV_ITEMS: BuzzleNavItem[] = [
   { key: 'home', label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
   { key: 'contacts', label: 'Contacts', Icon: IconUsers, path: '/contacts' },
   {
@@ -156,6 +158,8 @@ const items: NavItem[] = [
     locked: true,
   },
 ];
+
+const items = BUZZLE_NAV_ITEMS;
 
 export const BuzzleFloatingSidebar = () => {
   const navigate = useNavigate();

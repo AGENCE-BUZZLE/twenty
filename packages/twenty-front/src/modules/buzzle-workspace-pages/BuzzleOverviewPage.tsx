@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { currentUserState } from '@/auth/states/currentUserState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
+import { BuzzleFloatingHamburger } from '@/buzzle-workspace-nav/BuzzleFloatingHamburger';
 import { BuzzleFloatingSidebar } from '@/buzzle-workspace-nav/BuzzleFloatingSidebar';
 import { BuzzleOverviewShellHeader } from '@/buzzle-workspace-nav/BuzzleOverviewShellHeader';
 import { BuzzleLeadDrawer, type BuzzleLeadDrawerField } from '@/buzzle-workspace-pages/BuzzleLeadDrawer';
@@ -1836,6 +1837,7 @@ export const BuzzleOverviewPage = () => {
   if (!isMobile) {
     return (
       <ShellGrid>
+        <BuzzleFloatingHamburger />
         <BuzzleFloatingSidebar />
         <BuzzleOverviewShellHeader
           period={period}
