@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { currentUserState } from '@/auth/states/currentUserState';
-import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
+import { BuzzleWorkspaceShell } from '@/buzzle-workspace-nav/BuzzleWorkspaceShell';
 import { useBuzzleUnreadLeads } from '@/buzzle-workspace-nav/useBuzzleUnreadLeads';
 import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
@@ -20,21 +20,15 @@ const SurfaceColor = '#ffffff';
 const HairlineColor = '#d6d2c7';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
+// Kept as a lightweight inner wrapper for max-width alignment inside
+// the shared Ink shell Stage card.
 const Container = styled.div`
-  flex: 1 1 auto;
-  align-self: stretch;
   width: 100%;
-  padding: 28px 40px 32px;
   color: ${InkColor};
-  background: #efede6;
-  overflow-y: auto;
   > * {
     max-width: 1120px;
     margin-left: auto;
     margin-right: auto;
-  }
-  @media (max-width: 768px) {
-    padding: 16px 12px 24px;
   }
 `;
 
@@ -706,38 +700,40 @@ export const BuzzleContactDetailPage = () => {
 
   if (loading && record === undefined) {
     return (
-      <Container>
-        <TopRow>
-          <BackButton onClick={() => navigate('/contacts')}>
-            <IconArrowLeft />
-            Retour
-          </BackButton>
-          <BuzzleWorkspacesButton hideOnMobile />
-        </TopRow>
-        <Card>
-          <EmptyState>Chargement du contact…</EmptyState>
-        </Card>
-      </Container>
+      <BuzzleWorkspaceShell>
+        <Container>
+          <TopRow>
+            <BackButton onClick={() => navigate('/contacts')}>
+              <IconArrowLeft />
+              Retour
+            </BackButton>
+          </TopRow>
+          <Card>
+            <EmptyState>Chargement du contact…</EmptyState>
+          </Card>
+        </Container>
+      </BuzzleWorkspaceShell>
     );
   }
 
   if (record === undefined) {
     return (
-      <Container>
-        <TopRow>
-          <BackButton onClick={() => navigate('/contacts')}>
-            <IconArrowLeft />
-            Retour
-          </BackButton>
-          <BuzzleWorkspacesButton hideOnMobile />
-        </TopRow>
-        <Card>
-          <EmptyState>
-            Ce contact est introuvable — il a peut-être été supprimé ou
-            vous n'y avez pas accès depuis cet espace.
-          </EmptyState>
-        </Card>
-      </Container>
+      <BuzzleWorkspaceShell>
+        <Container>
+          <TopRow>
+            <BackButton onClick={() => navigate('/contacts')}>
+              <IconArrowLeft />
+              Retour
+            </BackButton>
+          </TopRow>
+          <Card>
+            <EmptyState>
+              Ce contact est introuvable — il a peut-être été supprimé ou
+              vous n'y avez pas accès depuis cet espace.
+            </EmptyState>
+          </Card>
+        </Container>
+      </BuzzleWorkspaceShell>
     );
   }
 
@@ -772,13 +768,13 @@ export const BuzzleContactDetailPage = () => {
     octPushedAt !== '';
 
   return (
-    <Container>
+    <BuzzleWorkspaceShell>
+      <Container>
       <TopRow>
         <BackButton onClick={() => navigate('/contacts')}>
           <IconArrowLeft />
           Retour aux contacts
         </BackButton>
-        <BuzzleWorkspacesButton hideOnMobile />
       </TopRow>
 
       <Card>
@@ -861,28 +857,10 @@ export const BuzzleContactDetailPage = () => {
               </Section>
             )}
 
-            {(notes !== '' || amount !== '' || plate !== null) && (
+            {(notes !== '' || amount !== '') && (
               <Section>
                 <SectionTitle>Contexte commercial</SectionTitle>
                 <KVGrid>
-                  {plate !== null && (
-                    <>
-                      <KVLabel>Plaque</KVLabel>
-                      <KVValue>
-                        <PlateSearchRow>
-                          <PlateChip>{plate}</PlateChip>
-                          <PlateSearchLink
-                            href={`https://www.google.com/search?q=${encodeURIComponent('plaque ' + plate)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <IconSearch />
-                            Rechercher en ligne
-                          </PlateSearchLink>
-                        </PlateSearchRow>
-                      </KVValue>
-                    </>
-                  )}
                   {amount !== '' && (
                     <>
                       <KVLabel>Montant devis</KVLabel>
@@ -1010,6 +988,7 @@ export const BuzzleContactDetailPage = () => {
           )}
         </AdminDrawerCard>
       )}
-    </Container>
+      </Container>
+    </BuzzleWorkspaceShell>
   );
 };
