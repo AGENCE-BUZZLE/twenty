@@ -46,7 +46,7 @@ const Pill = styled.button`
   height: 56px;
   border-radius: 16px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 0;
   color: #ffffff;
   display: grid;
   place-items: center;
@@ -66,12 +66,10 @@ const Pill = styled.button`
   &[data-open='true'] {
     background: rgba(255, 255, 255, 0.12);
     color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.24);
   }
 
   @media (max-width: 768px) {
     background: rgba(255, 255, 255, 0.92);
-    border-color: rgba(255, 255, 255, 0.5);
     color: rgba(20, 20, 28, 0.6);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(8px);
