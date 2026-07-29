@@ -1,5 +1,5 @@
 import { styled } from '@linaria/react';
-import { IconBaselineDensitySmall, IconX } from 'twenty-ui/icon';
+import { IconX } from 'twenty-ui/icon';
 
 import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
@@ -9,6 +9,10 @@ import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 // switch its pills from icon-only (56x56 squares) to horizontal buttons
 // with the full label. The ShellGrid parent also reads the state to
 // widen the sidebar column.
+//
+// The clickable target is 56x56 so the icon sits on the same vertical
+// axis as the pills below (each pill is 56x56 too, left-aligned in the
+// 76px sidebar column).
 
 const Wrap = styled.div`
   grid-column: 1;
@@ -19,17 +23,19 @@ const Wrap = styled.div`
 `;
 
 const IconButton = styled.button`
+  width: 56px;
+  height: 56px;
   background: transparent;
   border: 0;
   padding: 0;
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   line-height: 0;
-  transition: color 160ms ease, opacity 160ms ease;
+  transition: color 160ms ease;
 
   &:hover {
     color: #ffffff;
@@ -37,10 +43,33 @@ const IconButton = styled.button`
 
   &:focus-visible {
     outline: 2px solid rgba(255, 255, 255, 0.4);
-    outline-offset: 4px;
-    border-radius: 4px;
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+
+  svg {
+    display: block;
   }
 `;
+
+// Clean 3-line hamburger, sized to match the 22px icons used inside the
+// sidebar pills.
+const HamburgerIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width={22}
+    height={22}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.75}
+    strokeLinecap="round"
+    aria-hidden="true"
+  >
+    <path d="M4 7h16" />
+    <path d="M4 12h16" />
+    <path d="M4 17h16" />
+  </svg>
+);
 
 export const BuzzleFloatingHamburger = () => {
   const [expanded, setExpanded] = useAtomState(buzzleSidebarExpandedState);
@@ -53,11 +82,7 @@ export const BuzzleFloatingHamburger = () => {
         aria-label={expanded ? 'Fermer la navigation' : 'Ouvrir la navigation'}
         aria-pressed={expanded}
       >
-        {expanded ? (
-          <IconX size={26} stroke={1.75} />
-        ) : (
-          <IconBaselineDensitySmall size={26} stroke={1.75} />
-        )}
+        {expanded ? <IconX size={22} stroke={1.75} /> : <HamburgerIcon />}
       </IconButton>
     </Wrap>
   );
