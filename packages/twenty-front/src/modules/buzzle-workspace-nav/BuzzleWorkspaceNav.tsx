@@ -135,7 +135,7 @@ export const BuzzleWorkspaceNav = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const setIsDrawerExpanded = useSetAtomState(isNavigationDrawerExpandedState);
-  // Super admins bypass every "locked" flag — those pages are only
+  // Super admins bypass every "locked" flag · those pages are only
   // hidden to protect the client-facing view.
   const currentUser = useAtomStateValue(currentUserState);
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;

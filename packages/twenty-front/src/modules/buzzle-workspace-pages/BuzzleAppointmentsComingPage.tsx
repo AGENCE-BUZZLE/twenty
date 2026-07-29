@@ -59,7 +59,7 @@ export const BuzzleAppointmentsComingPage = () => (
         <IconFrame>
           <IconCalendarEvent size={30} />
         </IconFrame>
-        <Title>Rendez-vous — bientôt disponible</Title>
+        <Title>Rendez-vous · bientôt disponible</Title>
         <Lede>
           Prise de rendez-vous en ligne, synchronisation Google Calendar et
           rappels automatiques par SMS et email arrivent prochainement dans le

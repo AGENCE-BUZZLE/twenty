@@ -14,7 +14,7 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 
 // Bump the version suffix to force every workspace's notif cursor to
 // reset on the next page load (Clément asked for a one-shot reset on
-// Galaxy Glass — since localStorage is per-origin and we key by
+// Galaxy Glass · since localStorage is per-origin and we key by
 // workspace id, this only affects users who had a cursor from the
 // previous build; a fresh install stays empty).
 const storageKey = (workspaceId: string | null | undefined): string =>
@@ -47,7 +47,7 @@ export type UnreadLead = {
 const contactDisplayName = (contact: Record<string, unknown>): string => {
   const nameField = contact.name;
   // Buzzle client forms (Galaxy Glass, BF, etc.) push the full name as
-  // a plain string into `contact.name` — Twenty's default schema stores
+  // a plain string into `contact.name` · Twenty's default schema stores
   // it as `{ firstName, lastName }`. Support both shapes.
   if (typeof nameField === 'string' && nameField.trim().length > 0) {
     return nameField.trim();

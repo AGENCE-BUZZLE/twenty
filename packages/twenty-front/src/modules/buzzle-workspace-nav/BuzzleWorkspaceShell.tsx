@@ -22,7 +22,7 @@ const ShellGrid = styled.div`
   flex: 1 1 auto;
   align-self: stretch;
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
   display: grid;
   grid-template-columns: 76px 1fr;
   grid-template-rows: auto 1fr;
@@ -30,9 +30,15 @@ const ShellGrid = styled.div`
   row-gap: 14px;
   padding: 20px;
   align-items: stretch;
-  overflow-y: auto;
+  overflow: hidden;
   color: ${InkColor};
   box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
 `;
 
 const LogoBlock = styled.div`
@@ -257,7 +263,13 @@ const Stage = styled.main`
   padding: 26px 30px 36px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
   color: ${InkColor};
+
+  @media (max-width: 768px) {
+    overflow-y: visible;
+  }
 `;
 
 const AVATAR_GRADIENTS = [

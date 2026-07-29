@@ -13,7 +13,7 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 // Buzzle: dedicated lead detail page. One unified card with two columns
 // (identity + context on the left, map + attribution on the right). The
 // map pins the postal code parsed from the lead's message via France's
-// free public geocoder (api-adresse.data.gouv.fr — no API key needed).
+// free public geocoder (api-adresse.data.gouv.fr · no API key needed).
 
 const InkColor = '#14141c';
 const SurfaceColor = '#ffffff';
@@ -188,7 +188,7 @@ const StatusDot = styled.span<{ color: string }>`
   flex-shrink: 0;
 `;
 
-// Info rows — clean, tight, no bordered cards.
+// Info rows · clean, tight, no bordered cards.
 const Section = styled.section`
   padding-top: 18px;
   border-top: 1px solid ${HairlineColor};
@@ -299,7 +299,7 @@ const MapPlaceholder = styled.div`
   line-height: 1.5;
 `;
 
-// External search button — surfaces the plate in a Google search that
+// External search button · surfaces the plate in a Google search that
 // often reveals the vehicle model via LeBonCoin/Argus/AutoScout listings.
 const PlateSearchRow = styled.div`
   display: flex;
@@ -349,7 +349,7 @@ const PlateSearchLink = styled.a`
   }
 `;
 
-// Super-admin only drawer at the bottom of the fiche lead — hides
+// Super-admin only drawer at the bottom of the fiche lead · hides
 // technical attribution data (gclid, UTMs, OCT push) from clients.
 const AdminDrawerCard = styled.div`
   background: ${SurfaceColor};
@@ -653,7 +653,7 @@ export const BuzzleContactDetailPage = () => {
 
   const { updateOneRecord } = useUpdateOneRecord();
 
-  // Opening a lead's detail page counts as reading it — bump the
+  // Opening a lead's detail page counts as reading it · bump the
   // notifications cursor so this lead disappears from the top-bar bell.
   const { markOneRead } = useBuzzleUnreadLeads();
   useEffect(() => {
@@ -728,7 +728,7 @@ export const BuzzleContactDetailPage = () => {
           </TopRow>
           <Card>
             <EmptyState>
-              Ce contact est introuvable — il a peut-être été supprimé ou
+              Ce contact est introuvable · il a peut-être été supprimé ou
               vous n'y avez pas accès depuis cet espace.
             </EmptyState>
           </Card>

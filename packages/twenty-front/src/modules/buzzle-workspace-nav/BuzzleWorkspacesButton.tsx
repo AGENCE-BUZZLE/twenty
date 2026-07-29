@@ -13,7 +13,7 @@ import { type AvailableWorkspace } from '~/generated-metadata/graphql';
 
 // Buzzle: header trigger listing only the workspaces available to the
 // current super admin. Workspace creation is handled from Claude / the
-// backend cockpit, not from this menu. No Profil / Membres / Langue —
+// backend cockpit, not from this menu. No Profil / Membres / Langue -
 // those live in the sidebar Paramètres footer.
 // Paramètres footer.
 
@@ -23,7 +23,7 @@ const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 // hideOnMobile is exposed as a static data attribute rather than a
 // prop-interpolated CSS block. Linaria's zero-runtime engine cannot
-// splice a whole `@media` block from a prop callback — the rule needs
+// splice a whole `@media` block from a prop callback · the rule needs
 // to live in the stylesheet and only match when the attribute is set.
 const Wrap = styled.div`
   position: relative;

@@ -824,7 +824,7 @@ const formatShortDate = (raw?: string | null): string => {
   }
 };
 
-// 4-color gradient palette for lead avatars — same as the V9 mockup.
+// 4-color gradient palette for lead avatars · same as the V9 mockup.
 const AVATAR_GRADIENTS = [
   'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)', // violet
   'linear-gradient(135deg, #16a34a 0%, #065f46 100%)', // green
@@ -869,7 +869,7 @@ const ShellGrid = styled.div`
   flex: 1 1 auto;
   align-self: stretch;
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
   display: grid;
   grid-template-columns: 76px 1fr;
   grid-template-rows: auto 1fr;
@@ -877,9 +877,15 @@ const ShellGrid = styled.div`
   row-gap: 14px;
   padding: 20px;
   align-items: stretch;
-  overflow-y: auto;
+  overflow: hidden;
   color: ${InkColor};
   box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
 `;
 
 const Stage = styled.main`
@@ -893,6 +899,8 @@ const Stage = styled.main`
   padding: 26px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
   color: ${InkColor};
 
   @media (max-width: 768px) {
@@ -900,6 +908,7 @@ const Stage = styled.main`
     grid-row: 1;
     border-radius: 20px;
     padding: 18px 16px;
+    overflow-y: visible;
   }
 `;
 
@@ -1099,7 +1108,7 @@ export const BuzzleOverviewPage = () => {
     }>
   >(() => [], []);
 
-  // Period filter — controls every derived value below (chart, list, cards,
+  // Period filter · controls every derived value below (chart, list, cards,
   // solde, distribution, everything). "custom" is a start → end range.
   const [period, setPeriod] = useState<Period>('month');
   const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -1298,7 +1307,7 @@ export const BuzzleOverviewPage = () => {
         pushHourBuckets(new Date(a));
         return;
       }
-      // Cap at 60 buckets to keep the chart readable — daily up to 60 days,
+      // Cap at 60 buckets to keep the chart readable · daily up to 60 days,
       // otherwise aggregate by week.
       if (spanDays <= 60) {
         const now = new Date();
@@ -1379,7 +1388,7 @@ export const BuzzleOverviewPage = () => {
     return Math.round(((right - left) / left) * 100);
   })();
 
-  // SVG path builder — segments droits, area under curve.
+  // SVG path builder · segments droits, area under curve.
   const chartViewW = 700;
   const chartViewH = 220;
   const chartPadding = { top: 20, right: 12, bottom: 30, left: 34 };
@@ -1529,7 +1538,7 @@ export const BuzzleOverviewPage = () => {
       </Tile>
 
       <Tile>
-        <TileLabel>Leads</TileLabel>
+        <TileLabel>Contacts</TileLabel>
         <TileValue>{contactTotal}</TileValue>
         <TileFooter>
           <TileBadge>sur la période</TileBadge>
@@ -1537,7 +1546,7 @@ export const BuzzleOverviewPage = () => {
       </Tile>
 
       <Tile>
-        <TileLabel>Contacts</TileLabel>
+        <TileLabel>Formulaires</TileLabel>
         <TileValue>{contactsAllTime}</TileValue>
         <TileFooter>
           <TileBadge>total base</TileBadge>
@@ -1666,7 +1675,7 @@ export const BuzzleOverviewPage = () => {
                 </>
               )}
 
-              {/* X axis labels — every nth point to avoid crowding */}
+              {/* X axis labels · every nth point to avoid crowding */}
               {points.map((p, i) => {
                 const skip = Math.max(1, Math.floor(points.length / 4));
 
@@ -1776,7 +1785,7 @@ export const BuzzleOverviewPage = () => {
                       </LeadIcon>
                       <div>
                         <LeadName>{lead.name}</LeadName>
-                        <LeadMeta>{lead.phone || '—'}</LeadMeta>
+                        <LeadMeta>{lead.phone || '-'}</LeadMeta>
                       </div>
                       <LeadRight>
                         <LeadTime>{formatHourMin(lead.at)}</LeadTime>

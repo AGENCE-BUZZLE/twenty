@@ -12,7 +12,7 @@ import type { BuzzlePeriod } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
 // the top-left (spanning across the sidebar and top-bar columns) and
 // the action chips (period picker, notifications, workspace switcher)
 // sit on the right. Rendered directly by BuzzleOverviewPage as part of
-// the grid — logo is grid cell (col 1, row 1), chips fill (col 2, row 1).
+// the grid · logo is grid cell (col 1, row 1), chips fill (col 2, row 1).
 
 const LogoBlock = styled.div`
   grid-column: 1;
@@ -52,7 +52,7 @@ const Actions = styled.div`
 
   // Force every child chip (period picker, notifications, workspace
   // pill) to the same 40 px height and keep their background solid
-  // white on hover — the default period picker greys out on hover
+  // white on hover · the default period picker greys out on hover
   // which broke the row's white-chip rhythm on the Ink shell.
   > button,
   > div > button {

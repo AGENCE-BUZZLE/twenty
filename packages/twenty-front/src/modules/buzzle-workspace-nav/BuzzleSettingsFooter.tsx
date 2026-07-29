@@ -26,7 +26,7 @@ import { logError } from '~/utils/logError';
 
 // Buzzle: sidebar footer with a Paramètres button. Opens a menu with
 // Profil / Membres / Langue submenu / Déconnexion. Replaces the previous
-// workspace switcher — that lives in the overview header now.
+// workspace switcher · that lives in the overview header now.
 
 const SUPPORTED_LOCALES: Array<keyof typeof APP_LOCALES> = ['en', 'fr-FR'];
 const LOCALE_LABELS: Record<string, string> = {

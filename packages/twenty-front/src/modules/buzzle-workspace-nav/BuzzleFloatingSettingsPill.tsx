@@ -25,7 +25,7 @@ import { logError } from '~/utils/logError';
 
 // Floating pill version of BuzzleSettingsFooter: sits at the bottom of
 // the Ink shell's pill sidebar. Clicking pops a menu right of the pill
-// with Profil / Membres / Langue / Déconnexion — same actions as the
+// with Profil / Membres / Langue / Déconnexion · same actions as the
 // original drawer footer, adapted to icon-only pill styling.
 
 const SUPPORTED_LOCALES: Array<keyof typeof APP_LOCALES> = ['en', 'fr-FR'];
@@ -45,30 +45,36 @@ const Pill = styled.button`
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  color: rgba(20, 20, 28, 0.6);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   transition:
     background 160ms ease,
     color 160ms ease,
     transform 160ms ease;
-  backdrop-filter: blur(8px);
   padding: 0;
 
   &:hover {
-    color: #14141c;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
     transform: translateY(-1px);
   }
 
   &[data-open='true'] {
-    background: #14141c;
+    background: rgba(255, 255, 255, 0.12);
     color: #ffffff;
-    border-color: #14141c;
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.24);
+  }
+
+  @media (max-width: 768px) {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(20, 20, 28, 0.6);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(8px);
   }
 `;
 

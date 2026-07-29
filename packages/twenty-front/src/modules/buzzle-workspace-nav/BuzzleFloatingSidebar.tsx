@@ -18,7 +18,7 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 // Floating pill sidebar used on the /overview shell. Each nav item is
 // an icon-only pill (56x56) with a tooltip label on hover. Active item
 // is Ink filled with white icon. Locked items are dimmed and inert.
-// Mobile keeps the drawer + hamburger flow from DefaultLayout — this
+// Mobile keeps the drawer + hamburger flow from DefaultLayout · this
 // component only shows on desktop.
 
 const Column = styled.nav`
@@ -160,7 +160,7 @@ const items: NavItem[] = [
 export const BuzzleFloatingSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // Super admins have access to every locked destination — the lock is
+  // Super admins have access to every locked destination · the lock is
   // only there to hide the WIP pages from client users.
   const currentUser = useAtomStateValue(currentUserState);
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;

@@ -989,7 +989,7 @@ export const BuzzleCallsPage = () => {
             <BetaBody>
               <p>
                 Cette section est encore en cours de finalisation. Aucun
-                appel affiché ici n'est réel pour le moment — vous
+                appel affiché ici n'est réel pour le moment · vous
                 verrez apparaître vos vrais appels dès que la connexion
                 à votre standard téléphonique sera activée.
               </p>

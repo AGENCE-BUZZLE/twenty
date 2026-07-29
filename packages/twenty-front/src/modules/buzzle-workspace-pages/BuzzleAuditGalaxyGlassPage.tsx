@@ -5,7 +5,7 @@ import { IconBell } from 'twenty-ui/icon';
 import { BuzzleFloatingSidebar } from '@/buzzle-workspace-nav/BuzzleFloatingSidebar';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 
-// Buzzle: Galaxy Glass SEO/GEO audit — rendered inside the CRM instead
+// Buzzle: Galaxy Glass SEO/GEO audit · rendered inside the CRM instead
 // of a separate password-gated report. The CRM auth already gates
 // access so the audit page is a plain workspace route. Content is
 // hardcoded from the audit performed on galaxyglass-parebrise.fr on
@@ -23,7 +23,7 @@ const ShellGrid = styled.div`
   flex: 1 1 auto;
   align-self: stretch;
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
   display: grid;
   grid-template-columns: 76px 1fr;
   grid-template-rows: auto 1fr;
@@ -31,9 +31,15 @@ const ShellGrid = styled.div`
   row-gap: 14px;
   padding: 20px;
   align-items: stretch;
-  overflow-y: auto;
+  overflow: hidden;
   color: ${InkColor};
   box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
 `;
 
 const LogoBlock = styled.div`
@@ -118,7 +124,13 @@ const Stage = styled.main`
   padding: 26px 30px 40px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
   color: ${InkColor};
+
+  @media (max-width: 768px) {
+    overflow-y: visible;
+  }
 `;
 
 // ---------- Audit content ----------
@@ -601,7 +613,7 @@ const SECTIONS: Section[] = [
         title: 'GBP Marseille inexistant sous le nom Galaxy Glass',
         detail:
           "Le site expose une page /marseille/ dédiée mais aucune fiche Google Business Profile n'est trouvable au nom Galaxy Glass Marseille. Le seul acteur pertinent à Marseille est un concurrent (Marseille Pare-brise, 5,0/108 avis, avenue de Montolivet).",
-        fix: "Créer une fiche GBP dédiée Marseille (SAB — Service-Area Business si pas de local physique client) : nom identique au format Aix, même téléphone, zone Marseille + communes environnantes. Compter 3-4 semaines de validation Google. Sans cette fiche, la page /marseille/ ne rankera jamais localement.",
+        fix: "Créer une fiche GBP dédiée Marseille (SAB · Service-Area Business si pas de local physique client) : nom identique au format Aix, même téléphone, zone Marseille + communes environnantes. Compter 3-4 semaines de validation Google. Sans cette fiche, la page /marseille/ ne rankera jamais localement.",
       },
       {
         title: 'Nombre de photos GBP faible (10) vs concurrence',
@@ -687,7 +699,7 @@ const HIGHLIGHTS = [
     label: '95',
     body: (
       <>
-        <strong>PageSpeed mobile 95/100</strong> — LCP 2,5 s, TBT 0 ms, CLS 0.
+        <strong>PageSpeed mobile 95/100</strong> · LCP 2,5 s, TBT 0 ms, CLS 0.
         Excellent socle technique.
       </>
     ),
@@ -702,7 +714,7 @@ const HIGHLIGHTS = [
         (hello-world, tech topics random) qui polluent le sitemap.
       </>
     ),
-    meta: 'Impact SEO thématique + crédibilité — à traiter en priorité #1.',
+    meta: 'Impact SEO thématique + crédibilité · à traiter en priorité #1.',
   },
   {
     tone: 'bad',
@@ -721,7 +733,7 @@ const HIGHLIGHTS = [
     label: '★',
     body: (
       <>
-        <strong>GBP Aix 5,0/51 avis</strong> : excellent — <strong>mais aucun
+        <strong>GBP Aix 5,0/51 avis</strong> : excellent · <strong>mais aucun
         GBP Marseille</strong> alors que la page /marseille/ est publiée.
       </>
     ),
@@ -781,10 +793,10 @@ export const BuzzleAuditGalaxyGlassPage = () => {
       <Stage>
         <StageHead>
           <AuditKicker>Audit SEO/GEO · 29 juillet 2026</AuditKicker>
-          <AuditTitle>Galaxy Glass — galaxyglass-parebrise.fr</AuditTitle>
+          <AuditTitle>Galaxy Glass · galaxyglass-parebrise.fr</AuditTitle>
           <AuditSub>
             État complet de la visibilité SEO, GEO (visibilité IA) et Google
-            Business Profile pour l'écosystème Galaxy Glass — pare-brise à
+            Business Profile pour l'écosystème Galaxy Glass · pare-brise à
             domicile, Aix-en-Provence + Marseille + zones nationales.
           </AuditSub>
         </StageHead>
