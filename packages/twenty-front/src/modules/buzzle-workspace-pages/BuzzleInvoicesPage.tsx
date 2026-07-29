@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
-import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
+import { BuzzleWorkspaceShell } from '@/buzzle-workspace-nav/BuzzleWorkspaceShell';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
@@ -51,21 +51,15 @@ type Invoice = {
   status: string;
 };
 
+// Inner wrapper: aligns page content inside the shared Ink shell Stage
+// with a shared max-width.
 const Container = styled.div`
-  flex: 1 1 auto;
-  align-self: stretch;
   width: 100%;
-  padding: 28px 40px 32px;
   color: ${InkColor};
-  background: #efede6;
-  overflow-y: auto;
   > * {
     max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
-  }
-  @media (max-width: 768px) {
-    padding: 16px 12px 24px;
   }
 `;
 
@@ -749,38 +743,41 @@ export const BuzzleInvoicesPage = () => {
 
   // First-load state: nothing to display yet. Show only the animated
   // loader so the summary cards and the empty header rows don't flash.
+  const periodPicker = (
+    <BuzzlePeriodPicker
+      period={period}
+      onPeriodChange={setPeriod}
+      customStart={customStart}
+      customEnd={customEnd}
+      onCustomStartChange={setCustomStart}
+      onCustomEndChange={setCustomEnd}
+    />
+  );
+
   if (loading && !data && !error) {
     return (
-      <Container>
-        <LoaderStage>
-          <Loader>
-            <span className="circle" />
-            <span className="circle" />
-            <span className="circle" />
-            <span className="circle" />
-          </Loader>
-        </LoaderStage>
-      </Container>
+      <BuzzleWorkspaceShell topExtras={periodPicker}>
+        <Container>
+          <LoaderStage>
+            <Loader>
+              <span className="circle" />
+              <span className="circle" />
+              <span className="circle" />
+              <span className="circle" />
+            </Loader>
+          </LoaderStage>
+        </Container>
+      </BuzzleWorkspaceShell>
     );
   }
 
   return (
-    <Container>
+    <BuzzleWorkspaceShell topExtras={periodPicker}>
+      <Container>
       <HeaderRow>
         <HeaderText>
           <PageTitle>Factures</PageTitle>
         </HeaderText>
-        <HeaderActions>
-          <BuzzlePeriodPicker
-            period={period}
-            onPeriodChange={setPeriod}
-            customStart={customStart}
-            customEnd={customEnd}
-            onCustomStartChange={setCustomStart}
-            onCustomEndChange={setCustomEnd}
-          />
-          <BuzzleWorkspacesButton hideOnMobile />
-        </HeaderActions>
       </HeaderRow>
 
       {error && (
@@ -925,6 +922,7 @@ export const BuzzleInvoicesPage = () => {
         totalItems={invoices.length}
         onPageChange={setPage}
       />
-    </Container>
+      </Container>
+    </BuzzleWorkspaceShell>
   );
 };

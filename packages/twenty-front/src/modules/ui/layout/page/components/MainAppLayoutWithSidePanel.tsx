@@ -12,7 +12,15 @@ import { isDefined } from 'twenty-shared/utils';
 // The Buzzle Ink shell owns its own full-width layout — hide the
 // desktop side panel so the stage card can extend flush to the viewport
 // edge (it would otherwise reserve ~400px of empty space on the right).
-const OVERVIEW_SHELL_PREFIXES = ['/overview', '/audit-seo-geo'];
+const OVERVIEW_SHELL_PREFIXES = [
+  '/overview',
+  '/contacts',
+  '/objects/contacts',
+  '/calls',
+  '/invoices',
+  '/audit-seo-geo',
+  '/rendez-vous',
+];
 
 const ROUTE_SECTION_DATA_ATTRIBUTE = 'data-main-app-route-section';
 

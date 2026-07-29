@@ -2,7 +2,7 @@ import { styled } from '@linaria/react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
-import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
+import { BuzzleWorkspaceShell } from '@/buzzle-workspace-nav/BuzzleWorkspaceShell';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
 import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 
@@ -36,21 +36,15 @@ type Call = {
 // autre) est wired, remplacer par la query GraphQL correspondante.
 const MOCK_CALLS: Call[] = [];
 
+// Inner wrapper: aligns page content inside the shared Ink shell Stage
+// with a shared max-width.
 const Container = styled.div`
-  flex: 1 1 auto;
-  align-self: stretch;
   width: 100%;
-  padding: 28px 40px 32px;
   color: ${InkColor};
-  background: #efede6;
-  overflow-y: auto;
   > * {
     max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
-  }
-  @media (max-width: 768px) {
-    padding: 16px 12px 24px;
   }
 `;
 
@@ -778,23 +772,24 @@ export const BuzzleCallsPage = () => {
   };
 
   return (
-    <Container>
+    <BuzzleWorkspaceShell
+      topExtras={
+        <BuzzlePeriodPicker
+          period={period}
+          onPeriodChange={setPeriod}
+          customStart={customStart}
+          customEnd={customEnd}
+          onCustomStartChange={setCustomStart}
+          onCustomEndChange={setCustomEnd}
+        />
+      }
+    >
+      <Container>
       <HeaderRow>
         <HeaderText>
           <PageTitle>Appels</PageTitle>
           <TitleBadge>Beta</TitleBadge>
         </HeaderText>
-        <HeaderActions>
-          <BuzzlePeriodPicker
-            period={period}
-            onPeriodChange={setPeriod}
-            customStart={customStart}
-            customEnd={customEnd}
-            onCustomStartChange={setCustomStart}
-            onCustomEndChange={setCustomEnd}
-          />
-          <BuzzleWorkspacesButton hideOnMobile />
-        </HeaderActions>
       </HeaderRow>
 
       <Grid>
@@ -974,6 +969,7 @@ export const BuzzleCallsPage = () => {
           </BetaModal>
         </BetaBackdrop>
       )}
-    </Container>
+      </Container>
+    </BuzzleWorkspaceShell>
   );
 };

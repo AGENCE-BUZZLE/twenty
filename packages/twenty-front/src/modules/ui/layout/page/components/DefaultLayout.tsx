@@ -133,10 +133,18 @@ export const DefaultLayout = () => {
   // (floating pill sidebar + logo top-bar + card stage) so we hide
   // the default gray background and desktop drawer.
   // Pages that render their own Ink shell (background + pill sidebar +
-  // logo top-bar + white Stage). We only trigger the shell for pages
-  // that actually opt into it — Contacts / Factures / Appels still use
-  // the drawer nav today and would break if the drawer got hidden.
-  const inkShellPrefixes = ['/overview', '/audit-seo-geo'];
+  // logo top-bar + white Stage). Every Buzzle workspace page now opts
+  // in via BuzzleWorkspaceShell — the default drawer nav is hidden and
+  // the ink cells background shows behind the white Stage card.
+  const inkShellPrefixes = [
+    '/overview',
+    '/contacts',
+    '/objects/contacts',
+    '/calls',
+    '/invoices',
+    '/audit-seo-geo',
+    '/rendez-vous',
+  ];
   const isOverviewShell =
     !isMobile &&
     !useShowFullScreen &&

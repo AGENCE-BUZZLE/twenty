@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { BuzzlePagination } from '@/buzzle-workspace-pages/BuzzlePagination';
-import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
+import { BuzzleWorkspaceShell } from '@/buzzle-workspace-nav/BuzzleWorkspaceShell';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
 import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
@@ -26,21 +26,15 @@ const HairlineColor = '#d6d2c7';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 const VioletColor = '#7e37fe';
 
+// Kept as a lightweight inner wrapper for the max-width alignment of
+// the page content inside the shared Ink shell Stage card.
 const Container = styled.div`
-  flex: 1 1 auto;
-  align-self: stretch;
   width: 100%;
-  padding: 28px 40px 32px;
   color: ${InkColor};
-  background: #efede6;
-  overflow-y: auto;
   > * {
     max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
-  }
-  @media (max-width: 768px) {
-    padding: 16px 12px 24px;
   }
 `;
 
@@ -625,23 +619,24 @@ export const BuzzleContactsPage = () => {
   const unqualifiedSummary =
     unqualifiedCount > 0 ? `${unqualifiedCount} à qualifier` : 'Tout est traité';
 
+  const periodPicker = (
+    <BuzzlePeriodPicker
+      period={period}
+      onPeriodChange={setPeriod}
+      customStart={customStart}
+      customEnd={customEnd}
+      onCustomStartChange={setCustomStart}
+      onCustomEndChange={setCustomEnd}
+    />
+  );
+
   return (
-    <Container>
+    <BuzzleWorkspaceShell topExtras={periodPicker}>
+      <Container>
       <HeaderRow>
         <HeaderText>
           <PageTitle>Contacts</PageTitle>
         </HeaderText>
-        <HeaderActions>
-          <BuzzlePeriodPicker
-            period={period}
-            onPeriodChange={setPeriod}
-            customStart={customStart}
-            customEnd={customEnd}
-            onCustomStartChange={setCustomStart}
-            onCustomEndChange={setCustomEnd}
-          />
-          <BuzzleWorkspacesButton hideOnMobile />
-        </HeaderActions>
       </HeaderRow>
 
       <Grid>
@@ -828,6 +823,7 @@ export const BuzzleContactsPage = () => {
         onPageChange={setPage}
       />
 
-    </Container>
+      </Container>
+    </BuzzleWorkspaceShell>
   );
 };
