@@ -169,7 +169,7 @@ export const BUZZLE_NAV_ITEMS: BuzzleNavItem[] = [
   { key: 'contacts', label: 'Contacts', Icon: IconUsers, path: '/contacts' },
   {
     key: 'calls',
-    label: 'Appels · Bientôt',
+    label: 'Appels',
     Icon: IconPhone,
     path: '/calls',
     locked: true,
@@ -177,14 +177,14 @@ export const BUZZLE_NAV_ITEMS: BuzzleNavItem[] = [
   { key: 'invoices', label: 'Factures', Icon: IconFileText, path: '/invoices' },
   {
     key: 'rdv',
-    label: 'Rendez-vous · Bientôt',
+    label: 'Rendez-vous',
     Icon: IconCalendarEvent,
     path: '/rendez-vous',
     locked: true,
   },
   {
     key: 'seo',
-    label: 'Audit SEO/GEO · Bientôt',
+    label: 'Audit SEO/GEO',
     Icon: IconWorldWww,
     path: '/audit-seo-geo',
     locked: true,
