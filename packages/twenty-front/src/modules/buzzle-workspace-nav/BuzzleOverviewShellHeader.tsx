@@ -29,11 +29,15 @@ const LogoBlock = styled.div`
 // glyphs match the Buzzle typeface at the exact cap height and stay
 // perfectly aligned across every zoom level.
 const LogoImg = styled.img`
-  height: 34px;
+  height: 44px;
   width: auto;
   display: block;
   user-select: none;
   -webkit-user-drag: none;
+
+  @media (max-width: 768px) {
+    height: 34px;
+  }
 `;
 
 const Actions = styled.div`
