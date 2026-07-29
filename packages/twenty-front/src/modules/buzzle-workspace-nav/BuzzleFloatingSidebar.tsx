@@ -12,6 +12,7 @@ import {
 } from 'twenty-ui/icon';
 
 import { currentUserState } from '@/auth/states/currentUserState';
+import { BuzzleFloatingSettingsPill } from '@/buzzle-workspace-nav/BuzzleFloatingSettingsPill';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 // Floating pill sidebar used on the /overview shell. Each nav item is
@@ -26,8 +27,13 @@ const Column = styled.nav`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  align-self: start;
+  align-self: stretch;
   z-index: 2;
+`;
+
+const Spacer = styled.div`
+  flex: 1 1 auto;
+  min-height: 12px;
 `;
 
 const Pill = styled.button`
@@ -55,10 +61,10 @@ const Pill = styled.button`
   }
 
   &[data-active='true'] {
-    background: #14141c;
-    color: #ffffff;
-    border-color: #14141c;
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+    background: #ffffff;
+    color: #7e37fe;
+    border-color: rgba(126, 55, 254, 0.35);
+    box-shadow: 0 6px 22px rgba(126, 55, 254, 0.28);
   }
 
   &[data-locked='true'] {
@@ -205,6 +211,8 @@ export const BuzzleFloatingSidebar = () => {
           </Pill>
         );
       })}
+      <Spacer />
+      <BuzzleFloatingSettingsPill />
     </Column>
   );
 };
