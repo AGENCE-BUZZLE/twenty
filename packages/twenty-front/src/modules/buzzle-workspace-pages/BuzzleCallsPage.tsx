@@ -110,17 +110,38 @@ const Grid = styled.div`
   }
 `;
 
+// KPI cards restyled to match the Vue d'ensemble tiles.
 const VioletCard = styled.div`
-  background: ${VioletColor};
+  background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
   color: #ffffff;
-  border-radius: 18px;
-  padding: 18px 22px;
+  border-radius: 22px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  justify-content: space-between;
+  min-height: 172px;
   position: relative;
   overflow: hidden;
-  height: 260px;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
+  }
 `;
 
 const VioletHead = styled.div`
@@ -132,49 +153,58 @@ const VioletHead = styled.div`
 const VioletTrend = styled.span<{ tone: 'up' | 'down' | 'flat' }>`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
   background: rgba(255, 255, 255, 0.16);
-  color: ${({ tone }) =>
-    tone === 'down' ? '#ffdada' : tone === 'up' ? '#e8ffe1' : '#ffffff'};
+  color: #ffffff;
 `;
 
 const VioletLabel = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
-  margin-bottom: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 4px;
 `;
 
 const VioletValue = styled.div`
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 34px;
-  font-weight: 500;
-  letter-spacing: -0.024em;
-  line-height: 1.05;
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 14px 0 10px 0;
+  color: #ffffff;
 `;
 
 const VioletSub = styled.div`
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 13px;
-  margin-top: 8px;
+  font-family: 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12.5px;
 `;
 
 const DarkCard = styled.div`
-  background: ${InkColor};
-  color: ${SurfaceColor};
-  border-radius: 18px;
-  padding: 18px 20px;
+  background: #ffffff;
+  color: ${InkColor};
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  height: 260px;
+  gap: 16px;
+  min-height: 172px;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
+  }
 `;
 
 const DarkCardHead = styled.div`
@@ -184,15 +214,18 @@ const DarkCardHead = styled.div`
 `;
 
 const DarkCardTitle = styled.div`
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 18px;
-  font-weight: 500;
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: ${InkColor};
 `;
 
 const DarkCardSub = styled.div`
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
-  margin-top: 4px;
+  font-family: 'Inter', sans-serif;
+  color: ${MutedColor};
+  font-size: 12.5px;
+  margin-top: 3px;
 `;
 
 const AssetGrid = styled.div`
@@ -204,8 +237,8 @@ const AssetGrid = styled.div`
 `;
 
 const AssetCard = styled.div`
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
+  background: rgba(20, 20, 28, 0.03);
+  border-radius: 14px;
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -232,16 +265,18 @@ const AssetIcon = styled.span<{ tint: string; color: string }>`
 `;
 
 const AssetName = styled.div`
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
   font-weight: 500;
+  color: ${MutedColor};
 `;
 
 const AssetValue = styled.div`
-  font-family: 'Inter Tight', sans-serif;
-  font-size: 22px;
-  font-weight: 500;
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
   letter-spacing: -0.02em;
+  color: ${InkColor};
 `;
 
 // ---------- Table ----------
