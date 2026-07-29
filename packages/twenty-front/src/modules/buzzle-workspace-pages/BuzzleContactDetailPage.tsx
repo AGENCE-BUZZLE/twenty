@@ -96,21 +96,39 @@ const RightCol = styled.div`
 
 const HeaderBlock = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 22px;
 `;
 
-const HeaderText = styled.div`
+const HeaderIdentity = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
   min-width: 0;
 `;
 
-const ReceivedAt = styled.div`
+const HeaderAvatar = styled.span`
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: 'Inter', sans-serif;
-  font-size: 12.5px;
-  color: ${MutedColor};
-  margin-bottom: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+`;
+
+const HeaderText = styled.div`
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 `;
 
 const ContactName = styled.h1`
@@ -126,6 +144,12 @@ const ContactName = styled.h1`
     font-size: 20px;
     letter-spacing: -0.016em;
   }
+`;
+
+const ReceivedAt = styled.div`
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  color: ${MutedColor};
 `;
 
 const StatusPill = styled.button<{ bg: string; fg: string }>`
@@ -536,6 +560,34 @@ const displayNotes = (raw: unknown): string => {
   return '';
 };
 
+// Même palette + hashing que la LeadsCard de Vue d'ensemble · garantit
+// que le nom aura les mêmes initiales et le même dégradé sur la fiche
+// et sur les listes Formulaires / Appels.
+const AVATAR_GRADIENTS = [
+  'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)',
+  'linear-gradient(135deg, #16a34a 0%, #065f46 100%)',
+  'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
+  'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+] as const;
+
+const hashName = (name: string): number => {
+  let h = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return h;
+};
+
+const avatarGradient = (name: string): string =>
+  AVATAR_GRADIENTS[hashName(name || '?') % AVATAR_GRADIENTS.length];
+
+const buildInitials = (name: string): string => {
+  const parts = (name || '?').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
 // Extract a French 5-digit postal code from arbitrary text. Falls back
 // to any 5-digit run if the "Code postal :" prefix is absent.
 const extractPostalCode = (text: unknown): string | null => {
@@ -773,12 +825,20 @@ export const BuzzleContactDetailPage = () => {
         <Body>
           <LeftCol>
             <HeaderBlock>
-              <HeaderText>
-                <ReceivedAt>
-                  Reçu le {formatDateTime(record.createdAt as string | null)}
-                </ReceivedAt>
-                <ContactName>{contactName}</ContactName>
-              </HeaderText>
+              <HeaderIdentity>
+                <HeaderAvatar
+                  aria-hidden="true"
+                  style={{ background: avatarGradient(contactName) }}
+                >
+                  {buildInitials(contactName)}
+                </HeaderAvatar>
+                <HeaderText>
+                  <ContactName>{contactName}</ContactName>
+                  <ReceivedAt>
+                    Reçu le {formatDateTime(record.createdAt as string | null)}
+                  </ReceivedAt>
+                </HeaderText>
+              </HeaderIdentity>
               <StatusPill
                 bg={statusMeta.bg}
                 fg={statusMeta.fg}
