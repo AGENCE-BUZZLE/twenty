@@ -60,8 +60,8 @@ const BackButton = styled.button`
 
 const Card = styled.div`
   background: ${SurfaceColor};
-  border: 1px solid ${HairlineColor};
-  border-radius: 16px;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
   overflow: hidden;
 `;
 
@@ -82,7 +82,7 @@ const LeftCol = styled.div`
 
 const RightCol = styled.div`
   background: #fafaf7;
-  border-left: 1px solid ${HairlineColor};
+  border-left: 1px solid rgba(20, 20, 28, 0.08);
   padding: 26px 26px 28px;
   display: flex;
   flex-direction: column;
@@ -90,7 +90,7 @@ const RightCol = styled.div`
 
   @media (max-width: 900px) {
     border-left: 0;
-    border-top: 1px solid ${HairlineColor};
+    border-top: 1px solid rgba(20, 20, 28, 0.08);
   }
 `;
 
@@ -107,26 +107,24 @@ const HeaderText = styled.div`
 `;
 
 const ReceivedAt = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
   color: ${MutedColor};
   margin-bottom: 6px;
 `;
 
 const ContactName = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.02em;
   color: ${InkColor};
   margin: 0;
   line-height: 1.15;
 
   @media (max-width: 768px) {
-    font-size: 22px;
-    letter-spacing: -0.014em;
+    font-size: 20px;
+    letter-spacing: -0.016em;
   }
 `;
 
@@ -191,7 +189,7 @@ const StatusDot = styled.span<{ color: string }>`
 // Info rows · clean, tight, no bordered cards.
 const Section = styled.section`
   padding-top: 18px;
-  border-top: 1px solid ${HairlineColor};
+  border-top: 1px solid rgba(20, 20, 28, 0.08);
   margin-top: 18px;
 
   &:first-of-type {
@@ -202,12 +200,11 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: ${MutedColor};
+  letter-spacing: -0.01em;
+  color: ${InkColor};
   margin: 0 0 12px;
 `;
 
@@ -225,10 +222,9 @@ const KVGrid = styled.dl`
 `;
 
 const KVLabel = styled.dt`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
   color: ${MutedColor};
   padding-top: 2px;
 `;
@@ -260,10 +256,10 @@ const MapFrame = styled.div`
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   background: #efede6;
-  border: 1px solid ${HairlineColor};
+  border: 1px solid rgba(20, 20, 28, 0.08);
 
   /* OSM's embed iframe injects its own attribution strip at the very
      bottom ("Signaler un problème · © Contributeurs OpenStreetMap · Faire
@@ -280,10 +276,8 @@ const MapFrame = styled.div`
 `;
 
 const MapCaption = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
   color: ${MutedColor};
   margin-top: 8px;
   display: flex;
@@ -353,8 +347,8 @@ const PlateSearchLink = styled.a`
 // technical attribution data (gclid, UTMs, OCT push) from clients.
 const AdminDrawerCard = styled.div`
   background: ${SurfaceColor};
-  border: 1px solid ${HairlineColor};
-  border-radius: 14px;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
   margin-top: 16px;
   overflow: hidden;
 `;
@@ -370,16 +364,14 @@ const AdminDrawerToggle = styled.button`
   justify-content: space-between;
   gap: 12px;
   cursor: pointer;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-size: 13.5px;
   font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: ${MutedColor};
-  transition: background 0.12s, color 0.12s;
+  letter-spacing: -0.005em;
+  color: ${InkColor};
+  transition: background 0.12s;
   &:hover {
     background: rgba(20, 20, 28, 0.04);
-    color: ${InkColor};
   }
 `;
 
@@ -408,7 +400,7 @@ const AdminDrawerChevron = styled.span<{ open: boolean }>`
 
 const AdminDrawerBody = styled.div`
   padding: 4px 22px 20px;
-  border-top: 1px solid ${HairlineColor};
+  border-top: 1px solid rgba(20, 20, 28, 0.08);
 `;
 
 const AttributionMono = styled.code`

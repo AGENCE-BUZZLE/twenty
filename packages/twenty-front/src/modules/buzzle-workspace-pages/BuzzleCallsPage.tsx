@@ -32,9 +32,56 @@ type Call = {
   recordingUrl?: string;
 };
 
-// Empty by default. Once a real call provider (Aircall / Ringover /
-// autre) est wired, remplacer par la query GraphQL correspondante.
-const MOCK_CALLS: Call[] = [];
+// Quelques appels "Test" en dur en attendant un vrai provider (Aircall
+// / Ringover / autre). Les noms sont volontairement labellés Test pour
+// qu'on ne les prenne jamais pour de vrais leads en production.
+const hoursAgo = (h: number) =>
+  new Date(Date.now() - h * 3600 * 1000).toISOString();
+const daysAgo = (d: number) =>
+  new Date(Date.now() - d * 24 * 3600 * 1000).toISOString();
+
+const MOCK_CALLS: Call[] = [
+  {
+    id: 'test-1',
+    startedAt: hoursAgo(1),
+    contactName: 'Test Alpha',
+    phoneNumber: '+33 6 11 11 11 11',
+    durationSec: 187,
+    status: 'NEW',
+  },
+  {
+    id: 'test-2',
+    startedAt: hoursAgo(4),
+    contactName: 'Test Bravo',
+    phoneNumber: '+33 6 22 22 22 22',
+    durationSec: 62,
+    status: 'NEW',
+  },
+  {
+    id: 'test-3',
+    startedAt: daysAgo(1),
+    contactName: 'Test Charlie',
+    phoneNumber: '+33 6 33 33 33 33',
+    durationSec: 415,
+    status: 'CONTACTED',
+  },
+  {
+    id: 'test-4',
+    startedAt: daysAgo(2),
+    contactName: 'Test Delta',
+    phoneNumber: '+33 6 44 44 44 44',
+    durationSec: 28,
+    status: 'NOT_INTERESTED',
+  },
+  {
+    id: 'test-5',
+    startedAt: daysAgo(3),
+    contactName: 'Test Echo',
+    phoneNumber: '+33 6 55 55 55 55',
+    durationSec: 302,
+    status: 'WON',
+  },
+];
 
 // Inner wrapper: aligns page content inside the shared Ink shell Stage
 // with a shared max-width.
@@ -370,6 +417,148 @@ const EmptyState = styled.div`
   font-size: 14px;
   line-height: 1.6;
 `;
+
+// ---------- Feed (style Formulaires / Vue d'ensemble) ----------
+
+const FeedCard = styled.div`
+  background: #ffffff;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
+  padding: 20px 22px;
+  color: ${InkColor};
+`;
+
+const FeedDayLabel = styled.div`
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(20, 20, 28, 0.4);
+  text-transform: uppercase;
+  padding: 14px 4px 8px;
+  &:first-of-type {
+    padding-top: 0;
+  }
+`;
+
+const FeedRow = styled.div`
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 10px;
+  border-radius: 12px;
+  transition: background 140ms ease;
+  &:hover {
+    background: rgba(20, 20, 28, 0.03);
+  }
+`;
+
+const FeedAvatar = styled.span`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+`;
+
+const FeedName = styled.div`
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${InkColor};
+`;
+
+const FeedMeta = styled.div`
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: ${MutedColor};
+  margin-top: 2px;
+`;
+
+const FeedRight = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const FeedTime = styled.span`
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: ${MutedColor};
+`;
+
+const FeedDuration = styled.span`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: ${InkColor};
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(20, 20, 28, 0.05);
+`;
+
+const FeedEmpty = styled.div`
+  padding: 40px 12px;
+  text-align: center;
+  color: ${MutedColor};
+  font-size: 13.5px;
+  line-height: 1.6;
+`;
+
+// Même palette + hashing que la LeadsCard de Vue d'ensemble ·
+// garantit que le même nom donne le même dégradé et les mêmes initiales
+// des deux côtés.
+const AVATAR_GRADIENTS = [
+  'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)',
+  'linear-gradient(135deg, #16a34a 0%, #065f46 100%)',
+  'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
+  'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+] as const;
+
+const hashName = (name: string): number => {
+  let h = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return h;
+};
+
+const avatarGradient = (name: string): string =>
+  AVATAR_GRADIENTS[hashName(name || '?') % AVATAR_GRADIENTS.length];
+
+const buildInitials = (name: string): string => {
+  const parts = (name || '?').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+const feedGroupLabel = (iso?: string | null): string => {
+  if (!iso) return 'Sans date';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return 'Sans date';
+  return d.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+const feedTimeLabel = (iso?: string | null): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
 
 // ---------- Beta modal ----------
 
@@ -765,85 +954,86 @@ export const BuzzleCallsPage = () => {
         </Tile>
       </KpiRow>
 
-      <Table>
-        <TableInner>
-        <TableHead>
-          <div>Date</div>
-          <div>Contact</div>
-          <div>Numéro</div>
-          <div>Durée</div>
-          <div>Statut</div>
-          <div style={{ textAlign: 'right' }}>Actions</div>
-        </TableHead>
-
+      <FeedCard>
         {visibleCalls.length === 0 && (
-          <EmptyState>
+          <FeedEmpty>
             Aucun appel sur cette période.
             <br />
             Ajustez le filtre en haut à droite pour élargir la vue.
-          </EmptyState>
+          </FeedEmpty>
         )}
 
-        {pagedCalls.map((call) => {
-          const meta = getStatusMeta(call.status);
-          const isMenuOpen = openMenuId === call.id;
-
-          return (
-            <TableRow key={call.id}>
-              <DateCell>{formatDate(call.startedAt)}</DateCell>
-              <NameCell>{call.contactName}</NameCell>
-              <DateCell>{call.phoneNumber}</DateCell>
-              <DurationCell>{formatDuration(call.durationSec)}</DurationCell>
-              <div>
-                <StatusPill
-                  bg={meta.bg}
-                  fg={meta.fg}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenuId(isMenuOpen ? null : call.id);
-                  }}
-                >
-                  {meta.label}
-                  <IconChevron />
-                  {isMenuOpen && (
-                    <StatusMenu onClick={(e) => e.stopPropagation()}>
-                      {STATUS_ORDER.map((s) => {
-                        const m = STATUS_META[s];
-                        return (
-                          <StatusMenuItem
-                            key={s}
-                            onClick={() => handleStatusChange(call.id, s)}
-                          >
-                            <StatusDot color={m.dot} />
-                            {m.label}
-                          </StatusMenuItem>
-                        );
-                      })}
-                    </StatusMenu>
-                  )}
-                </StatusPill>
-              </div>
-              <ActionCell>
-                <IconButton
-                  aria-label={`Écouter ${call.contactName}`}
-                  title="Écouter l'enregistrement"
-                  disabled={!call.recordingUrl}
-                >
-                  <IconPlay />
-                </IconButton>
-                <IconButton
-                  aria-label={`Télécharger ${call.contactName}`}
-                  title="Télécharger l'enregistrement"
-                  disabled={!call.recordingUrl}
-                >
-                  <IconDownload />
-                </IconButton>
-              </ActionCell>
-            </TableRow>
-          );
-        })}
-        </TableInner>
-      </Table>
+        {pagedCalls.length > 0 && (() => {
+          const groups: Array<[string, typeof pagedCalls]> = [];
+          for (const call of pagedCalls) {
+            const key = feedGroupLabel(call.startedAt);
+            const last = groups[groups.length - 1];
+            if (last && last[0] === key) {
+              last[1].push(call);
+            } else {
+              groups.push([key, [call]]);
+            }
+          }
+          return groups.map(([day, rows]) => (
+            <div key={day}>
+              <FeedDayLabel>{day}</FeedDayLabel>
+              {rows.map((call) => {
+                const meta = getStatusMeta(call.status);
+                const isMenuOpen = openMenuId === call.id;
+                return (
+                  <FeedRow key={call.id}>
+                    <FeedAvatar
+                      aria-hidden="true"
+                      style={{ background: avatarGradient(call.contactName) }}
+                    >
+                      {buildInitials(call.contactName)}
+                    </FeedAvatar>
+                    <div>
+                      <FeedName>{call.contactName}</FeedName>
+                      <FeedMeta>{call.phoneNumber}</FeedMeta>
+                    </div>
+                    <FeedRight onClick={(e) => e.stopPropagation()}>
+                      <FeedTime>{feedTimeLabel(call.startedAt)}</FeedTime>
+                      <FeedDuration>
+                        {formatDuration(call.durationSec)}
+                      </FeedDuration>
+                      <StatusPill
+                        bg={meta.bg}
+                        fg={meta.fg}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(isMenuOpen ? null : call.id);
+                        }}
+                      >
+                        {meta.label}
+                        <IconChevron />
+                        {isMenuOpen && (
+                          <StatusMenu onClick={(e) => e.stopPropagation()}>
+                            {STATUS_ORDER.map((s) => {
+                              const m = STATUS_META[s];
+                              return (
+                                <StatusMenuItem
+                                  key={s}
+                                  onClick={() =>
+                                    handleStatusChange(call.id, s)
+                                  }
+                                >
+                                  <StatusDot color={m.dot} />
+                                  {m.label}
+                                </StatusMenuItem>
+                              );
+                            })}
+                          </StatusMenu>
+                        )}
+                      </StatusPill>
+                    </FeedRight>
+                  </FeedRow>
+                );
+              })}
+            </div>
+          ));
+        })()}
+      </FeedCard>
 
       <BuzzlePagination
         page={page}
