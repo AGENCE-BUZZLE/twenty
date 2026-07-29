@@ -236,8 +236,7 @@ const FeedAvatar = styled.span`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(126, 55, 254, 0.14);
-  color: ${VioletColor};
+  color: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -528,11 +527,31 @@ const displayEmail = (rawEmail: unknown): string => {
   return '';
 };
 
+// Même palette + hashing que la LeadsCard de Vue d'ensemble · garantit
+// que Thiérry a la même couleur/initiales des deux côtés.
+const AVATAR_GRADIENTS = [
+  'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)',
+  'linear-gradient(135deg, #16a34a 0%, #065f46 100%)',
+  'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
+  'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+] as const;
+
+const hashName = (name: string): number => {
+  let h = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return h;
+};
+
+const avatarGradient = (name: string): string =>
+  AVATAR_GRADIENTS[hashName(name || '?') % AVATAR_GRADIENTS.length];
+
 const buildInitials = (name: string): string => {
-  const parts = name.split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '·';
+  const parts = (name || '?').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
 const feedGroupLabel = (iso?: string | null): string => {
@@ -854,7 +873,12 @@ export const BuzzleContactsPage = () => {
                     type="button"
                     onClick={() => navigate(`/contacts/${row.id}`)}
                   >
-                    <FeedAvatar aria-hidden="true">{initials}</FeedAvatar>
+                    <FeedAvatar
+                      aria-hidden="true"
+                      style={{ background: avatarGradient(rawName) }}
+                    >
+                      {initials}
+                    </FeedAvatar>
                     <div>
                       <FeedName>{name}</FeedName>
                       <FeedMeta>{meta}</FeedMeta>
