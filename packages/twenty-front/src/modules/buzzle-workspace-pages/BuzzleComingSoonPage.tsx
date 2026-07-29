@@ -24,9 +24,9 @@ const Container = styled.div`
 
 const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 42px;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.028em;
+  letter-spacing: -0.02em;
   color: ${InkColor};
   margin: 0 0 14px;
 `;

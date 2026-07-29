@@ -38,7 +38,7 @@ const IconFrame = styled.div`
 
 const Title = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #14141c;

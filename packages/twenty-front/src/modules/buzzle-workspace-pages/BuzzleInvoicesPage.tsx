@@ -79,15 +79,15 @@ const HeaderText = styled.div``;
 
 const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.024em;
+  letter-spacing: -0.02em;
   color: ${InkColor};
   margin: 0;
 
   @media (max-width: 768px) {
-    font-size: 22px;
-    letter-spacing: -0.018em;
+    font-size: 20px;
+    letter-spacing: -0.016em;
   }
 `;
 

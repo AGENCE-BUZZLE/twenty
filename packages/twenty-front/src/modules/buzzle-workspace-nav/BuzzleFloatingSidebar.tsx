@@ -90,11 +90,12 @@ const Pill = styled.button`
 
   // When the sidebar is expanded (data-expanded='true' on the parent
   // Column), the pill turns into a horizontal row that fills the
-  // widened column with an icon-slot + label.
+  // widened column with an icon-slot + label. Height stays 56px so the
+  // vertical rhythm matches the icon-only state.
   &[data-expanded='true'] {
     width: 100%;
-    height: 48px;
-    border-radius: 12px;
+    height: 56px;
+    border-radius: 16px;
     display: grid;
     grid-template-columns: 32px 1fr auto;
     gap: 12px;
