@@ -1,4 +1,5 @@
 import { styled } from '@linaria/react';
+import type { ComponentType } from 'react';
 
 // Shared placeholder for pages that are not yet implemented. Renders a
 // centered card with a title, one-line subtitle, and an SVG icon. Used
@@ -83,7 +84,7 @@ type BuzzleComingSoonPageProps = {
   eyebrow: string;
   title: string;
   lede: string;
-  Icon: () => JSX.Element;
+  Icon: ComponentType;
   cardTitle: string;
   cardSubtitle: string;
 };

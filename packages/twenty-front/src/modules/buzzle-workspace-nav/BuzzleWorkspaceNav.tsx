@@ -1,4 +1,5 @@
 import { styled } from '@linaria/react';
+import type { ComponentType } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconCalendarEvent,
@@ -68,7 +69,7 @@ const IconWrap = styled.span`
 
 type NavItem = {
   label: string;
-  Icon: (props: { size?: number }) => JSX.Element;
+  Icon: ComponentType<{ size?: number }>;
   path: string;
   badge?: string;
   locked?: boolean;
@@ -76,7 +77,7 @@ type NavItem = {
 
 const items: NavItem[] = [
   { label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
-  { label: 'Contacts', Icon: IconUsers, path: '/contacts' },
+  { label: 'Formulaires', Icon: IconUsers, path: '/contacts' },
   {
     label: 'Appels',
     Icon: IconPhone,

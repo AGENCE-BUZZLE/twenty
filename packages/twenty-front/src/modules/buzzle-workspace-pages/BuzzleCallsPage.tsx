@@ -100,33 +100,64 @@ const HeaderActions = styled.div`
   justify-content: flex-end;
 `;
 
-const Grid = styled.div`
+// KPI row shared with Vue d'ensemble · 3 tiles à plat (À traiter en
+// accent violet, Nombre d'appels, Durée totale). À traiter reste sur
+// l'ensemble des appels non qualifiés · les autres suivent la période.
+const KpiRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   margin-bottom: 14px;
-  @media (max-width: 960px) {
+  @media (max-width: 1120px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 560px) {
     grid-template-columns: 1fr;
   }
 `;
 
-// KPI cards restyled to match the Vue d'ensemble tiles.
-const VioletCard = styled.div`
-  background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
-  color: #ffffff;
+const Tile = styled.div`
+  --tile-label: ${MutedColor};
+  --tile-value: ${InkColor};
+  --tile-footer: ${MutedColor};
+  --tile-badge-color: #16a34a;
+  --tile-badge-bg: rgba(22, 163, 74, 0.08);
+  --tile-badge-color-down: #dc2626;
+  --tile-badge-bg-down: rgba(220, 38, 38, 0.08);
+
   border-radius: 22px;
   padding: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(20, 20, 28, 0.08);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 172px;
-  position: relative;
-  overflow: hidden;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease;
 
-  &::after {
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
+  }
+
+  &[data-accent='true'] {
+    --tile-label: rgba(255, 255, 255, 0.72);
+    --tile-value: #ffffff;
+    --tile-footer: rgba(255, 255, 255, 0.78);
+    --tile-badge-color: #ffffff;
+    --tile-badge-bg: rgba(255, 255, 255, 0.16);
+    --tile-badge-color-down: #ffffff;
+    --tile-badge-bg-down: rgba(255, 255, 255, 0.16);
+
+    background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
+    color: #ffffff;
+    border: none;
+    position: relative;
+    overflow: hidden;
+  }
+  &[data-accent='true']::after {
     content: '';
     position: absolute;
     right: -40px;
@@ -137,146 +168,51 @@ const VioletCard = styled.div`
     background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
     pointer-events: none;
   }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
-  }
 `;
 
-const VioletHead = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-`;
-
-const VioletTrend = styled.span<{ tone: 'up' | 'down' | 'flat' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-`;
-
-const VioletLabel = styled.div`
-  font-family: 'Inter', sans-serif;
+const TileLabel = styled.div`
   font-size: 13px;
+  color: var(--tile-label);
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.72);
-  margin-bottom: 4px;
 `;
 
-const VioletValue = styled.div`
+const TileValue = styled.div`
   font-family: 'Inter Tight', 'Inter', sans-serif;
   font-size: 44px;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
   margin: 14px 0 10px 0;
-  color: #ffffff;
+  color: var(--tile-value);
+  position: relative;
+  z-index: 1;
 `;
 
-const VioletSub = styled.div`
-  font-family: 'Inter', sans-serif;
-  color: rgba(255, 255, 255, 0.78);
+const TileFooter = styled.div`
   font-size: 12.5px;
-`;
-
-const DarkCard = styled.div`
-  background: #ffffff;
-  color: ${InkColor};
-  border: 1px solid rgba(20, 20, 28, 0.08);
-  border-radius: 22px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-height: 172px;
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
-  }
-`;
-
-const DarkCardHead = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-`;
-
-const DarkCardTitle = styled.div`
-  font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: ${InkColor};
-`;
-
-const DarkCardSub = styled.div`
-  font-family: 'Inter', sans-serif;
-  color: ${MutedColor};
-  font-size: 12.5px;
-  margin-top: 3px;
-`;
-
-const AssetGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  flex: 1 1 auto;
-  min-height: 0;
-`;
-
-const AssetCard = styled.div`
-  background: rgba(20, 20, 28, 0.03);
-  border-radius: 14px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 8px;
-  height: 100%;
-`;
-
-const AssetHead = styled.div`
+  color: var(--tile-footer);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 `;
 
-const AssetIcon = styled.span<{ tint: string; color: string }>`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: ${({ tint }) => tint};
-  color: ${({ color }) => color};
+const TileBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-`;
-
-const AssetName = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: ${MutedColor};
-`;
-
-const AssetValue = styled.div`
-  font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: ${InkColor};
+  gap: 3px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--tile-badge-color);
+  background: var(--tile-badge-bg);
+  &[data-tone='down'] {
+    color: var(--tile-badge-color-down);
+    background: var(--tile-badge-bg-down);
+  }
 `;
 
 // ---------- Table ----------
@@ -588,56 +524,6 @@ const IconChevron = () => (
   </svg>
 );
 
-const IconArrowUp = () => (
-  <svg
-    width="10"
-    height="10"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <polyline points="17 11 12 6 7 11" />
-    <line x1="12" y1="18" x2="12" y2="6" />
-  </svg>
-);
-
-const IconPhone = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-  </svg>
-);
-
-const IconClock = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
-
 // ---------- Helpers ----------
 
 const formatDate = (raw: string): string => {
@@ -801,6 +687,25 @@ export const BuzzleCallsPage = () => {
   const unqualifiedSummary =
     unqualifiedCount > 0 ? `${unqualifiedCount} à traiter` : 'Tout est traité';
 
+  // Badge court reflétant la période active · aligne les tiles de droite
+  // avec le picker en haut de page.
+  const shortDate = (raw?: string | null) => {
+    if (!raw) return '';
+    try {
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return raw;
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+    } catch {
+      return raw ?? '';
+    }
+  };
+  const periodLabel = (() => {
+    if (period === 'today') return "Aujourd'hui";
+    if (period === 'week') return 'Cette semaine';
+    if (period === 'month') return 'Ce mois';
+    return `${shortDate(customStart)} → ${shortDate(customEnd)}`;
+  })();
+
   const handleStatusChange = (id: string, status: CallStatus) => {
     setCalls((prev) => prev.map((c) => (c.id === id ? { ...c, status } : c)));
     setOpenMenuId(null);
@@ -827,69 +732,38 @@ export const BuzzleCallsPage = () => {
         </HeaderText>
       </HeaderRow>
 
-      <Grid>
-        <VioletCard>
-          <VioletHead>
-            <VioletTrend tone={unqualifiedTrend}>
-              <IconArrowUp /> {unqualifiedSummary}
-            </VioletTrend>
-          </VioletHead>
+      <KpiRow>
+        <Tile data-accent="true">
+          <TileLabel>À traiter</TileLabel>
+          <TileValue>{unqualifiedCount}</TileValue>
+          <TileFooter>
+            <TileBadge data-tone={unqualifiedTrend}>
+              {unqualifiedSummary}
+            </TileBadge>
+            <span>
+              {unqualifiedCount > 0
+                ? 'en attente de qualification, toutes périodes'
+                : 'tout est à jour'}
+            </span>
+          </TileFooter>
+        </Tile>
 
-          <div>
-            <VioletLabel>À traiter</VioletLabel>
-            <VioletValue>{unqualifiedCount}</VioletValue>
-            {unqualifiedCount > 0 ? (
-              <VioletSub>
-                {unqualifiedCount} appel{unqualifiedCount > 1 ? 's' : ''} en
-                attente de qualification, quelle que soit la période.
-              </VioletSub>
-            ) : (
-              <VioletSub>
-                Tous les appels ont été qualifiés, aucune action requise.
-              </VioletSub>
-            )}
-          </div>
-        </VioletCard>
+        <Tile>
+          <TileLabel>Nombre d'appels</TileLabel>
+          <TileValue>{totalInPeriod}</TileValue>
+          <TileFooter>
+            <TileBadge>{periodLabel}</TileBadge>
+          </TileFooter>
+        </Tile>
 
-        <DarkCard>
-          <DarkCardHead>
-            <div>
-              <DarkCardTitle>Historique</DarkCardTitle>
-              <DarkCardSub>
-                Appels reçus sur la période active
-              </DarkCardSub>
-            </div>
-          </DarkCardHead>
-
-          <AssetGrid>
-            <AssetCard>
-              <AssetHead>
-                <AssetIcon tint="rgba(34, 185, 114, 0.24)" color="#a7f4c9">
-                  <IconPhone />
-                </AssetIcon>
-                <div>
-                  <AssetName>Nombre d'appels</AssetName>
-                </div>
-              </AssetHead>
-              <AssetValue>{totalInPeriod}</AssetValue>
-            </AssetCard>
-
-            <AssetCard>
-              <AssetHead>
-                <AssetIcon tint="rgba(126, 55, 254, 0.28)" color="#c9b7ff">
-                  <IconClock />
-                </AssetIcon>
-                <div>
-                  <AssetName>Durée totale</AssetName>
-                </div>
-              </AssetHead>
-              <AssetValue>
-                {formatDurationLabel(totalDurationInPeriod)}
-              </AssetValue>
-            </AssetCard>
-          </AssetGrid>
-        </DarkCard>
-      </Grid>
+        <Tile>
+          <TileLabel>Durée totale</TileLabel>
+          <TileValue>{formatDurationLabel(totalDurationInPeriod)}</TileValue>
+          <TileFooter>
+            <TileBadge>{periodLabel}</TileBadge>
+          </TileFooter>
+        </Tile>
+      </KpiRow>
 
       <Table>
         <TableInner>

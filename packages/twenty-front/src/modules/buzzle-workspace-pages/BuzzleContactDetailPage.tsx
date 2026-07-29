@@ -773,7 +773,7 @@ export const BuzzleContactDetailPage = () => {
       <TopRow>
         <BackButton onClick={() => navigate('/contacts')}>
           <IconArrowLeft />
-          Retour aux contacts
+          Retour aux formulaires
         </BackButton>
       </TopRow>
 

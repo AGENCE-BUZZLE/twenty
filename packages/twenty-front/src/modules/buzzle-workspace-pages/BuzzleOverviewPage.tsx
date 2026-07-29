@@ -942,7 +942,7 @@ const StageTitle = styled.h2`
 
 const KpiRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   margin-bottom: 14px;
   @media (max-width: 1120px) {
@@ -1524,7 +1524,15 @@ export const BuzzleOverviewPage = () => {
     }
   };
 
-  const contactsAllTime = allContacts.length;
+  // Label court reflétant la période active · évite les badges statiques
+  // "sur la période" / "total base" qui ne veulent rien dire quand le
+  // picker de période est juste au-dessus.
+  const periodLabel = (() => {
+    if (period === 'today') return "Aujourd'hui";
+    if (period === 'week') return 'Cette semaine';
+    if (period === 'month') return 'Ce mois';
+    return `${formatShortDate(customStart)} → ${formatShortDate(customEnd)}`;
+  })();
 
   const kpiTiles = (
     <KpiRow>
@@ -1546,18 +1554,10 @@ export const BuzzleOverviewPage = () => {
       </Tile>
 
       <Tile>
-        <TileLabel>Contacts</TileLabel>
+        <TileLabel>Formulaires</TileLabel>
         <TileValue>{contactTotal}</TileValue>
         <TileFooter>
-          <TileBadge>sur la période</TileBadge>
-        </TileFooter>
-      </Tile>
-
-      <Tile>
-        <TileLabel>Formulaires</TileLabel>
-        <TileValue>{contactsAllTime}</TileValue>
-        <TileFooter>
-          <TileBadge>total base</TileBadge>
+          <TileBadge>{periodLabel}</TileBadge>
         </TileFooter>
       </Tile>
 
@@ -1565,7 +1565,7 @@ export const BuzzleOverviewPage = () => {
         <TileLabel>Appels</TileLabel>
         <TileValue>{MOCK_CALLS_TOTAL}</TileValue>
         <TileFooter>
-          <TileBadge>sur la période</TileBadge>
+          <TileBadge>{periodLabel}</TileBadge>
         </TileFooter>
       </Tile>
     </KpiRow>

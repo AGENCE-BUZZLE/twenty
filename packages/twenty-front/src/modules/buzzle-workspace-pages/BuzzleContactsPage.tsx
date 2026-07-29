@@ -74,35 +74,64 @@ const HeaderActions = styled.div`
   justify-content: flex-end;
 `;
 
-const Grid = styled.div`
+// KPI row shared with Vue d'ensemble · 3 tiles à plat (À qualifier en
+// accent violet, Reçus, Validés). À qualifier ignore la période et
+// reste toujours visible · les deux autres suivent la période active.
+const KpiRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   margin-bottom: 14px;
-  @media (max-width: 960px) {
+  @media (max-width: 1120px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 560px) {
     grid-template-columns: 1fr;
   }
 `;
 
-// KPI cards restyled to match the Vue d'ensemble tiles: 22 px radius,
-// hairline border on the white variant, gradient violet on the accent
-// variant, Inter Tight big-number values, muted-ink footers.
-const VioletCard = styled.div`
-  background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
-  color: #ffffff;
+const Tile = styled.div`
+  --tile-label: ${MutedColor};
+  --tile-value: ${InkColor};
+  --tile-footer: ${MutedColor};
+  --tile-badge-color: #16a34a;
+  --tile-badge-bg: rgba(22, 163, 74, 0.08);
+  --tile-badge-color-down: #dc2626;
+  --tile-badge-bg-down: rgba(220, 38, 38, 0.08);
+
   border-radius: 22px;
   padding: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(20, 20, 28, 0.08);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 172px;
-  position: relative;
-  overflow: hidden;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease;
 
-  &::after {
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
+  }
+
+  &[data-accent='true'] {
+    --tile-label: rgba(255, 255, 255, 0.72);
+    --tile-value: #ffffff;
+    --tile-footer: rgba(255, 255, 255, 0.78);
+    --tile-badge-color: #ffffff;
+    --tile-badge-bg: rgba(255, 255, 255, 0.16);
+    --tile-badge-color-down: #ffffff;
+    --tile-badge-bg-down: rgba(255, 255, 255, 0.16);
+
+    background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
+    color: #ffffff;
+    border: none;
+    position: relative;
+    overflow: hidden;
+  }
+  &[data-accent='true']::after {
     content: '';
     position: absolute;
     right: -40px;
@@ -113,146 +142,151 @@ const VioletCard = styled.div`
     background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
     pointer-events: none;
   }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
-  }
 `;
 
-const VioletHead = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-`;
-
-const VioletTrend = styled.span<{ tone: 'up' | 'down' | 'flat' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-`;
-
-const VioletLabel = styled.div`
-  font-family: 'Inter', sans-serif;
+const TileLabel = styled.div`
   font-size: 13px;
+  color: var(--tile-label);
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.72);
-  margin-bottom: 4px;
 `;
 
-const VioletValue = styled.div`
+const TileValue = styled.div`
   font-family: 'Inter Tight', 'Inter', sans-serif;
   font-size: 44px;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
   margin: 14px 0 10px 0;
-  color: #ffffff;
+  color: var(--tile-value);
+  position: relative;
+  z-index: 1;
 `;
 
-const VioletSub = styled.div`
-  font-family: 'Inter', sans-serif;
-  color: rgba(255, 255, 255, 0.78);
+const TileFooter = styled.div`
   font-size: 12.5px;
+  color: var(--tile-footer);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 `;
 
-const DarkCard = styled.div`
-  background: #ffffff;
-  color: ${InkColor};
-  border: 1px solid rgba(20, 20, 28, 0.08);
-  border-radius: 22px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-height: 172px;
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(20, 20, 28, 0.06);
+const TileBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--tile-badge-color);
+  background: var(--tile-badge-bg);
+  &[data-tone='down'] {
+    color: var(--tile-badge-color-down);
+    background: var(--tile-badge-bg-down);
   }
 `;
 
-const DarkCardHead = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-`;
+// ---------- Feed (style Vue d'ensemble) ----------
 
-const DarkCardTitle = styled.div`
-  font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+const FeedCard = styled.div`
+  background: #ffffff;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
+  padding: 20px 22px;
   color: ${InkColor};
 `;
 
-const DarkCardSub = styled.div`
+const FeedDayLabel = styled.div`
   font-family: 'Inter', sans-serif;
-  color: ${MutedColor};
-  font-size: 12.5px;
-  margin-top: 3px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(20, 20, 28, 0.4);
+  text-transform: uppercase;
+  padding: 14px 4px 8px;
+  &:first-of-type {
+    padding-top: 0;
+  }
 `;
 
-const AssetGrid = styled.div`
+const FeedRow = styled.button`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  flex: 1 1 auto;
-  min-height: 0;
-`;
-
-const AssetCard = styled.div`
-  background: rgba(20, 20, 28, 0.03);
-  border-radius: 14px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 8px;
-  height: 100%;
-`;
-
-const AssetHead = styled.div`
-  display: flex;
+  grid-template-columns: 40px 1fr auto;
+  gap: 12px;
   align-items: center;
-  gap: 10px;
+  padding: 12px 10px;
+  border-radius: 12px;
+  transition: background 140ms ease;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+  &:hover {
+    background: rgba(20, 20, 28, 0.03);
+  }
 `;
 
-const AssetIcon = styled.span<{ tint: string; color: string }>`
-  width: 36px;
-  height: 36px;
+const FeedAvatar = styled.span`
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: ${({ tint }) => tint};
-  color: ${({ color }) => color};
+  background: rgba(126, 55, 254, 0.14);
+  color: ${VioletColor};
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 `;
 
-const AssetName = styled.div`
+const FeedName = styled.div`
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${InkColor};
+`;
+
+const FeedMeta = styled.div`
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: ${MutedColor};
+  margin-top: 2px;
+`;
+
+const FeedRight = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const FeedTime = styled.span`
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
   color: ${MutedColor};
 `;
 
-const AssetValue = styled.div`
+const FeedEmpty = styled.div`
+  padding: 40px 12px;
+  text-align: center;
+  color: ${MutedColor};
+  font-size: 13.5px;
+  line-height: 1.6;
+`;
+
+const FeedEmptyTitle = styled.div`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 15px;
+  font-weight: 600;
   color: ${InkColor};
+  margin-bottom: 4px;
 `;
 
 // ---------- Table ----------
@@ -442,28 +476,6 @@ const IconChevronDown = () => (
   </svg>
 );
 
-const IconArrowUp = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <polyline points="17 11 12 6 7 11" />
-    <line x1="12" y1="18" x2="12" y2="6" />
-  </svg>
-);
-
-const IconUsers = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-  </svg>
-);
-
-const IconCheck = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-
 // ---------- Helpers ----------
 
 const formatDateTime = (iso?: string | null) => {
@@ -494,6 +506,54 @@ const displayPhone = (rawPhone: unknown): string => {
   };
   if (!p.primaryPhoneNumber) return '';
   return `${p.primaryPhoneCallingCode ?? ''} ${p.primaryPhoneNumber}`.trim();
+};
+
+// Contact.name arrive soit en string (formulaires legacy Buzzle) soit en
+// objet {firstName, lastName} pour les records Twenty · on gère les deux.
+const displayName = (rawName: unknown): string => {
+  if (typeof rawName === 'string') return rawName.trim();
+  if (rawName && typeof rawName === 'object') {
+    const n = rawName as { firstName?: string; lastName?: string };
+    return `${n.firstName ?? ''} ${n.lastName ?? ''}`.trim();
+  }
+  return '';
+};
+
+const displayEmail = (rawEmail: unknown): string => {
+  if (typeof rawEmail === 'string') return rawEmail;
+  if (rawEmail && typeof rawEmail === 'object') {
+    const e = rawEmail as { primaryEmail?: string };
+    return e.primaryEmail ?? '';
+  }
+  return '';
+};
+
+const buildInitials = (name: string): string => {
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '·';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase();
+};
+
+const feedGroupLabel = (iso?: string | null): string => {
+  if (!iso) return 'Sans date';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return 'Sans date';
+  return d.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+const feedTimeLabel = (iso?: string | null): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 };
 
 
@@ -653,6 +713,26 @@ export const BuzzleContactsPage = () => {
 
   const unqualifiedCount = unqualifiedContacts.length;
   const unqualifiedTrend = unqualifiedCount > 0 ? 'down' : 'up';
+
+  // Badge court reflétant la période active · aligne les tiles Reçus /
+  // Validés avec le picker en haut de page.
+  const shortDate = (raw?: string | null) => {
+    if (!raw) return '';
+    try {
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return raw;
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+    } catch {
+      return raw ?? '';
+    }
+  };
+  const periodLabel = (() => {
+    if (period === 'today') return "Aujourd'hui";
+    if (period === 'week') return 'Cette semaine';
+    if (period === 'month') return 'Ce mois';
+    return `${shortDate(customStart)} → ${shortDate(customEnd)}`;
+  })();
+
   const unqualifiedSummary =
     unqualifiedCount > 0 ? `${unqualifiedCount} à qualifier` : 'Tout est traité';
 
@@ -672,159 +752,124 @@ export const BuzzleContactsPage = () => {
       <Container>
       <HeaderRow>
         <HeaderText>
-          <PageTitle>Contacts</PageTitle>
+          <PageTitle>Formulaires</PageTitle>
         </HeaderText>
       </HeaderRow>
 
-      <Grid>
-        <VioletCard>
-          <VioletHead>
-            <VioletTrend tone={unqualifiedTrend}>
-              <IconArrowUp /> {unqualifiedSummary}
-            </VioletTrend>
-          </VioletHead>
+      <KpiRow>
+        <Tile data-accent="true">
+          <TileLabel>À qualifier</TileLabel>
+          <TileValue>{unqualifiedCount}</TileValue>
+          <TileFooter>
+            <TileBadge data-tone={unqualifiedTrend}>
+              {unqualifiedSummary}
+            </TileBadge>
+            <span>
+              {unqualifiedCount > 0
+                ? 'en attente de qualification, toutes périodes'
+                : 'tout est à jour'}
+            </span>
+          </TileFooter>
+        </Tile>
 
-          <div>
-            <VioletLabel>À qualifier</VioletLabel>
-            <VioletValue>{unqualifiedCount}</VioletValue>
-            {unqualifiedCount > 0 ? (
-              <VioletSub>
-                {unqualifiedCount} lead{unqualifiedCount > 1 ? 's' : ''} en
-                attente de qualification, quelle que soit la période.
-              </VioletSub>
-            ) : (
-              <VioletSub>
-                Tous les leads reçus ont été qualifiés, bon travail.
-              </VioletSub>
-            )}
-          </div>
-        </VioletCard>
+        <Tile>
+          <TileLabel>Reçus</TileLabel>
+          <TileValue>
+            {
+              allContacts.filter((r) =>
+                inRange(
+                  typeof r.createdAt === 'string' ? r.createdAt : null,
+                ),
+              ).length
+            }
+          </TileValue>
+          <TileFooter>
+            <TileBadge>{periodLabel}</TileBadge>
+          </TileFooter>
+        </Tile>
 
-        <DarkCard>
-          <DarkCardHead>
-            <div>
-              <DarkCardTitle>Historique</DarkCardTitle>
-              <DarkCardSub>
-                Contacts reçus et qualifiés sur la période active
-              </DarkCardSub>
-            </div>
-          </DarkCardHead>
+        <Tile>
+          <TileLabel>Validés</TileLabel>
+          <TileValue>{validatedInPeriod.length}</TileValue>
+          <TileFooter>
+            <TileBadge>{periodLabel}</TileBadge>
+          </TileFooter>
+        </Tile>
+      </KpiRow>
 
-          <AssetGrid>
-            <AssetCard>
-              <AssetHead>
-                <AssetIcon tint="rgba(126, 55, 254, 0.28)" color="#c9b7ff">
-                  <IconUsers />
-                </AssetIcon>
-                <div>
-                  <AssetName>Reçus</AssetName>
-                </div>
-              </AssetHead>
-              <AssetValue>
-                {
-                  allContacts.filter((r) =>
-                    inRange(
-                      typeof r.createdAt === 'string' ? r.createdAt : null,
-                    ),
-                  ).length
-                }
-              </AssetValue>
-            </AssetCard>
+      <FeedCard>
+        {notInitialised && (
+          <FeedEmpty>
+            <FeedEmptyTitle>
+              Ce workspace n'est pas encore initialisé
+            </FeedEmptyTitle>
+            L'objet Formulaire sera provisionné par Buzzle. Vos leads
+            arriveront ici automatiquement.
+          </FeedEmpty>
+        )}
 
-            <AssetCard>
-              <AssetHead>
-                <AssetIcon tint="rgba(34, 185, 114, 0.24)" color="#a7f4c9">
-                  <IconCheck />
-                </AssetIcon>
-                <div>
-                  <AssetName>Validés</AssetName>
-                </div>
-              </AssetHead>
-              <AssetValue>{validatedInPeriod.length}</AssetValue>
-            </AssetCard>
-          </AssetGrid>
-        </DarkCard>
-      </Grid>
+        {!notInitialised && loading && visibleContacts.length === 0 && (
+          <FeedEmpty>Chargement des formulaires.</FeedEmpty>
+        )}
 
-      <TableWrap>
-        <TableInner>
-        <Table>
-          <thead>
-            <tr>
-              <Th style={{ width: 200 }}>Date</Th>
-              <Th>Nom complet</Th>
-              <Th style={{ width: 240, textAlign: 'right' }}>Informations</Th>
-              <Th style={{ width: 160, textAlign: 'right' }}>Statut</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {notInitialised && (
-              <TableRow>
-                <Td colSpan={4}>
-                  <EmptyStateCell>
-                    <EmptyStateTitle>
-                      Ce workspace n'est pas encore initialisé
-                    </EmptyStateTitle>
-                    L'objet Contact sera provisionné par Buzzle. Vos leads
-                    arriveront ici automatiquement.
-                  </EmptyStateCell>
-                </Td>
-              </TableRow>
-            )}
+        {!notInitialised && !loading && visibleContacts.length === 0 && (
+          <FeedEmpty>
+            <FeedEmptyTitle>Aucun formulaire sur cette période</FeedEmptyTitle>
+            Ajustez le filtre en haut à droite pour élargir la vue.
+          </FeedEmpty>
+        )}
 
-            {!notInitialised && loading && visibleContacts.length === 0 && (
-              <TableRow>
-                <Td colSpan={4}>
-                  <EmptyStateCell>Chargement des contacts.</EmptyStateCell>
-                </Td>
-              </TableRow>
-            )}
-
-            {!notInitialised && !loading && visibleContacts.length === 0 && (
-              <TableRow>
-                <Td colSpan={4}>
-                  <EmptyStateCell>
-                    <EmptyStateTitle>Aucun contact sur cette période</EmptyStateTitle>
-                    Ajustez le filtre en haut à droite pour élargir la vue.
-                  </EmptyStateCell>
-                </Td>
-              </TableRow>
-            )}
-
-            {pagedRows.map((row) => {
-              const status = typeof row.status === 'string' ? row.status : 'NEW';
-              const meta = getStatusMeta(status);
-              const isMenuOpen = openStatusMenuFor === row.id;
-              return (
-                <TableRow key={row.id}>
-                  <Td>
-                    <DateCell>{formatDateTime(row.createdAt)}</DateCell>
-                  </Td>
-                  <Td>
-                    <NameCell>
-                      {typeof row.name === 'string'
-                        ? row.name || '(Sans nom)'
-                        : '(Sans nom)'}
-                    </NameCell>
-                  </Td>
-                  <Td>
-                    <RightAlign>
-                      <ViewButton onClick={() => navigate(`/contacts/${row.id}`)}>
-                        <IconEye /> Informations
-                      </ViewButton>
-                    </RightAlign>
-                  </Td>
-                  <Td>
-                    <RightAlign>
+        {pagedRows.length > 0 && (() => {
+          const groups: Array<[string, typeof pagedRows]> = [];
+          for (const row of pagedRows) {
+            const iso =
+              typeof row.createdAt === 'string' ? row.createdAt : null;
+            const key = feedGroupLabel(iso);
+            const last = groups[groups.length - 1];
+            if (last && last[0] === key) {
+              last[1].push(row);
+            } else {
+              groups.push([key, [row]]);
+            }
+          }
+          return groups.map(([day, rows]) => (
+            <div key={day}>
+              <FeedDayLabel>{day}</FeedDayLabel>
+              {rows.map((row) => {
+                const rawName = displayName(row.name);
+                const name = rawName || 'Sans nom';
+                const initials = buildInitials(rawName);
+                const email = displayEmail(row.email);
+                const phone = displayPhone(row.phone);
+                const meta = email || phone || '—';
+                const status =
+                  typeof row.status === 'string' ? row.status : 'NEW';
+                const statusMeta = getStatusMeta(status);
+                const isMenuOpen = openStatusMenuFor === row.id;
+                const iso =
+                  typeof row.createdAt === 'string' ? row.createdAt : null;
+                return (
+                  <FeedRow
+                    key={row.id}
+                    type="button"
+                    onClick={() => navigate(`/contacts/${row.id}`)}
+                  >
+                    <FeedAvatar aria-hidden="true">{initials}</FeedAvatar>
+                    <div>
+                      <FeedName>{name}</FeedName>
+                      <FeedMeta>{meta}</FeedMeta>
+                    </div>
+                    <FeedRight onClick={(e) => e.stopPropagation()}>
+                      <FeedTime>{feedTimeLabel(iso)}</FeedTime>
                       <StatusPill
-                        bg={meta.bg}
-                        fg={meta.fg}
+                        bg={statusMeta.bg}
+                        fg={statusMeta.fg}
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenStatusMenuFor(isMenuOpen ? null : row.id);
                         }}
                       >
-                        {meta.label}
+                        {statusMeta.label}
                         <IconChevronDown />
                         {isMenuOpen && (
                           <StatusMenu onClick={(e) => e.stopPropagation()}>
@@ -833,7 +878,9 @@ export const BuzzleContactsPage = () => {
                               return (
                                 <StatusMenuItem
                                   key={s}
-                                  onClick={() => handleStatusChange(row.id, s)}
+                                  onClick={() =>
+                                    handleStatusChange(row.id, s)
+                                  }
                                 >
                                   <StatusDot color={m.dot} />
                                   {m.label}
@@ -843,15 +890,14 @@ export const BuzzleContactsPage = () => {
                           </StatusMenu>
                         )}
                       </StatusPill>
-                    </RightAlign>
-                  </Td>
-                </TableRow>
-              );
-            })}
-          </tbody>
-        </Table>
-        </TableInner>
-      </TableWrap>
+                    </FeedRight>
+                  </FeedRow>
+                );
+              })}
+            </div>
+          ));
+        })()}
+      </FeedCard>
 
       <BuzzlePagination
         page={page}

@@ -166,7 +166,7 @@ type NavItem = BuzzleNavItem;
 
 export const BUZZLE_NAV_ITEMS: BuzzleNavItem[] = [
   { key: 'home', label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
-  { key: 'contacts', label: 'Contacts', Icon: IconUsers, path: '/contacts' },
+  { key: 'contacts', label: 'Formulaires', Icon: IconUsers, path: '/contacts' },
   {
     key: 'calls',
     label: 'Appels',
