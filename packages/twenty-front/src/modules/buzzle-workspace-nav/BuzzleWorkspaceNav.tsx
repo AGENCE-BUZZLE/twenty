@@ -94,6 +94,7 @@ const items: NavItem[] = [
     label: 'Audit SEO/GEO',
     Icon: IconWorldWww,
     path: '/audit-seo-geo',
+    locked: true,
   },
 ];
 
