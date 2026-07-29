@@ -1,5 +1,5 @@
 import { styled } from '@linaria/react';
-import { IconLayoutList, IconX } from 'twenty-ui/icon';
+import { IconBaselineDensitySmall, IconX } from 'twenty-ui/icon';
 
 import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
@@ -18,31 +18,27 @@ const Wrap = styled.div`
   z-index: 3;
 `;
 
-const Pill = styled.button`
-  position: relative;
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
+const IconButton = styled.button`
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #ffffff;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition:
-    background 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+  border: 0;
   padding: 0;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 0;
+  transition: color 160ms ease, opacity 160ms ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-1px);
+    color: #ffffff;
   }
 
-  &[data-open='true'] {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.28);
+  &:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.4);
+    outline-offset: 4px;
+    border-radius: 4px;
   }
 `;
 
@@ -51,15 +47,18 @@ export const BuzzleFloatingHamburger = () => {
 
   return (
     <Wrap>
-      <Pill
+      <IconButton
         type="button"
-        data-open={expanded}
         onClick={() => setExpanded((prev) => !prev)}
         aria-label={expanded ? 'Fermer la navigation' : 'Ouvrir la navigation'}
         aria-pressed={expanded}
       >
-        {expanded ? <IconX size={22} /> : <IconLayoutList size={22} />}
-      </Pill>
+        {expanded ? (
+          <IconX size={26} stroke={1.75} />
+        ) : (
+          <IconBaselineDensitySmall size={26} stroke={1.75} />
+        )}
+      </IconButton>
     </Wrap>
   );
 };
