@@ -13,6 +13,7 @@ import {
 
 import { currentUserState } from '@/auth/states/currentUserState';
 import { BuzzleFloatingSettingsPill } from '@/buzzle-workspace-nav/BuzzleFloatingSettingsPill';
+import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 // Floating pill sidebar used on the /overview shell. Each nav item is
@@ -29,6 +30,10 @@ const Column = styled.nav`
   gap: 10px;
   align-self: stretch;
   z-index: 2;
+
+  &[data-expanded='true'] {
+    width: 100%;
+  }
 `;
 
 const Spacer = styled.div`
@@ -51,9 +56,15 @@ const Pill = styled.button`
   transition:
     background 160ms ease,
     color 160ms ease,
-    transform 160ms ease;
+    transform 160ms ease,
+    width 200ms ease;
   backdrop-filter: blur(8px);
   padding: 0;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
 
   &:hover {
     color: #14141c;
@@ -75,6 +86,20 @@ const Pill = styled.button`
   &[data-locked='true']:hover {
     transform: none;
     color: rgba(20, 20, 28, 0.35);
+  }
+
+  // When the sidebar is expanded (data-expanded='true' on the parent
+  // Column), the pill turns into a horizontal row that fills the
+  // widened column with an icon-slot + label.
+  &[data-expanded='true'] {
+    width: 100%;
+    height: 48px;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 12px;
+    place-items: center start;
+    padding: 0 14px;
   }
 `;
 
@@ -119,6 +144,13 @@ const Tip = styled.span`
     opacity: 1;
     transform: translateY(-50%) translateX(2px);
   }
+`;
+
+const InlineLabel = styled.span`
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export type BuzzleNavItem = {
@@ -168,6 +200,7 @@ export const BuzzleFloatingSidebar = () => {
   // only there to hide the WIP pages from client users.
   const currentUser = useAtomStateValue(currentUserState);
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
+  const expanded = useAtomStateValue(buzzleSidebarExpandedState);
 
   const isActive = (path: string): boolean => {
     if (path === '/overview') {
@@ -188,7 +221,7 @@ export const BuzzleFloatingSidebar = () => {
   };
 
   return (
-    <Column aria-label="Navigation principale">
+    <Column aria-label="Navigation principale" data-expanded={expanded}>
       {items.map((item) => {
         const IconCmp = item.Icon;
         const active = isActive(item.path);
@@ -199,19 +232,22 @@ export const BuzzleFloatingSidebar = () => {
             type="button"
             data-active={active}
             data-locked={locked}
+            data-expanded={expanded}
             onClick={() => handleClick(item)}
             aria-label={item.label}
             aria-current={active ? 'page' : undefined}
             aria-disabled={locked}
           >
             <IconCmp size={22} />
-            {item.badge && <Dot />}
-            {locked && (
+            {expanded && <InlineLabel>{item.label}</InlineLabel>}
+            {expanded && locked && <IconLock size={14} />}
+            {!expanded && item.badge && <Dot />}
+            {!expanded && locked && (
               <LockCorner aria-hidden="true">
                 <IconLock size={11} />
               </LockCorner>
             )}
-            <Tip>{item.label}</Tip>
+            {!expanded && <Tip>{item.label}</Tip>}
           </Pill>
         );
       })}

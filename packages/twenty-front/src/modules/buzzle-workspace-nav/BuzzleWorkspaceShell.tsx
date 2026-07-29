@@ -6,6 +6,8 @@ import { IconBell } from 'twenty-ui/icon';
 import { BuzzleFloatingHamburger } from '@/buzzle-workspace-nav/BuzzleFloatingHamburger';
 import { BuzzleFloatingSidebar } from '@/buzzle-workspace-nav/BuzzleFloatingSidebar';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
+import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { useBuzzleUnreadLeads } from '@/buzzle-workspace-nav/useBuzzleUnreadLeads';
 
 // Shared Ink shell wrapper: renders the pill sidebar + logo top-bar +
@@ -34,6 +36,11 @@ const ShellGrid = styled.div`
   overflow: hidden;
   color: ${InkColor};
   box-sizing: border-box;
+  transition: grid-template-columns 200ms ease;
+
+  &[data-sidebar-expanded='true'] {
+    grid-template-columns: 240px 1fr;
+  }
 
   @media (max-width: 768px) {
     height: auto;
@@ -338,6 +345,7 @@ export const BuzzleWorkspaceShell = ({
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
   const { unread, count, markAllRead, markOneRead } = useBuzzleUnreadLeads();
+  const sidebarExpanded = useAtomStateValue(buzzleSidebarExpandedState);
 
   useEffect(() => {
     if (!notifOpen) return;
@@ -354,7 +362,7 @@ export const BuzzleWorkspaceShell = ({
   }, [notifOpen]);
 
   return (
-    <ShellGrid>
+    <ShellGrid data-sidebar-expanded={sidebarExpanded}>
       <LogoBlock aria-label="Buzzle CRM">
         <LogoImg src="/images/buzzle-crm-white.png" alt="Buzzle CRM" />
       </LogoBlock>

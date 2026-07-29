@@ -9,6 +9,7 @@ import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { BuzzleFloatingHamburger } from '@/buzzle-workspace-nav/BuzzleFloatingHamburger';
 import { BuzzleFloatingSidebar } from '@/buzzle-workspace-nav/BuzzleFloatingSidebar';
 import { BuzzleOverviewShellHeader } from '@/buzzle-workspace-nav/BuzzleOverviewShellHeader';
+import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
 import { BuzzleLeadDrawer, type BuzzleLeadDrawerField } from '@/buzzle-workspace-pages/BuzzleLeadDrawer';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
@@ -881,6 +882,11 @@ const ShellGrid = styled.div`
   overflow: hidden;
   color: ${InkColor};
   box-sizing: border-box;
+  transition: grid-template-columns 200ms ease;
+
+  &[data-sidebar-expanded='true'] {
+    grid-template-columns: 240px 1fr;
+  }
 
   @media (max-width: 768px) {
     height: auto;
@@ -1071,6 +1077,7 @@ type Period = 'today' | 'week' | 'month' | 'custom';
 export const BuzzleOverviewPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const sidebarExpanded = useAtomStateValue(buzzleSidebarExpandedState);
   const currentUser = useAtomStateValue(currentUserState);
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const displayName = currentUser?.firstName ?? '';
@@ -1836,7 +1843,7 @@ export const BuzzleOverviewPage = () => {
 
   if (!isMobile) {
     return (
-      <ShellGrid>
+      <ShellGrid data-sidebar-expanded={sidebarExpanded}>
         <BuzzleFloatingHamburger />
         <BuzzleFloatingSidebar />
         <BuzzleOverviewShellHeader
