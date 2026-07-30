@@ -15,11 +15,11 @@ const AccentColor = '#5b4bff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Card = styled.div`
-  border: 1px solid ${InkColor};
-  border-radius: 12px;
-  background: ${InkColor};
-  color: ${SurfaceColor};
-  padding: 28px 32px;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
+  background: ${SurfaceColor};
+  color: ${InkColor};
+  padding: 26px 28px 28px;
 `;
 
 const SectionHead = styled.div`
@@ -31,13 +31,14 @@ const SectionHead = styled.div`
 
 const SectionTitle = styled.div`
   font-family: 'Inter Tight', sans-serif;
-  font-size: 17px;
-  font-weight: 500;
-  color: ${SurfaceColor};
+  font-size: 16px;
+  font-weight: 600;
+  color: ${InkColor};
+  letter-spacing: -0.01em;
 `;
 
 const SectionSubtitle = styled.div`
-  color: rgba(255, 255, 255, 0.72);
+  color: ${MutedColor};
   font-size: 13px;
   margin-top: 2px;
 `;
@@ -61,28 +62,27 @@ const Field = styled.div`
 `;
 
 const Label = styled.label`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: ${MutedColor};
 `;
 
 const Input = styled.input`
   padding: 11px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 6px;
+  border: 1px solid rgba(20, 20, 28, 0.14);
+  border-radius: 10px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: ${InkColor};
   background: ${SurfaceColor};
   &:focus {
     outline: none;
-    border-color: ${SurfaceColor};
+    border-color: ${InkColor};
   }
   &:disabled {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.55);
+    background: rgba(20, 20, 28, 0.04);
+    color: ${MutedColor};
     cursor: not-allowed;
   }
 `;
@@ -92,19 +92,21 @@ const Actions = styled.div`
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+  align-items: center;
 `;
 
 const SubmitButton = styled.button`
-  background: ${SurfaceColor};
-  color: ${InkColor};
-  border: 1px solid ${SurfaceColor};
+  background: ${InkColor};
+  color: ${SurfaceColor};
+  border: 0;
   padding: 10px 20px;
-  border-radius: 6px;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   &:hover {
-    opacity: 0.88;
+    opacity: 0.9;
   }
   &:disabled {
     opacity: 0.4;
@@ -113,14 +115,12 @@ const SubmitButton = styled.button`
 `;
 
 const SavedBadge = styled.span<{ visible: boolean }>`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: ${AccentColor};
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #16a34a;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transition: opacity 0.25s;
-  align-self: center;
 `;
 
 export const BuzzleProfileSettings = () => {

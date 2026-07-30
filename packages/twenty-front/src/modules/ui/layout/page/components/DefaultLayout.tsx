@@ -144,8 +144,7 @@ export const DefaultLayout = () => {
     '/invoices',
     '/audit-seo-geo',
     '/rendez-vous',
-    '/settings/profile',
-    '/settings/members',
+    '/settings',
   ];
   // Ink shell tourne aussi sur mobile depuis v1.9.97 · le shell est
   // responsive (sidebar en overlay drawer + top bar compact) donc on

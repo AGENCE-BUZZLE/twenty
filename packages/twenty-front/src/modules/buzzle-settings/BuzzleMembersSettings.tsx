@@ -87,12 +87,12 @@ const DangerColor = '#c94a4a';
 const DangerSoft = '#fbe5e5';
 
 const Card = styled.div`
-  border: 1px solid ${InkColor};
-  border-radius: 12px;
-  background: ${InkColor};
-  color: ${SurfaceColor};
-  padding: 24px 28px;
-  margin-bottom: 24px;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
+  background: ${SurfaceColor};
+  color: ${InkColor};
+  padding: 24px 26px;
+  margin-bottom: 20px;
 `;
 
 const CardHead = styled.div`
@@ -104,13 +104,14 @@ const CardHead = styled.div`
 
 const CardTitle = styled.div`
   font-family: 'Inter Tight', sans-serif;
-  font-size: 17px;
-  font-weight: 500;
-  color: ${SurfaceColor};
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: ${InkColor};
 `;
 
 const CardSub = styled.div`
-  color: rgba(255, 255, 255, 0.72);
+  color: ${MutedColor};
   font-size: 13px;
   margin-top: 2px;
 `;
@@ -124,8 +125,8 @@ const InviteRow = styled.div`
 
 const RoleSelect = styled.select`
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 6px;
+  border: 1px solid rgba(20, 20, 28, 0.14);
+  border-radius: 10px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: ${InkColor};
@@ -134,13 +135,13 @@ const RoleSelect = styled.select`
   cursor: pointer;
   &:focus {
     outline: none;
-    border-color: ${SurfaceColor};
+    border-color: ${InkColor};
   }
 `;
 
 const RoleHint = styled.div`
   width: 100%;
-  color: rgba(255, 255, 255, 0.72);
+  color: ${MutedColor};
   font-size: 12px;
   line-height: 1.5;
   margin-top: -2px;
@@ -148,35 +149,35 @@ const RoleHint = styled.div`
 
 const RestrictedBanner = styled.div`
   padding: 14px 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.82);
+  border-radius: 16px;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  background: rgba(20, 20, 28, 0.03);
+  color: ${MutedColor};
   font-size: 13px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 `;
 
 const EmailInput = styled.input`
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 6px;
+  border: 1px solid rgba(20, 20, 28, 0.14);
+  border-radius: 10px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: ${InkColor};
   background: ${SurfaceColor};
   &:focus {
     outline: none;
-    border-color: ${SurfaceColor};
+    border-color: ${InkColor};
   }
 `;
 
 const InviteButton = styled.button`
-  background: ${SurfaceColor};
-  color: ${InkColor};
-  border: 1px solid ${SurfaceColor};
+  background: ${InkColor};
+  color: ${SurfaceColor};
+  border: 0;
   padding: 0 20px;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -184,7 +185,7 @@ const InviteButton = styled.button`
   align-items: center;
   gap: 8px;
   &:hover {
-    opacity: 0.88;
+    opacity: 0.9;
   }
   &:disabled {
     opacity: 0.4;
@@ -212,21 +213,20 @@ const ErrorBanner = styled.div`
 `;
 
 const ListWrap = styled.div`
-  border: 1px solid ${HairlineColor};
-  border-radius: 12px;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
   overflow: hidden;
   background: ${SurfaceColor};
 `;
 
 const ListHead = styled.div`
   padding: 14px 22px;
-  border-bottom: 1px solid ${InkColor};
-  background: ${InkColor};
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  border-bottom: 1px solid rgba(20, 20, 28, 0.08);
+  background: rgba(20, 20, 28, 0.03);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${MutedColor};
   display: grid;
   grid-template-columns: 2fr 3fr 1fr;
   gap: 16px;
@@ -234,7 +234,7 @@ const ListHead = styled.div`
 
 const ListRow = styled.div`
   padding: 14px 22px;
-  border-bottom: 1px solid ${HairlineColor};
+  border-bottom: 1px solid rgba(20, 20, 28, 0.06);
   display: grid;
   grid-template-columns: 2fr 3fr 1fr;
   gap: 16px;
@@ -267,18 +267,17 @@ const NameCell = styled.div`
 
 const EmailCell = styled.div`
   color: ${MutedColor};
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 12.5px;
 `;
 
 const RoleTag = styled.span<{ tone?: 'super' | 'admin' | 'standard' | 'read' }>`
   display: inline-block;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
   background: ${({ tone }) =>
     tone === 'super'
       ? 'rgba(126, 55, 254, 0.16)'

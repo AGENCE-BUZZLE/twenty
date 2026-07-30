@@ -20,8 +20,7 @@ const OVERVIEW_SHELL_PREFIXES = [
   '/invoices',
   '/audit-seo-geo',
   '/rendez-vous',
-  '/settings/profile',
-  '/settings/members',
+  '/settings',
 ];
 
 const ROUTE_SECTION_DATA_ATTRIBUTE = 'data-main-app-route-section';

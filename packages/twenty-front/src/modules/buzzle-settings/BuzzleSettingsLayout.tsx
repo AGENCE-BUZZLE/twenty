@@ -3,14 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { type ReactNode } from 'react';
 
 import { currentUserState } from '@/auth/states/currentUserState';
-import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
+import { BuzzleWorkspaceShell } from '@/buzzle-workspace-nav/BuzzleWorkspaceShell';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
-// Shared shell for Buzzle settings pages, portée sur le même patron que
-// les autres espaces (Vue d'ensemble / Factures / Contacts / Appels) :
-// header compact avec un titre 32px à gauche et une strip pill à droite
-// pour switcher Profil / Membres / Workspace, plus le workspace picker
-// tout à droite pour rester cohérent avec le reste de l'app.
+// Shared shell for Buzzle settings pages · même design que Vue
+// d'ensemble : Ink shell (sidebar pills + top bar + Stage card), avec
+// un tab strip Profil / Membres / (Workspace pour super admin) au
+// sommet du Stage pour naviguer entre les 3 sections.
 
 const InkColor = '#14141c';
 const PaperColor = '#efede6';
@@ -20,57 +19,35 @@ const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Container = styled.div`
-  flex: 1 1 auto;
-  align-self: stretch;
   width: 100%;
-  padding: 28px 40px 32px;
   color: ${InkColor};
-  background: #efede6;
-  overflow-y: auto;
   > * {
-    max-width: 1320px;
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
-  }
-  @media (max-width: 768px) {
-    padding: 16px 12px 24px;
   }
 `;
 
 const HeaderRow = styled.div`
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 20px;
-  gap: 20px;
-  @media (max-width: 768px) {
-    align-items: center;
-    gap: 12px;
-  }
 `;
-
-const HeaderText = styled.div``;
 
 const PageTitle = styled.h1`
   font-family: 'Inter Tight', 'Inter', sans-serif;
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.024em;
+  letter-spacing: -0.02em;
   color: ${InkColor};
   margin: 0;
+  line-height: 1.15;
 
   @media (max-width: 768px) {
-    font-size: 22px;
-    letter-spacing: -0.018em;
+    font-size: 20px;
+    letter-spacing: -0.016em;
   }
-`;
-
-const HeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
 `;
 
 const TabStrip = styled.div`
@@ -78,9 +55,10 @@ const TabStrip = styled.div`
   align-items: center;
   gap: 4px;
   background: ${SurfaceColor};
-  border: 1px solid ${InkColor};
+  border: 1px solid rgba(20, 20, 28, 0.14);
   border-radius: 999px;
   padding: 4px;
+  align-self: flex-start;
 `;
 
 const TabPill = styled.button<{ active?: boolean }>`
@@ -107,6 +85,12 @@ type BuzzleSettingsLayoutProps = {
   children: ReactNode;
 };
 
+const TITLES: Record<BuzzleSettingsLayoutProps['activeTab'], string> = {
+  profile: 'Profil',
+  members: 'Membres',
+  workspace: 'Workspace',
+};
+
 export const BuzzleSettingsLayout = ({
   activeTab,
   children,
@@ -116,12 +100,10 @@ export const BuzzleSettingsLayout = ({
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel ?? false;
 
   return (
-    <Container>
-      <HeaderRow>
-        <HeaderText>
-          <PageTitle>Paramètres</PageTitle>
-        </HeaderText>
-        <HeaderActions>
+    <BuzzleWorkspaceShell>
+      <Container>
+        <HeaderRow>
+          <PageTitle>{TITLES[activeTab]}</PageTitle>
           <TabStrip role="tablist" aria-label="Section paramètres">
             <TabPill
               active={activeTab === 'profile'}
@@ -144,11 +126,10 @@ export const BuzzleSettingsLayout = ({
               </TabPill>
             )}
           </TabStrip>
-          <BuzzleWorkspacesButton hideOnMobile />
-        </HeaderActions>
-      </HeaderRow>
-      {children}
-    </Container>
+        </HeaderRow>
+        {children}
+      </Container>
+    </BuzzleWorkspaceShell>
   );
 };
 
