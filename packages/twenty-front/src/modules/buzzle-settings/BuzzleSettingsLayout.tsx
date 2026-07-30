@@ -16,7 +16,7 @@ const Container = styled.div`
   width: 100%;
   color: ${InkColor};
   > * {
-    max-width: 900px;
+    max-width: 1320px;
     margin-left: auto;
     margin-right: auto;
   }
