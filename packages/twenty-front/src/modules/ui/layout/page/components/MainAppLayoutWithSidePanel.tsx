@@ -20,6 +20,8 @@ const OVERVIEW_SHELL_PREFIXES = [
   '/invoices',
   '/audit-seo-geo',
   '/rendez-vous',
+  '/settings/profile',
+  '/settings/members',
 ];
 
 const ROUTE_SECTION_DATA_ATTRIBUTE = 'data-main-app-route-section';
@@ -142,10 +144,11 @@ const MainAppLayoutOutlet = () => {
 export const MainAppLayoutWithSidePanel = () => {
   const isMobile = useIsMobile();
   const { pathname } = useLocation();
+  // Ink shell tourne aussi sur mobile depuis v1.9.97 · on masque le
+  // side panel classique dans tous les cas quand l'Ink shell est actif.
   const isOverviewShell =
-    !isMobile &&
-    (pathname === '/' ||
-      OVERVIEW_SHELL_PREFIXES.some((p) => pathname.startsWith(p)));
+    pathname === '/' ||
+    OVERVIEW_SHELL_PREFIXES.some((p) => pathname.startsWith(p));
 
   useCommandMenuHotKeys();
 

@@ -1,5 +1,5 @@
 import { styled } from '@linaria/react';
-import type { ComponentType } from 'react';
+import { useEffect, type ComponentType } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconCalendarEvent,
@@ -14,6 +14,7 @@ import {
 import { currentUserState } from '@/auth/states/currentUserState';
 import { BuzzleFloatingSettingsPill } from '@/buzzle-workspace-nav/BuzzleFloatingSettingsPill';
 import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
+import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 // Floating pill sidebar used on the /overview shell. Each nav item is
@@ -33,6 +34,29 @@ const Column = styled.nav`
 
   &[data-expanded='true'] {
     width: 100%;
+  }
+
+  // Sur mobile la sidebar devient un drawer overlay full-height ·
+  // slide-in depuis la gauche quand data-expanded est true, sinon
+  // masquée complètement.
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    padding: 16px;
+    background: #14141c;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 12px 0 32px rgba(0, 0, 0, 0.24);
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 220ms ease;
+    overflow-y: auto;
+
+    &[data-expanded='true'] {
+      transform: translateX(0);
+    }
   }
 `;
 
@@ -194,6 +218,11 @@ export const BUZZLE_NAV_ITEMS: BuzzleNavItem[] = [
 
 const items = BUZZLE_NAV_ITEMS;
 
+const isMobileMatch = () => {
+  if (typeof window === 'undefined' || !window.matchMedia) return false;
+  return window.matchMedia('(max-width: 768px)').matches;
+};
+
 export const BuzzleFloatingSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -201,7 +230,20 @@ export const BuzzleFloatingSidebar = () => {
   // only there to hide the WIP pages from client users.
   const currentUser = useAtomStateValue(currentUserState);
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
-  const expanded = useAtomStateValue(buzzleSidebarExpandedState);
+  const [expanded, setExpanded] = useAtomState(buzzleSidebarExpandedState);
+
+  // Sur mobile, le drawer se ferme après chaque navigation pour laisser
+  // la place au contenu de la page. Sur desktop on garde l'état choisi.
+  useEffect(() => {
+    if (isMobileMatch() && expanded) {
+      setExpanded(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  // Les labels doivent toujours s'afficher dans le drawer mobile ·
+  // desktop conserve le toggle icon-only / label.
+  const showLabels = expanded || isMobileMatch();
 
   const isActive = (path: string): boolean => {
     if (path === '/overview') {
@@ -233,22 +275,22 @@ export const BuzzleFloatingSidebar = () => {
             type="button"
             data-active={active}
             data-locked={locked}
-            data-expanded={expanded}
+            data-expanded={showLabels}
             onClick={() => handleClick(item)}
             aria-label={item.label}
             aria-current={active ? 'page' : undefined}
             aria-disabled={locked}
           >
             <IconCmp size={22} />
-            {expanded && <InlineLabel>{item.label}</InlineLabel>}
-            {expanded && locked && <IconLock size={14} />}
-            {!expanded && item.badge && <Dot />}
-            {!expanded && locked && (
+            {showLabels && <InlineLabel>{item.label}</InlineLabel>}
+            {showLabels && locked && <IconLock size={14} />}
+            {!showLabels && item.badge && <Dot />}
+            {!showLabels && locked && (
               <LockCorner aria-hidden="true">
                 <IconLock size={11} />
               </LockCorner>
             )}
-            {!expanded && <Tip>{item.label}</Tip>}
+            {!showLabels && <Tip>{item.label}</Tip>}
           </Pill>
         );
       })}

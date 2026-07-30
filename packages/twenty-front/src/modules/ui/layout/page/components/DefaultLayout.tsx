@@ -144,9 +144,13 @@ export const DefaultLayout = () => {
     '/invoices',
     '/audit-seo-geo',
     '/rendez-vous',
+    '/settings/profile',
+    '/settings/members',
   ];
+  // Ink shell tourne aussi sur mobile depuis v1.9.97 · le shell est
+  // responsive (sidebar en overlay drawer + top bar compact) donc on
+  // n'a plus besoin du BuzzleMobileHeader ni de AppNavigationDrawer.
   const isOverviewShell =
-    !isMobile &&
     !useShowFullScreen &&
     (location.pathname === '/' ||
       inkShellPrefixes.some((p) => location.pathname.startsWith(p)));
@@ -160,7 +164,7 @@ export const DefaultLayout = () => {
           <AppErrorBoundary FallbackComponent={AppFullScreenErrorFallback}>
             <InformationBannerIsImpersonating />
             <LayoutCustomizationBar />
-            {isMobile && !useShowFullScreen && (
+            {isMobile && !useShowFullScreen && !isOverviewShell && (
               <StyledMobileHeaderWrap>
                 <BuzzleMobileHeader />
               </StyledMobileHeaderWrap>

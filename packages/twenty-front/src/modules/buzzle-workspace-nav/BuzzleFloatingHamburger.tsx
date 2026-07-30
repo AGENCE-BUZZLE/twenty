@@ -20,6 +20,11 @@ const Wrap = styled.div`
   align-self: center;
   justify-self: start;
   z-index: 3;
+  position: relative;
+
+  @media (max-width: 768px) {
+    z-index: 65;
+  }
 `;
 
 const IconButton = styled.button`
@@ -49,6 +54,12 @@ const IconButton = styled.button`
 
   svg {
     display: block;
+  }
+
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+    z-index: 65;
   }
 `;
 

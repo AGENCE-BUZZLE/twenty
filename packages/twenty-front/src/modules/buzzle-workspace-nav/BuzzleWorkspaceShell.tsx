@@ -7,7 +7,7 @@ import { BuzzleFloatingHamburger } from '@/buzzle-workspace-nav/BuzzleFloatingHa
 import { BuzzleFloatingSidebar } from '@/buzzle-workspace-nav/BuzzleFloatingSidebar';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useBuzzleUnreadLeads } from '@/buzzle-workspace-nav/useBuzzleUnreadLeads';
 
 // Shared Ink shell wrapper: renders the pill sidebar + logo top-bar +
@@ -43,9 +43,43 @@ const ShellGrid = styled.div`
   }
 
   @media (max-width: 768px) {
-    height: auto;
-    min-height: 100dvh;
-    overflow-y: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: 56px 1fr;
+    padding: 12px;
+    column-gap: 0;
+    row-gap: 12px;
+    overflow: hidden;
+    &[data-sidebar-expanded='true'] {
+      grid-template-columns: 1fr;
+    }
+  }
+`;
+
+// Backdrop overlay that appears behind the sidebar drawer on mobile
+// when it slides in. Tapping it closes the drawer.
+const MobileBackdrop = styled.button`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 28, 0.55);
+    backdrop-filter: blur(2px);
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    z-index: 45;
+    animation: buzzle-backdrop-fade 160ms ease-out;
+  }
+
+  @keyframes buzzle-backdrop-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 `;
 
@@ -61,6 +95,13 @@ const LogoBlock = styled.div`
   align-items: center;
   width: max-content;
   z-index: 3;
+
+  @media (max-width: 768px) {
+    grid-column: 1;
+    justify-self: center;
+    height: 48px;
+    padding: 0;
+  }
 `;
 
 const LogoImg = styled.img`
@@ -71,7 +112,7 @@ const LogoImg = styled.img`
   -webkit-user-drag: none;
 
   @media (max-width: 768px) {
-    height: 34px;
+    height: 30px;
   }
 `;
 
@@ -94,6 +135,18 @@ const Actions = styled.div`
   > div > button:hover {
     background: #ffffff !important;
   }
+
+  @media (max-width: 768px) {
+    grid-column: 1;
+    grid-row: 1;
+    height: 48px;
+    gap: 6px;
+
+    > button,
+    > div > button {
+      height: 36px !important;
+    }
+  }
 `;
 
 const NotifWrap = styled.div`
@@ -115,6 +168,18 @@ const NotifChip = styled.button`
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
+
+  @media (max-width: 768px) {
+    height: 36px;
+    padding: 0 10px;
+    gap: 6px;
+  }
+`;
+
+const NotifLabel = styled.span`
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const NotifCount = styled.span`
@@ -280,7 +345,10 @@ const Stage = styled.main`
   color: ${InkColor};
 
   @media (max-width: 768px) {
-    overflow-y: visible;
+    grid-column: 1;
+    grid-row: 2;
+    padding: 18px 16px 24px;
+    border-radius: 22px;
   }
 `;
 
@@ -345,7 +413,9 @@ export const BuzzleWorkspaceShell = ({
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
   const { unread, count, markAllRead, markOneRead } = useBuzzleUnreadLeads();
-  const sidebarExpanded = useAtomStateValue(buzzleSidebarExpandedState);
+  const [sidebarExpanded, setSidebarExpanded] = useAtomState(
+    buzzleSidebarExpandedState,
+  );
 
   useEffect(() => {
     if (!notifOpen) return;
@@ -377,7 +447,7 @@ export const BuzzleWorkspaceShell = ({
             onClick={() => setNotifOpen((prev) => !prev)}
           >
             <IconBell size={16} />
-            <span>Notifications</span>
+            <NotifLabel>Notifications</NotifLabel>
             <NotifCount data-empty={count === 0}>{count}</NotifCount>
           </NotifChip>
           {notifOpen && (
@@ -426,6 +496,13 @@ export const BuzzleWorkspaceShell = ({
       </Actions>
       <BuzzleFloatingHamburger />
       <BuzzleFloatingSidebar />
+      {sidebarExpanded && (
+        <MobileBackdrop
+          type="button"
+          aria-label="Fermer la navigation"
+          onClick={() => setSidebarExpanded(false)}
+        />
+      )}
       <Stage>{children}</Stage>
     </ShellGrid>
   );
