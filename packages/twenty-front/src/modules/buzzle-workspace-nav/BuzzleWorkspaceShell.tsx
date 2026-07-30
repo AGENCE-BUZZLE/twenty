@@ -169,10 +169,29 @@ const NotifChip = styled.button`
   font-weight: 500;
   cursor: pointer;
 
+  // Sur mobile : cloche blanche sur fond transparent (Ink) avec un
+  // petit rond violet en top-right qui affiche le nombre non lu · pas
+  // de chip blanc ni de label.
   @media (max-width: 768px) {
-    height: 36px;
-    padding: 0 10px;
-    gap: 6px;
+    position: relative;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0;
+    border-radius: 50%;
+    border: 0;
+    background: transparent !important;
+    color: #ffffff;
+    display: inline-grid;
+    place-items: center;
+    gap: 0;
+    transition: background 0.14s;
+    &:hover {
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 `;
 
@@ -195,6 +214,21 @@ const NotifCount = styled.span`
   padding: 0 5px;
   margin-left: 2px;
 
+  @media (max-width: 768px) {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    font-size: 9.5px;
+    padding: 0 4px;
+    margin-left: 0;
+    box-shadow: 0 0 0 2px #14141c;
+    &[data-empty='true'] {
+      display: none;
+    }
+  }
+
   &[data-empty='true'] {
     background: rgba(20, 20, 28, 0.14);
     color: rgba(20, 20, 28, 0.55);
@@ -215,6 +249,15 @@ const NotifMenu = styled.div`
   z-index: 40;
   display: flex;
   flex-direction: column;
+
+  // Sur mobile on cap à 92vw et on décale un peu pour ne pas déborder
+  // sous le bord droit du header.
+  @media (max-width: 768px) {
+    min-width: 0;
+    width: 92vw;
+    max-width: 360px;
+    right: -6px;
+  }
 `;
 
 const NotifMenuHead = styled.div`
