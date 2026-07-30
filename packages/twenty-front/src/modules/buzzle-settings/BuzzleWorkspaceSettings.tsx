@@ -22,12 +22,12 @@ const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Card = styled.div`
-  border: 1px solid ${InkColor};
-  border-radius: 12px;
-  background: ${InkColor};
-  color: ${SurfaceColor};
-  padding: 28px 32px;
-  margin-bottom: 24px;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  border-radius: 22px;
+  background: ${SurfaceColor};
+  color: ${InkColor};
+  padding: 26px 28px 28px;
+  margin-bottom: 20px;
 `;
 
 const SectionHead = styled.div`
@@ -36,13 +36,14 @@ const SectionHead = styled.div`
 
 const SectionTitle = styled.div`
   font-family: 'Inter Tight', sans-serif;
-  font-size: 17px;
-  font-weight: 500;
-  color: ${SurfaceColor};
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: ${InkColor};
 `;
 
 const SectionSubtitle = styled.div`
-  color: rgba(255, 255, 255, 0.72);
+  color: ${MutedColor};
   font-size: 13px;
   margin-top: 4px;
 `;
@@ -60,31 +61,30 @@ const Field = styled.div`
 `;
 
 const Label = styled.label`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: ${MutedColor};
 `;
 
 const Input = styled.input`
   padding: 11px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 6px;
+  border: 1px solid rgba(20, 20, 28, 0.14);
+  border-radius: 10px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: ${InkColor};
   background: ${SurfaceColor};
   &:focus {
     outline: none;
-    border-color: ${SurfaceColor};
+    border-color: ${InkColor};
   }
 `;
 
 const InputHint = styled.div`
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 11.5px;
-  font-family: 'JetBrains Mono', monospace;
+  color: ${MutedColor};
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
 `;
 
 const InlineRow = styled.div`
@@ -94,8 +94,8 @@ const InlineRow = styled.div`
 `;
 
 const InputSuffix = styled.span`
-  color: rgba(255, 255, 255, 0.72);
-  font-family: 'JetBrains Mono', monospace;
+  color: ${MutedColor};
+  font-family: 'Inter', sans-serif;
   font-size: 12.5px;
 `;
 
@@ -109,7 +109,8 @@ const LogoPreview = styled.div`
   width: 72px;
   height: 72px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(20, 20, 28, 0.04);
+  border: 1px solid rgba(20, 20, 28, 0.08);
   overflow: hidden;
   display: inline-flex;
   align-items: center;
@@ -136,22 +137,22 @@ const Actions = styled.div`
 `;
 
 const StatusMsg = styled.div`
-  color: rgba(255, 255, 255, 0.7);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
+  color: ${MutedColor};
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
 `;
 
 const SubmitButton = styled.button`
-  background: ${SurfaceColor};
-  color: ${InkColor};
-  border: 1px solid ${SurfaceColor};
+  background: ${InkColor};
+  color: ${SurfaceColor};
+  border: 0;
   padding: 10px 20px;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   &:hover {
-    opacity: 0.88;
+    opacity: 0.9;
   }
   &:disabled {
     opacity: 0.4;
@@ -161,29 +162,32 @@ const SubmitButton = styled.button`
 
 const OutlineButton = styled.button`
   background: transparent;
-  color: ${SurfaceColor};
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: ${InkColor};
+  border: 1px solid rgba(20, 20, 28, 0.16);
   padding: 8px 14px;
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(20, 20, 28, 0.04);
   }
 `;
 
 const DangerButton = styled(OutlineButton)`
-  color: #ffbdbd;
-  border-color: rgba(255, 189, 189, 0.4);
+  color: #b91c1c;
+  border-color: rgba(185, 28, 28, 0.3);
+  &:hover {
+    background: rgba(185, 28, 28, 0.06);
+  }
 `;
 
 const RestrictedBanner = styled.div`
   padding: 18px 22px;
-  border-radius: 12px;
-  border: 1px solid rgba(20, 20, 28, 0.14);
-  background: rgba(20, 20, 28, 0.04);
-  color: ${InkColor};
+  border-radius: 16px;
+  border: 1px solid rgba(20, 20, 28, 0.08);
+  background: rgba(20, 20, 28, 0.03);
+  color: ${MutedColor};
   font-size: 14px;
 `;
 
@@ -373,7 +377,7 @@ export const BuzzleWorkspaceSettings = () => {
 
         <FieldGroup>
           <Field>
-            <Label htmlFor="ws-name">Nom du workspace</Label>
+            <Label htmlFor="ws-name">Nom de l'espace de travail</Label>
             <Input
               id="ws-name"
               type="text"

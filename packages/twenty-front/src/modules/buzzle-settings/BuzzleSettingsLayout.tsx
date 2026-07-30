@@ -1,21 +1,15 @@
 import { styled } from '@linaria/react';
-import { useNavigate } from 'react-router-dom';
 import { type ReactNode } from 'react';
 
-import { currentUserState } from '@/auth/states/currentUserState';
 import { BuzzleWorkspaceShell } from '@/buzzle-workspace-nav/BuzzleWorkspaceShell';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
-// Shared shell for Buzzle settings pages · même design que Vue
-// d'ensemble : Ink shell (sidebar pills + top bar + Stage card), avec
-// un tab strip Profil / Membres / (Workspace pour super admin) au
-// sommet du Stage pour naviguer entre les 3 sections.
+// Shared shell for Buzzle settings pages · même design que les pages
+// principales du CRM : Ink shell (sidebar pills + top bar + Stage card)
+// avec un header 24px identique à Vue d'ensemble. Chaque section
+// (Profil, Membres, Espace de travail) est totalement autonome · on
+// navigue via le pill Paramètres en bas de la sidebar.
 
 const InkColor = '#14141c';
-const PaperColor = '#efede6';
-const HairlineColor = '#d6d2c7';
-const AccentColor = '#5b4bff';
-const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Container = styled.div`
@@ -30,9 +24,20 @@ const Container = styled.div`
 
 const HeaderRow = styled.div`
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 20px;
+  @media (max-width: 768px) {
+    align-items: center;
+    gap: 12px;
+  }
+`;
+
+const HeaderText = styled.div`
+  display: inline-flex;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 20px;
 `;
 
 const PageTitle = styled.h1`
@@ -50,36 +55,6 @@ const PageTitle = styled.h1`
   }
 `;
 
-const TabStrip = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: ${SurfaceColor};
-  border: 1px solid rgba(20, 20, 28, 0.14);
-  border-radius: 999px;
-  padding: 4px;
-  align-self: flex-start;
-`;
-
-const TabPill = styled.button<{ active?: boolean }>`
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 0;
-  background: ${({ active }) => (active ? InkColor : 'transparent')};
-  color: ${({ active }) => (active ? SurfaceColor : InkColor)};
-  font-family: 'Inter', sans-serif;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  &:hover:not(:disabled) {
-    background: ${({ active }) =>
-      active ? InkColor : 'rgba(20, 20, 28, 0.06)'};
-  }
-`;
-
 type BuzzleSettingsLayoutProps = {
   activeTab: 'profile' | 'members' | 'workspace';
   children: ReactNode;
@@ -88,55 +63,26 @@ type BuzzleSettingsLayoutProps = {
 const TITLES: Record<BuzzleSettingsLayoutProps['activeTab'], string> = {
   profile: 'Profil',
   members: 'Membres',
-  workspace: 'Workspace',
+  workspace: 'Espace de travail',
 };
 
 export const BuzzleSettingsLayout = ({
   activeTab,
   children,
-}: BuzzleSettingsLayoutProps) => {
-  const navigate = useNavigate();
-  const currentUser = useAtomStateValue(currentUserState);
-  const isSuperAdmin = currentUser?.canAccessFullAdminPanel ?? false;
-
-  return (
-    <BuzzleWorkspaceShell>
-      <Container>
-        <HeaderRow>
+}: BuzzleSettingsLayoutProps) => (
+  <BuzzleWorkspaceShell>
+    <Container>
+      <HeaderRow>
+        <HeaderText>
           <PageTitle>{TITLES[activeTab]}</PageTitle>
-          <TabStrip role="tablist" aria-label="Section paramètres">
-            <TabPill
-              active={activeTab === 'profile'}
-              onClick={() => navigate('/settings/profile')}
-            >
-              Profil
-            </TabPill>
-            <TabPill
-              active={activeTab === 'members'}
-              onClick={() => navigate('/settings/members')}
-            >
-              Membres
-            </TabPill>
-            {isSuperAdmin && (
-              <TabPill
-                active={activeTab === 'workspace'}
-                onClick={() => navigate('/settings/workspace')}
-              >
-                Workspace
-              </TabPill>
-            )}
-          </TabStrip>
-        </HeaderRow>
-        {children}
-      </Container>
-    </BuzzleWorkspaceShell>
-  );
-};
+        </HeaderText>
+      </HeaderRow>
+      {children}
+    </Container>
+  </BuzzleWorkspaceShell>
+);
 
 export const settingsTheme = {
   InkColor,
-  PaperColor,
-  HairlineColor,
-  AccentColor,
   MutedColor,
 };

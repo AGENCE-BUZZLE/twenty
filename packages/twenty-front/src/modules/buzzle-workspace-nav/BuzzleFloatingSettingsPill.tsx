@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_LOCALES } from 'twenty-shared/translations';
 import {
+  IconBuildingSkyscraper,
   IconCheck,
   IconLogout,
   IconSettings,
@@ -14,11 +15,13 @@ import {
 import { enUS } from 'date-fns/locale';
 
 import { useAuth } from '@/auth/hooks/useAuth';
+import { currentUserState } from '@/auth/states/currentUserState';
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { useInvalidateMetadataStore } from '@/metadata-store/hooks/useInvalidateMetadataStore';
 import { useUpdateWorkspaceMemberSettings } from '@/settings/profile/hooks/useUpdateWorkspaceMemberSettings';
 import { getDateFnsLocale } from '@/ui/field/display/utils/getDateFnsLocale';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { dateLocaleState } from '~/localization/states/dateLocaleState';
 import { dynamicActivate } from '~/utils/i18n/dynamicActivate';
 import { logError } from '~/utils/logError';
@@ -171,6 +174,8 @@ export const BuzzleFloatingSettingsPill = () => {
   const [currentWorkspaceMember, setCurrentWorkspaceMember] = useAtomState(
     currentWorkspaceMemberState,
   );
+  const currentUser = useAtomStateValue(currentUserState);
+  const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
   const { updateWorkspaceMemberSettings } = useUpdateWorkspaceMemberSettings();
   const { invalidateMetadataStore } = useInvalidateMetadataStore();
   const currentLocale = currentWorkspaceMember?.locale ?? APP_LOCALES.en;
@@ -266,6 +271,20 @@ export const BuzzleFloatingSettingsPill = () => {
             </MenuItemIcon>
             <MenuItemLabel>Membres</MenuItemLabel>
           </MenuItem>
+          {isSuperAdmin && (
+            <MenuItem
+              type="button"
+              onClick={() => {
+                navigate('/settings/workspace');
+                close();
+              }}
+            >
+              <MenuItemIcon>
+                <IconBuildingSkyscraper size={15} />
+              </MenuItemIcon>
+              <MenuItemLabel>Espace de travail</MenuItemLabel>
+            </MenuItem>
+          )}
           <MenuItem type="button" onClick={() => setVariant('languages')}>
             <MenuItemIcon>
               <IconWorldWww size={15} />
