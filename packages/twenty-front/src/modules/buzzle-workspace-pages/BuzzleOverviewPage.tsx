@@ -13,6 +13,7 @@ import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzle
 import { BuzzleLeadDrawer, type BuzzleLeadDrawerField } from '@/buzzle-workspace-pages/BuzzleLeadDrawer';
 import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { BuzzlePeriodPicker } from '@/buzzle-workspace-pages/BuzzlePeriodPicker';
+import { BuzzleWorkspaceShell } from '@/buzzle-workspace-nav/BuzzleWorkspaceShell';
 import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatusConfig';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
@@ -1841,12 +1842,10 @@ export const BuzzleOverviewPage = () => {
     />
   );
 
-  if (!isMobile) {
-    return (
-      <ShellGrid data-sidebar-expanded={sidebarExpanded}>
-        <BuzzleFloatingHamburger />
-        <BuzzleFloatingSidebar />
-        <BuzzleOverviewShellHeader
+  return (
+    <BuzzleWorkspaceShell
+      topExtras={
+        <BuzzlePeriodPicker
           period={period}
           onPeriodChange={setPeriod}
           customStart={customStart}
@@ -1854,42 +1853,14 @@ export const BuzzleOverviewPage = () => {
           onCustomStartChange={setCustomStart}
           onCustomEndChange={setCustomEnd}
         />
-        <Stage>
-          <StageHead>
-            <StageTitle>Vue d'ensemble</StageTitle>
-          </StageHead>
-          {kpiTiles}
-          <LowerGrid>{chartAndLeadsSections}</LowerGrid>
-        </Stage>
-        {leadDrawer}
-      </ShellGrid>
-    );
-  }
-
-  return (
-    <Container>
-      <HeaderRow>
-        <HeaderText>
-          <PageTitle>Vue d'ensemble</PageTitle>
-        </HeaderText>
-        <HeaderActions>
-          <BuzzlePeriodPicker
-            period={period}
-            onPeriodChange={setPeriod}
-            customStart={customStart}
-            customEnd={customEnd}
-            onCustomStartChange={setCustomStart}
-            onCustomEndChange={setCustomEnd}
-          />
-          <BuzzleWorkspacesButton hideOnMobile />
-        </HeaderActions>
-      </HeaderRow>
-
+      }
+    >
+      <StageHead>
+        <StageTitle>Vue d'ensemble</StageTitle>
+      </StageHead>
       {kpiTiles}
-
       <LowerGrid>{chartAndLeadsSections}</LowerGrid>
-
       {leadDrawer}
-    </Container>
+    </BuzzleWorkspaceShell>
   );
 };
