@@ -18,7 +18,6 @@ import { useBuzzleStatusConfig } from '@/buzzle-workspace-config/useBuzzleStatus
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
-import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 // Buzzle workspace overview.
@@ -932,14 +931,11 @@ const StageHead = styled.div`
   }
 `;
 
-// PeriodPicker inline dans le StageHead sur mobile · évite d'encombrer
-// le header Ink avec le picker à côté de la cloche.
+// PeriodPicker inline dans le StageHead · aligné avec le titre "Vue
+// d'ensemble" sur tous les breakpoints, plus dans le top bar Ink.
 const StageHeadPicker = styled.div`
-  display: none;
-  @media (max-width: 768px) {
-    display: inline-flex;
-    align-items: center;
-  }
+  display: inline-flex;
+  align-items: center;
 `;
 
 const StageTitle = styled.h2`
@@ -1092,7 +1088,6 @@ type Period = 'today' | 'week' | 'month' | 'custom';
 
 export const BuzzleOverviewPage = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const sidebarExpanded = useAtomStateValue(buzzleSidebarExpandedState);
   const currentUser = useAtomStateValue(currentUserState);
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
@@ -1869,7 +1864,7 @@ export const BuzzleOverviewPage = () => {
   );
 
   return (
-    <BuzzleWorkspaceShell topExtras={isMobile ? undefined : periodPicker}>
+    <BuzzleWorkspaceShell>
       <StageHead>
         <StageTitle>Vue d'ensemble</StageTitle>
         <StageHeadPicker>{periodPicker}</StageHeadPicker>
