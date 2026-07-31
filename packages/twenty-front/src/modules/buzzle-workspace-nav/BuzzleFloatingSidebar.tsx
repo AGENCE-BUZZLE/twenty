@@ -13,6 +13,7 @@ import {
 
 import { currentUserState } from '@/auth/states/currentUserState';
 import { BuzzleFloatingSettingsPill } from '@/buzzle-workspace-nav/BuzzleFloatingSettingsPill';
+import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesButton';
 import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
@@ -64,6 +65,31 @@ const Column = styled.nav`
 const Spacer = styled.div`
   flex: 1 1 auto;
   min-height: 12px;
+`;
+
+// Footer row · sur mobile on aligne le workspace switcher (à gauche,
+// pill étirée) et la settings pill (à droite, carrée) sur la même
+// ligne en bas du drawer. Sur desktop, seule la settings pill est
+// visible (le workspace vit dans le top bar Ink).
+const FooterRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const MobileWorkspaceSlot = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+
+    button {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
 `;
 
 const Pill = styled.button`
@@ -332,7 +358,12 @@ export const BuzzleFloatingSidebar = () => {
         );
       })}
       <Spacer />
-      <BuzzleFloatingSettingsPill />
+      <FooterRow>
+        <MobileWorkspaceSlot>
+          <BuzzleWorkspacesButton variant="pill" />
+        </MobileWorkspaceSlot>
+        <BuzzleFloatingSettingsPill />
+      </FooterRow>
     </Column>
   );
 };

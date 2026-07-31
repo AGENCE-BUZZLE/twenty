@@ -112,7 +112,7 @@ const LogoImg = styled.img`
   -webkit-user-drag: none;
 
   @media (max-width: 768px) {
-    height: 30px;
+    height: 36px;
   }
 `;
 
@@ -136,6 +136,9 @@ const Actions = styled.div`
     background: #ffffff !important;
   }
 
+  // Sur mobile la cloche est transparente sur fond Ink · on annule le
+  // hover blanc hérité du desktop pour ne pas la faire flasher blanc
+  // au tap.
   @media (max-width: 768px) {
     grid-column: 1;
     grid-row: 1;
@@ -145,6 +148,12 @@ const Actions = styled.div`
     > button,
     > div > button {
       height: 36px !important;
+    }
+    > button:hover,
+    > div > button:hover,
+    > div > button:focus,
+    > div > button:active {
+      background: transparent !important;
     }
   }
 `;
@@ -171,7 +180,7 @@ const NotifChip = styled.button`
 
   // Sur mobile : cloche blanche sur fond transparent (Ink) avec un
   // petit rond violet en top-right qui affiche le nombre non lu · pas
-  // de chip blanc ni de label.
+  // de chip blanc ni de label. Jamais de fond blanc au tap/hover/focus.
   @media (max-width: 768px) {
     position: relative;
     width: 40px !important;
@@ -185,9 +194,14 @@ const NotifChip = styled.button`
     place-items: center;
     gap: 0;
     transition: background 0.14s;
-    &:hover {
+    &:hover,
+    &:focus,
+    &:active,
+    &[data-open='true'] {
       background: rgba(255, 255, 255, 0.08) !important;
+      color: #ffffff !important;
     }
+    -webkit-tap-highlight-color: transparent;
     svg {
       width: 20px;
       height: 20px;
@@ -487,6 +501,7 @@ export const BuzzleWorkspaceShell = ({
             aria-label="Notifications"
             aria-haspopup="menu"
             aria-expanded={notifOpen}
+            data-open={notifOpen}
             onClick={() => setNotifOpen((prev) => !prev)}
           >
             <IconBell size={16} />
