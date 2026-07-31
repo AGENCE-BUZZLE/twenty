@@ -927,8 +927,18 @@ const StageHead = styled.div`
   padding: 0 2px 22px 2px;
   gap: 12px;
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    padding: 0 0 16px 0;
+  }
+`;
+
+// PeriodPicker inline dans le StageHead sur mobile · évite d'encombrer
+// le header Ink avec le picker à côté de la cloche.
+const StageHeadPicker = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: inline-flex;
+    align-items: center;
   }
 `;
 
@@ -939,6 +949,11 @@ const StageTitle = styled.h2`
   letter-spacing: -0.02em;
   margin: 0;
   color: ${InkColor};
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+    letter-spacing: -0.014em;
+  }
 `;
 
 const KpiRow = styled.div`
@@ -1842,21 +1857,22 @@ export const BuzzleOverviewPage = () => {
     />
   );
 
+  const periodPicker = (
+    <BuzzlePeriodPicker
+      period={period}
+      onPeriodChange={setPeriod}
+      customStart={customStart}
+      customEnd={customEnd}
+      onCustomStartChange={setCustomStart}
+      onCustomEndChange={setCustomEnd}
+    />
+  );
+
   return (
-    <BuzzleWorkspaceShell
-      topExtras={
-        <BuzzlePeriodPicker
-          period={period}
-          onPeriodChange={setPeriod}
-          customStart={customStart}
-          customEnd={customEnd}
-          onCustomStartChange={setCustomStart}
-          onCustomEndChange={setCustomEnd}
-        />
-      }
-    >
+    <BuzzleWorkspaceShell topExtras={isMobile ? undefined : periodPicker}>
       <StageHead>
         <StageTitle>Vue d'ensemble</StageTitle>
+        <StageHeadPicker>{periodPicker}</StageHeadPicker>
       </StageHead>
       {kpiTiles}
       <LowerGrid>{chartAndLeadsSections}</LowerGrid>
