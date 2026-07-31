@@ -71,11 +71,22 @@ const Pill = styled.button`
     color: #ffffff;
   }
 
+  // Sur mobile la settings pill vit dans le drawer noir · pas de fond
+  // blanc, juste l'icône blanche transparente comme les autres items.
   @media (max-width: 768px) {
-    background: rgba(255, 255, 255, 0.92);
-    color: rgba(20, 20, 28, 0.6);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(8px);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    box-shadow: none;
+    backdrop-filter: none;
+    border-radius: 12px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    &[data-open='true'] {
+      background: rgba(255, 255, 255, 0.1);
+    }
   }
 `;
 

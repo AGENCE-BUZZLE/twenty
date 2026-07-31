@@ -45,7 +45,8 @@ const Column = styled.nav`
     left: 0;
     bottom: 0;
     width: 260px;
-    padding: 16px;
+    padding: 72px 14px 24px 14px;
+    gap: 4px;
     background: #14141c;
     border-right: 1px solid rgba(255, 255, 255, 0.06);
     box-shadow: 12px 0 32px rgba(0, 0, 0, 0.24);
@@ -125,6 +126,42 @@ const Pill = styled.button`
     gap: 12px;
     place-items: center start;
     padding: 0 14px;
+  }
+
+  // Sur mobile (drawer noir), plus de fond blanc / bordure / shadow ·
+  // juste l'icon + le label alignés à gauche, en blanc, avec un léger
+  // hover à peine visible. L'item actif reste en violet léger.
+  @media (max-width: 768px) {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: rgba(255, 255, 255, 0.85);
+    height: 48px;
+    border-radius: 12px;
+    padding: 0 12px;
+    backdrop-filter: none;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      transform: none;
+    }
+
+    &[data-active='true'] {
+      background: rgba(126, 55, 254, 0.16);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    &[data-locked='true'] {
+      background: transparent;
+      color: rgba(255, 255, 255, 0.35);
+    }
+    &[data-locked='true']:hover {
+      background: transparent;
+      color: rgba(255, 255, 255, 0.35);
+    }
   }
 `;
 
