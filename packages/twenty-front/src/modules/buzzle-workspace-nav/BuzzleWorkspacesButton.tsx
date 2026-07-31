@@ -106,8 +106,19 @@ const Menu = styled.div`
   box-shadow: 0 12px 32px rgba(20, 20, 28, 0.14);
   z-index: 40;
 
+  // Sur mobile le bouton est en bas du drawer · on ouvre le menu au
+  // dessus pour qu'il reste visible dans l'écran.
+  @media (max-width: 768px) {
+    top: auto;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: auto;
+    min-width: 220px;
+    max-width: calc(100vw - 40px);
+  }
+
   @media (max-width: 480px) {
-    min-width: 240px;
+    min-width: 220px;
   }
 `;
 

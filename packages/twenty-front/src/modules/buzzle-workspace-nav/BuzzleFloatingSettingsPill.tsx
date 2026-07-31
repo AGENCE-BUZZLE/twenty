@@ -126,6 +126,16 @@ const Menu = styled.div`
   box-shadow: 0 12px 32px rgba(20, 20, 28, 0.2);
   z-index: 40;
   border: 1px solid rgba(20, 20, 28, 0.08);
+
+  // Sur mobile la pill est en bas à droite du drawer · le menu s'ouvre
+  // au dessus, aligné à droite pour ne pas déborder de l'écran.
+  @media (max-width: 768px) {
+    bottom: calc(100% + 8px);
+    left: auto;
+    right: 0;
+    min-width: 200px;
+    max-width: calc(100vw - 40px);
+  }
 `;
 
 const MenuItem = styled.button`
