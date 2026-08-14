@@ -5,7 +5,6 @@ import {
   IconCalendarEvent,
   IconFileText,
   IconHome,
-  IconLock,
   IconPhone,
   IconUsers,
   IconWorldWww,
@@ -204,14 +203,6 @@ const Dot = styled.span`
   box-shadow: 0 0 0 2px #ffffff;
 `;
 
-const LockCorner = styled.span`
-  position: absolute;
-  bottom: 6px;
-  right: 6px;
-  color: rgba(20, 20, 28, 0.4);
-  display: inline-flex;
-`;
-
 const Tip = styled.span`
   position: absolute;
   left: 66px;
@@ -322,48 +313,39 @@ export const BuzzleFloatingSidebar = () => {
     );
   };
 
-  // Une decision prise dans Copilot vaut pour tout le monde, super admin
-  // compris : sinon Clement verrait des pages que ses clients n'ont pas.
-  // Le drapeau compile ne sert que de repli, quand le cockpit n'a rien dit.
-  const isReallyLocked = (item: NavItem): boolean => {
+  // Une page fermee disparait du menu : un cadenas dit au client qu'il existe
+  // quelque chose qu'on lui refuse, ce qui appelle la question. La decision
+  // prise dans Copilot vaut pour tout le monde, super admin compris. Le
+  // drapeau compile ne sert que de repli, quand le cockpit n'a rien dit.
+  const estVisible = (item: NavItem): boolean => {
     const opened = openedPages?.[item.key];
-    return opened === undefined
-      ? item.locked === true && !isSuperAdmin
-      : !opened;
+    return opened === undefined ? item.locked !== true || isSuperAdmin : opened;
   };
 
+  const visibles = items.filter(estVisible);
+
   const handleClick = (item: NavItem) => {
-    if (isReallyLocked(item)) return;
     navigate(item.path);
   };
 
   return (
     <Column aria-label="Navigation principale" data-expanded={expanded}>
-      {items.map((item) => {
+      {visibles.map((item) => {
         const IconCmp = item.Icon;
         const active = isActive(item.path);
-        const locked = isReallyLocked(item);
         return (
           <Pill
             key={item.key}
             type="button"
             data-active={active}
-            data-locked={locked}
             data-expanded={showLabels}
             onClick={() => handleClick(item)}
             aria-label={item.label}
             aria-current={active ? 'page' : undefined}
-            aria-disabled={locked}
           >
             <IconCmp size={22} />
             {showLabels && <InlineLabel>{item.label}</InlineLabel>}
-            {showLabels && locked && <IconLock size={14} />}
             {!showLabels && item.badge && <Dot />}
-            {!showLabels && locked && (
-              <LockCorner aria-hidden="true">
-                <IconLock size={11} />
-              </LockCorner>
-            )}
             {!showLabels && <Tip>{item.label}</Tip>}
           </Pill>
         );

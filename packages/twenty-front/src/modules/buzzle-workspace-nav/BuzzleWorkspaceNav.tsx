@@ -5,7 +5,6 @@ import {
   IconCalendarEvent,
   IconFileText,
   IconHome,
-  IconLock,
   IconPhone,
   IconUsers,
   IconWorldWww,
@@ -46,18 +45,6 @@ const Item = styled.div`
     background: rgba(255, 255, 255, 0.06);
     color: #ffffff;
   }
-`;
-
-const LockedItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.35);
-  cursor: not-allowed;
-  user-select: none;
 `;
 
 const IconWrap = styled.span`
@@ -106,14 +93,6 @@ const items: NavItem[] = [
   },
 ];
 
-const LockBadge = styled.span`
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.45);
-`;
-
 const NavBadge = styled.span`
   margin-left: auto;
   background: #7e37fe;
@@ -158,34 +137,14 @@ export const BuzzleWorkspaceNav = () => {
     }
   };
 
+  // Meme regle que la sidebar : fermee veut dire absente, pas cadenassee.
+  const estVisible = (item: NavItem): boolean => {
+    const opened = openedPages?.[item.key];
+    return opened === undefined ? item.locked !== true || isSuperAdmin : opened;
+  };
+
   const renderItem = (item: NavItem) => {
     const IconCmp = item.Icon;
-    // A decision taken in Copilot applies to everyone, super admins included:
-    // hiding a page must show what the client actually sees. Only the compiled
-    // fallback keeps the admin bypass, so nobody is locked out by a network
-    // hiccup.
-    const opened = openedPages?.[item.key];
-    const locked =
-      opened === undefined ? item.locked === true && !isSuperAdmin : !opened;
-
-    if (locked) {
-      return (
-        <LockedItem
-          key={item.path}
-          aria-disabled="true"
-          title="Bientôt disponible"
-        >
-          <IconWrap>
-            <IconCmp size={15} />
-          </IconWrap>
-          {item.label}
-          <LockBadge aria-hidden="true">
-            <IconLock size={13} />
-          </LockBadge>
-        </LockedItem>
-      );
-    }
-
     // Consider a nav item active when the current path starts with it,
     // so /objects/contacts still keeps "Contacts" highlighted when the
     // scaffold redirects to the native record index (temporary during
@@ -213,6 +172,6 @@ export const BuzzleWorkspaceNav = () => {
   };
 
   return (
-    <Section>{items.map(renderItem)}</Section>
+    <Section>{items.filter(estVisible).map(renderItem)}</Section>
   );
 };
