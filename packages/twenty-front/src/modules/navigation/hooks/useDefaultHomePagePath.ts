@@ -34,7 +34,7 @@ const BUZZLE_ADMIN_WORKSPACE_SUBDOMAINS: readonly string[] = [
 export const useDefaultHomePagePath = () => {
   const currentUser = useAtomStateValue(currentUserState);
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
-  const openedPages = useBuzzleWorkspacePages();
+  const { pages: openedPages, statut: statutPages } = useBuzzleWorkspacePages();
   const metadataStore = useAtomFamilyStateValue(
     metadataStoreState,
     'objectMetadataItems',
@@ -62,9 +62,20 @@ export const useDefaultHomePagePath = () => {
     }
 
     // Atterrir sur une page fermee laisserait le client devant un ecran
-    // auquel il n'a pas droit, et sans entree de menu pour en sortir.
+    // auquel il n'a pas droit, et sans entree de menu pour en sortir. On
+    // patiente donc sur l'index le temps de savoir ce qui lui est ouvert.
+    if (statutPages === 'chargement') {
+      return AppPath.Index;
+    }
+
     return premierePageOuverte(openedPages) ?? '/overview';
-  }, [currentUser, currentWorkspace, areObjectMetadataItemsLoaded, openedPages]);
+  }, [
+    currentUser,
+    currentWorkspace,
+    areObjectMetadataItemsLoaded,
+    openedPages,
+    statutPages,
+  ]);
 
   return { defaultHomePagePath };
 };

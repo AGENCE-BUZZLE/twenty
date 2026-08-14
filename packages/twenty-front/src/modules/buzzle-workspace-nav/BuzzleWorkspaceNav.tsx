@@ -128,7 +128,7 @@ export const BuzzleWorkspaceNav = () => {
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
   // Per-workspace decision, taken in Buzzle Copilot. Null while loading or
   // when the cockpit is unreachable: the compiled `locked` flags then apply.
-  const openedPages = useBuzzleWorkspacePages();
+  const { pages: openedPages, statut: statutPages } = useBuzzleWorkspacePages();
 
   const handleClick = (path: string) => {
     navigate(path);
@@ -172,6 +172,10 @@ export const BuzzleWorkspaceNav = () => {
   };
 
   return (
-    <Section>{items.filter(estVisible).map(renderItem)}</Section>
+    <Section>
+      {(statutPages === 'chargement' ? [] : items.filter(estVisible)).map(
+        renderItem,
+      )}
+    </Section>
   );
 };

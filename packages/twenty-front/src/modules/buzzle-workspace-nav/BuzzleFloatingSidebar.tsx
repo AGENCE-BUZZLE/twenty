@@ -287,7 +287,7 @@ export const BuzzleFloatingSidebar = () => {
   const currentUser = useAtomStateValue(currentUserState);
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
   // Pages ouvertes pour cet espace, decidees dans Buzzle Copilot.
-  const openedPages = useBuzzleWorkspacePages();
+  const { pages: openedPages, statut: statutPages } = useBuzzleWorkspacePages();
   const [expanded, setExpanded] = useAtomState(buzzleSidebarExpandedState);
 
   // Sur mobile, le drawer se ferme après chaque navigation pour laisser
@@ -322,7 +322,7 @@ export const BuzzleFloatingSidebar = () => {
     return opened === undefined ? item.locked !== true || isSuperAdmin : opened;
   };
 
-  const visibles = items.filter(estVisible);
+  const visibles = statutPages === 'chargement' ? [] : items.filter(estVisible);
 
   const handleClick = (item: NavItem) => {
     navigate(item.path);

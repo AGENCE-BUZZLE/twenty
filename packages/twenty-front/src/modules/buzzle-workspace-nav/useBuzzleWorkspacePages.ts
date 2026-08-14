@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 
-// Which pages a client sees is decided in Buzzle Copilot, not here. This hook
-// fetches that decision at boot and falls back to the compiled defaults when
-// the cockpit cannot be reached, so the nav never comes back empty.
+// Which pages a client sees is decided in Buzzle Copilot, not here.
 //
-// The workspace is read from the hostname (<slug>.crm.agence-buzzle.com), the
-// same key the backend uses to resolve it.
+// Two things matter for the eye: never show an entry the client is not
+// supposed to have, even for a frame, and never leave him in front of an
+// empty rail. Hence the three states below, and a cache that survives both
+// navigation and reload: after the first visit the answer is there before
+// the first paint.
 const COCKPIT = 'https://app.agence-buzzle.com';
 
-export const workspaceSlug = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  const [slug, ...rest] = window.location.hostname.split('.');
-  return rest.length >= 3 && slug !== 'crm' ? slug : null;
+export type PagesStatut = 'chargement' | 'connu' | 'indisponible';
+
+export type PagesOuvertes = {
+  pages: Record<string, boolean> | null;
+  statut: PagesStatut;
 };
 
 // Ordre du menu, et chemin de chaque page. Sert a choisir ou atterrir quand
@@ -35,31 +37,74 @@ export const premierePageOuverte = (
   return trouvee?.path ?? null;
 };
 
-export const useBuzzleWorkspacePages = (): Record<string, boolean> | null => {
-  const [pages, setPages] = useState<Record<string, boolean> | null>(null);
+export const workspaceSlug = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  const [slug, ...rest] = window.location.hostname.split('.');
+  return rest.length >= 3 && slug !== 'crm' ? slug : null;
+};
+
+// Memoire du module : une navigation interne ne redemande rien.
+const memoire = new Map<string, Record<string, boolean>>();
+const cle = (slug: string) => `buzzle.pages.${slug}`;
+
+const lireCache = (slug: string): Record<string, boolean> | null => {
+  const vif = memoire.get(slug);
+  if (vif !== undefined) return vif;
+  try {
+    const brut = window.localStorage.getItem(cle(slug));
+    if (brut === null) return null;
+    const pages = JSON.parse(brut) as Record<string, boolean>;
+    memoire.set(slug, pages);
+    return pages;
+  } catch {
+    return null;
+  }
+};
+
+export const useBuzzleWorkspacePages = (): PagesOuvertes => {
+  const slug = workspaceSlug();
+  const [pages, setPages] = useState<Record<string, boolean> | null>(() =>
+    slug === null ? null : lireCache(slug),
+  );
+  const [statut, setStatut] = useState<PagesStatut>(() => {
+    if (slug === null) return 'indisponible';
+    return lireCache(slug) === null ? 'chargement' : 'connu';
+  });
 
   useEffect(() => {
-    const slug = workspaceSlug();
     if (slug === null) return;
 
     let alive = true;
     fetch(`${COCKPIT}/api/public/crm-pages?ws=${encodeURIComponent(slug)}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (!alive || !data?.pages) return;
+        if (!alive) return;
+        if (!data?.pages) {
+          // Espace inconnu du cockpit : on retombe sur les valeurs compilees.
+          setStatut((s) => (s === 'connu' ? s : 'indisponible'));
+          return;
+        }
         const byKey: Record<string, boolean> = {};
         for (const page of data.pages) byKey[page.key] = page.enabled === true;
+        memoire.set(slug, byKey);
+        try {
+          window.localStorage.setItem(cle(slug), JSON.stringify(byKey));
+        } catch {
+          // Stockage refuse : la memoire du module suffit pour la session.
+        }
         setPages(byKey);
+        setStatut('connu');
       })
       .catch(() => {
-        // Cockpit unreachable: keep the compiled defaults rather than
-        // locking the client out of his own space.
+        if (!alive) return;
+        // Cockpit injoignable : plutot les valeurs compilees qu'un rail vide.
+        setStatut((s) => (s === 'connu' ? s : 'indisponible'));
       });
 
     return () => {
       alive = false;
     };
-  }, []);
+  }, [slug]);
 
-  return pages;
+  return { pages, statut };
 };
