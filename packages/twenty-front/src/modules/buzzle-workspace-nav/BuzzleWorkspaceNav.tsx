@@ -17,6 +17,8 @@ import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 
+import { useBuzzleWorkspacePages } from './useBuzzleWorkspacePages';
+
 // Fixed Buzzle drawer nav (client-side). Pipeline and Mon profil are
 // intentionally absent: the pipeline lives inside the Contacts view via
 // status filtering, and profile settings live under the workspace
@@ -73,25 +75,30 @@ type NavItem = {
   path: string;
   badge?: string;
   locked?: boolean;
+  // Key used by Buzzle Copilot to open or close that page per workspace.
+  key: string;
 };
 
 const items: NavItem[] = [
-  { label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
-  { label: 'Formulaires', Icon: IconUsers, path: '/contacts' },
+  { key: 'overview', label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
+  { key: 'contacts', label: 'Formulaires', Icon: IconUsers, path: '/contacts' },
   {
+    key: 'calls',
     label: 'Appels',
     Icon: IconPhone,
     path: '/calls',
     locked: true,
   },
-  { label: 'Factures', Icon: IconFileText, path: '/invoices' },
+  { key: 'invoices', label: 'Factures', Icon: IconFileText, path: '/invoices' },
   {
+    key: 'rendez-vous',
     label: 'Rendez-vous',
     Icon: IconCalendarEvent,
     path: '/rendez-vous',
     locked: true,
   },
   {
+    key: 'audit-seo-geo',
     label: 'Audit SEO/GEO',
     Icon: IconWorldWww,
     path: '/audit-seo-geo',
@@ -140,6 +147,9 @@ export const BuzzleWorkspaceNav = () => {
   // hidden to protect the client-facing view.
   const currentUser = useAtomStateValue(currentUserState);
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
+  // Per-workspace decision, taken in Buzzle Copilot. Null while loading or
+  // when the cockpit is unreachable: the compiled `locked` flags then apply.
+  const openedPages = useBuzzleWorkspacePages();
 
   const handleClick = (path: string) => {
     navigate(path);
@@ -150,7 +160,9 @@ export const BuzzleWorkspaceNav = () => {
 
   const renderItem = (item: NavItem) => {
     const IconCmp = item.Icon;
-    const locked = item.locked === true && !isSuperAdmin;
+    const opened = openedPages?.[item.key];
+    const locked =
+      (opened === undefined ? item.locked === true : !opened) && !isSuperAdmin;
 
     if (locked) {
       return (
