@@ -80,7 +80,7 @@ type NavItem = {
 };
 
 const items: NavItem[] = [
-  { key: 'overview', label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
+  { key: 'home', label: "Vue d'ensemble", Icon: IconHome, path: '/overview' },
   { key: 'contacts', label: 'Formulaires', Icon: IconUsers, path: '/contacts' },
   {
     key: 'calls',
@@ -91,14 +91,14 @@ const items: NavItem[] = [
   },
   { key: 'invoices', label: 'Factures', Icon: IconFileText, path: '/invoices' },
   {
-    key: 'rendez-vous',
+    key: 'rdv',
     label: 'Rendez-vous',
     Icon: IconCalendarEvent,
     path: '/rendez-vous',
     locked: true,
   },
   {
-    key: 'audit-seo-geo',
+    key: 'seo',
     label: 'Audit SEO/GEO',
     Icon: IconWorldWww,
     path: '/audit-seo-geo',

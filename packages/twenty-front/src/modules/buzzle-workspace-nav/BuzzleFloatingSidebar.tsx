@@ -18,6 +18,8 @@ import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzle
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
+import { useBuzzleWorkspacePages } from './useBuzzleWorkspacePages';
+
 // Floating pill sidebar used on the /overview shell. Each nav item is
 // an icon-only pill (56x56) with a tooltip label on hover. Active item
 // is Ink filled with white icon. Locked items are dimmed and inert.
@@ -293,6 +295,8 @@ export const BuzzleFloatingSidebar = () => {
   // only there to hide the WIP pages from client users.
   const currentUser = useAtomStateValue(currentUserState);
   const isSuperAdmin = currentUser?.canAccessFullAdminPanel === true;
+  // Pages ouvertes pour cet espace, decidees dans Buzzle Copilot.
+  const openedPages = useBuzzleWorkspacePages();
   const [expanded, setExpanded] = useAtomState(buzzleSidebarExpandedState);
 
   // Sur mobile, le drawer se ferme après chaque navigation pour laisser
@@ -318,8 +322,15 @@ export const BuzzleFloatingSidebar = () => {
     );
   };
 
-  const isReallyLocked = (item: NavItem): boolean =>
-    item.locked === true && !isSuperAdmin;
+  // Une decision prise dans Copilot vaut pour tout le monde, super admin
+  // compris : sinon Clement verrait des pages que ses clients n'ont pas.
+  // Le drapeau compile ne sert que de repli, quand le cockpit n'a rien dit.
+  const isReallyLocked = (item: NavItem): boolean => {
+    const opened = openedPages?.[item.key];
+    return opened === undefined
+      ? item.locked === true && !isSuperAdmin
+      : !opened;
+  };
 
   const handleClick = (item: NavItem) => {
     if (isReallyLocked(item)) return;
