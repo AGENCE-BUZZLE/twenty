@@ -14,6 +14,27 @@ export const workspaceSlug = (): string | null => {
   return rest.length >= 3 && slug !== 'crm' ? slug : null;
 };
 
+// Ordre du menu, et chemin de chaque page. Sert a choisir ou atterrir quand
+// la page d'accueil habituelle est fermee pour cet espace.
+export const BUZZLE_PAGE_PATHS: ReadonlyArray<{ key: string; path: string }> = [
+  { key: 'home', path: '/overview' },
+  { key: 'contacts', path: '/contacts' },
+  { key: 'calls', path: '/calls' },
+  { key: 'invoices', path: '/invoices' },
+  { key: 'documents', path: '/documents' },
+  { key: 'rdv', path: '/rendez-vous' },
+  { key: 'seo', path: '/audit-seo-geo' },
+];
+
+// Premiere page ouverte, dans l'ordre du menu. Null tant qu'on ne sait pas.
+export const premierePageOuverte = (
+  pages: Record<string, boolean> | null,
+): string | null => {
+  if (pages === null) return null;
+  const trouvee = BUZZLE_PAGE_PATHS.find((p) => pages[p.key] === true);
+  return trouvee?.path ?? null;
+};
+
 export const useBuzzleWorkspacePages = (): Record<string, boolean> | null => {
   const [pages, setPages] = useState<Record<string, boolean> | null>(null);
 

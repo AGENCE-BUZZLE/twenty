@@ -1,3 +1,8 @@
+import {
+  premierePageOuverte,
+  useBuzzleWorkspacePages,
+} from '@/buzzle-workspace-nav/useBuzzleWorkspacePages';
+
 import { currentUserState } from '@/auth/states/currentUserState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { metadataStoreState } from '@/metadata-store/states/metadataStoreState';
@@ -13,7 +18,9 @@ import { isDefined } from 'twenty-shared/utils';
 //   - unauthenticated                            -> /sign-in-up
 //   - super admin AND on the admin workspace     -> /buzzle-admin (cockpit)
 //   - anyone else (super admin on a client, or
-//     regular client)                            -> /overview
+//     regular client)                            -> first page opened for
+//                                                   that workspace in Copilot,
+//                                                   /overview as a fallback
 //
 // The admin workspace subdomains are 'gestion' (current) and
 // 'agence-buzzle' (legacy). When Clement impersonates himself into a
@@ -27,6 +34,7 @@ const BUZZLE_ADMIN_WORKSPACE_SUBDOMAINS: readonly string[] = [
 export const useDefaultHomePagePath = () => {
   const currentUser = useAtomStateValue(currentUserState);
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
+  const openedPages = useBuzzleWorkspacePages();
   const metadataStore = useAtomFamilyStateValue(
     metadataStoreState,
     'objectMetadataItems',
@@ -53,8 +61,10 @@ export const useDefaultHomePagePath = () => {
       return AppPath.Index;
     }
 
-    return '/overview';
-  }, [currentUser, currentWorkspace, areObjectMetadataItemsLoaded]);
+    // Atterrir sur une page fermee laisserait le client devant un ecran
+    // auquel il n'a pas droit, et sans entree de menu pour en sortir.
+    return premierePageOuverte(openedPages) ?? '/overview';
+  }, [currentUser, currentWorkspace, areObjectMetadataItemsLoaded, openedPages]);
 
   return { defaultHomePagePath };
 };
