@@ -160,9 +160,13 @@ export const BuzzleWorkspaceNav = () => {
 
   const renderItem = (item: NavItem) => {
     const IconCmp = item.Icon;
+    // A decision taken in Copilot applies to everyone, super admins included:
+    // hiding a page must show what the client actually sees. Only the compiled
+    // fallback keeps the admin bypass, so nobody is locked out by a network
+    // hiccup.
     const opened = openedPages?.[item.key];
     const locked =
-      (opened === undefined ? item.locked === true : !opened) && !isSuperAdmin;
+      opened === undefined ? item.locked === true && !isSuperAdmin : !opened;
 
     if (locked) {
       return (
