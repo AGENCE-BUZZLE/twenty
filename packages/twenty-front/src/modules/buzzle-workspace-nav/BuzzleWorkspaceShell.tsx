@@ -529,7 +529,7 @@ export const BuzzleWorkspaceShell = ({
                       key={lead.id}
                       type="button"
                       onClick={() => {
-                        markOneRead(lead.createdAt);
+                        markOneRead(lead.id);
                         setNotifOpen(false);
                         navigate(`/contacts/${lead.id}`);
                       }}

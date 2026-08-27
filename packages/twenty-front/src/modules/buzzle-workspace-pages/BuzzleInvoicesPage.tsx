@@ -681,7 +681,7 @@ export const BuzzleInvoicesPage = () => {
 
   if (loading && !data && !error) {
     return (
-      <BuzzleWorkspaceShell topExtras={periodPicker}>
+      <BuzzleWorkspaceShell>
         <Container>
           <LoaderStage>
             <Loader>
@@ -697,12 +697,13 @@ export const BuzzleInvoicesPage = () => {
   }
 
   return (
-    <BuzzleWorkspaceShell topExtras={periodPicker}>
+    <BuzzleWorkspaceShell>
       <Container>
       <HeaderRow>
         <HeaderText>
           <PageTitle>Factures</PageTitle>
         </HeaderText>
+        {periodPicker}
       </HeaderRow>
 
       {error && (

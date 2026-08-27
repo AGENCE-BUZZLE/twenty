@@ -697,12 +697,12 @@ export const BuzzleContactDetailPage = () => {
 
   const { updateOneRecord } = useUpdateOneRecord();
 
-  // Opening a lead's detail page counts as reading it · bump the
-  // notifications cursor so this lead disappears from the top-bar bell.
+  // Opening a lead's detail page counts as reading it · mark ONLY this
+  // lead read so it disappears from the top-bar bell (others stay).
   const { markOneRead } = useBuzzleUnreadLeads();
   useEffect(() => {
-    if (record !== undefined && typeof record.createdAt === 'string') {
-      markOneRead(record.createdAt);
+    if (record !== undefined && typeof record.id === 'string') {
+      markOneRead(record.id);
     }
   }, [record, markOneRead]);
 

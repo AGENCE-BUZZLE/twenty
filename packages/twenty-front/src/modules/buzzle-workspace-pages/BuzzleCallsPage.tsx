@@ -901,8 +901,13 @@ export const BuzzleCallsPage = () => {
   };
 
   return (
-    <BuzzleWorkspaceShell
-      topExtras={
+    <BuzzleWorkspaceShell>
+      <Container>
+      <HeaderRow>
+        <HeaderText>
+          <PageTitle>Appels</PageTitle>
+          <TitleBadge>Beta</TitleBadge>
+        </HeaderText>
         <BuzzlePeriodPicker
           period={period}
           onPeriodChange={setPeriod}
@@ -911,14 +916,6 @@ export const BuzzleCallsPage = () => {
           onCustomStartChange={setCustomStart}
           onCustomEndChange={setCustomEnd}
         />
-      }
-    >
-      <Container>
-      <HeaderRow>
-        <HeaderText>
-          <PageTitle>Appels</PageTitle>
-          <TitleBadge>Beta</TitleBadge>
-        </HeaderText>
       </HeaderRow>
 
       <KpiRow>

@@ -767,12 +767,13 @@ export const BuzzleContactsPage = () => {
   );
 
   return (
-    <BuzzleWorkspaceShell topExtras={periodPicker}>
+    <BuzzleWorkspaceShell>
       <Container>
       <HeaderRow>
         <HeaderText>
           <PageTitle>Formulaires</PageTitle>
         </HeaderText>
+        {periodPicker}
       </HeaderRow>
 
       <KpiRow>

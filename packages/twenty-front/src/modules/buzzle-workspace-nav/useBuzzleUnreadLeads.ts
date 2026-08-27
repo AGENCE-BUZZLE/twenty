@@ -5,35 +5,49 @@ import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilte
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
-// Unread-leads counter for the top-bar Notifications chip. We deliberately
-// store the "last read" cursor client-side in localStorage (keyed per
-// workspace) so the backend stays untouched. Any contact whose createdAt
-// is more recent than the stored cursor counts as unread. Reading a single
-// lead bumps the cursor to that lead's createdAt so it drops from the list
-// without hiding leads that arrived later.
+// Unread-leads counter for the top-bar Notifications chip. Read state is
+// stored client-side in localStorage as a SET of read lead ids (keyed per
+// workspace) so the backend stays untouched. A lead is unread until its id
+// is in the set. Reading one lead adds ONLY its id · it never touches the
+// read state of other (even older) leads the user hasn't opened.
 
-// Bump the version suffix to force every workspace's notif cursor to
-// reset on the next page load (Clément asked for a one-shot reset on
-// Galaxy Glass · since localStorage is per-origin and we key by
-// workspace id, this only affects users who had a cursor from the
-// previous build; a fresh install stays empty).
 const storageKey = (workspaceId: string | null | undefined): string =>
+  `buzzle-notif-read-ids-v3:${workspaceId ?? 'default'}`;
+
+// Legacy cursor key (v2) · used once to migrate existing users so their
+// already-read leads don't all pop back as unread on the switch.
+const legacyCursorKey = (workspaceId: string | null | undefined): string =>
   `buzzle-notif-lastread-v2:${workspaceId ?? 'default'}`;
 
-const readCursor = (workspaceId: string | null | undefined): number => {
-  if (typeof window === 'undefined') return 0;
+const readIdSet = (workspaceId: string | null | undefined): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
   const raw = window.localStorage.getItem(storageKey(workspaceId));
+  if (raw === null) return new Set();
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? new Set(parsed.map(String)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const writeIdSet = (
+  workspaceId: string | null | undefined,
+  ids: Set<string>,
+): void => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(
+    storageKey(workspaceId),
+    JSON.stringify(Array.from(ids)),
+  );
+};
+
+const legacyCursor = (workspaceId: string | null | undefined): number => {
+  if (typeof window === 'undefined') return 0;
+  const raw = window.localStorage.getItem(legacyCursorKey(workspaceId));
   if (raw === null) return 0;
   const parsed = Number(raw);
   return Number.isFinite(parsed) ? parsed : 0;
-};
-
-const writeCursor = (
-  workspaceId: string | null | undefined,
-  ts: number,
-): void => {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(storageKey(workspaceId), String(ts));
 };
 
 export type UnreadLead = {
@@ -74,7 +88,7 @@ const contactPhone = (contact: Record<string, unknown>): string => {
 export type UseBuzzleUnreadLeadsResult = {
   unread: UnreadLead[];
   count: number;
-  markOneRead: (createdAt: string) => void;
+  markOneRead: (leadId: string) => void;
   markAllRead: () => void;
 };
 
@@ -92,19 +106,21 @@ export const useBuzzleUnreadLeads = (): UseBuzzleUnreadLeadsResult => {
     limit: 50,
   });
 
-  const [cursor, setCursor] = useState<number>(() => readCursor(workspaceId));
+  const [readIds, setReadIds] = useState<Set<string>>(() =>
+    readIdSet(workspaceId),
+  );
 
-  // Re-hydrate the cursor when the workspace changes (or another tab
-  // writes to localStorage).
+  // Re-hydrate the set when the workspace changes (or another tab writes
+  // to localStorage).
   useEffect(() => {
-    setCursor(readCursor(workspaceId));
+    setReadIds(readIdSet(workspaceId));
   }, [workspaceId]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handler = (event: StorageEvent) => {
       if (event.key === storageKey(workspaceId)) {
-        setCursor(readCursor(workspaceId));
+        setReadIds(readIdSet(workspaceId));
       }
     };
     window.addEventListener('storage', handler);
@@ -130,26 +146,52 @@ export const useBuzzleUnreadLeads = (): UseBuzzleUnreadLeadsResult => {
       .sort((a, b) => b.createdAtMs - a.createdAtMs);
   }, [records]);
 
+  // One-shot migration : if the v3 set doesn't exist yet but a legacy v2
+  // cursor does, seed the read set with every lead that was already read
+  // under the cursor (createdAt <= cursor) so nothing pops back as unread.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (allLeads.length === 0) return;
+    const alreadyMigrated =
+      window.localStorage.getItem(storageKey(workspaceId)) !== null;
+    if (alreadyMigrated) return;
+    const cursor = legacyCursor(workspaceId);
+    if (cursor <= 0) return;
+    const seeded = new Set(
+      allLeads.filter((l) => l.createdAtMs <= cursor).map((l) => l.id),
+    );
+    writeIdSet(workspaceId, seeded);
+    setReadIds(seeded);
+  }, [allLeads, workspaceId]);
+
   const unread = useMemo<UnreadLead[]>(
-    () => allLeads.filter((l) => l.createdAtMs > cursor).slice(0, 20),
-    [allLeads, cursor],
+    () => allLeads.filter((l) => !readIds.has(l.id)).slice(0, 20),
+    [allLeads, readIds],
   );
 
   const markAllRead = useCallback(() => {
-    const now = Date.now();
-    writeCursor(workspaceId, now);
-    setCursor(now);
-  }, [workspaceId]);
+    setReadIds((prev) => {
+      const next = new Set(prev);
+      allLeads.forEach((l) => next.add(l.id));
+      writeIdSet(workspaceId, next);
+      return next;
+    });
+  }, [allLeads, workspaceId]);
 
+  // Marks ONLY this lead read · other unopened leads (even older ones)
+  // stay in the notifications list.
   const markOneRead = useCallback(
-    (createdAt: string) => {
-      const ts = Date.parse(createdAt);
-      if (!Number.isFinite(ts)) return;
-      const next = Math.max(cursor, ts);
-      writeCursor(workspaceId, next);
-      setCursor(next);
+    (leadId: string) => {
+      if (!leadId) return;
+      setReadIds((prev) => {
+        if (prev.has(leadId)) return prev;
+        const next = new Set(prev);
+        next.add(leadId);
+        writeIdSet(workspaceId, next);
+        return next;
+      });
     },
-    [cursor, workspaceId],
+    [workspaceId],
   );
 
   return {
