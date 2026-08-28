@@ -13,6 +13,13 @@
     <link rel="manifest" href="/manifest.json" />
 
     <meta name="theme-color" content="#14141c" />
+    <!-- PWA installée : barre de statut sombre cohérente avec le shell
+         Ink sur tous les écrans (login inclus). iOS → black (barre
+         sombre, texte blanc) ; Android → theme-color #14141c. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Buzzle CRM" />
     <meta name="description" content="CRM Buzzle — leads Google Ads & Meta Ads" />
     <meta
       property="og:image"

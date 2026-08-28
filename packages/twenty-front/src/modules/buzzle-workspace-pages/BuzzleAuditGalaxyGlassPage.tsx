@@ -47,6 +47,9 @@ const ShellGrid = styled.div`
     height: auto;
     min-height: 100dvh;
     overflow-y: auto;
+    // Safe-area : barre de statut iOS translucide (fond Ink derrière).
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
 `;
 

@@ -46,7 +46,10 @@ const ShellGrid = styled.div`
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     grid-template-rows: 56px 1fr;
-    padding: 12px;
+    // Safe-area : la barre de statut iOS est translucide (le fond Ink
+    // remonte derrière) · on décale le contenu sous l'encoche/heure.
+    padding: calc(12px + env(safe-area-inset-top)) 12px
+      calc(12px + env(safe-area-inset-bottom)) 12px;
     column-gap: 0;
     row-gap: 12px;
     overflow: hidden;
