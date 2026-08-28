@@ -9,6 +9,7 @@ import { BuzzleWorkspacesButton } from '@/buzzle-workspace-nav/BuzzleWorkspacesB
 import { buzzleSidebarExpandedState } from '@/buzzle-workspace-nav/states/buzzleSidebarExpandedState';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useBuzzleUnreadLeads } from '@/buzzle-workspace-nav/useBuzzleUnreadLeads';
+import { useBuzzlePush } from '@/buzzle-workspace-nav/useBuzzlePush';
 
 // Shared Ink shell wrapper: renders the pill sidebar + logo top-bar +
 // notifications dropdown + workspace switcher pill around a white Stage
@@ -368,6 +369,61 @@ const NotifEmpty = styled.div`
   font-size: 13px;
 `;
 
+// Bandeau d'activation des notifications push (bas du menu cloche).
+const PushFooter = styled.div`
+  border-top: 1px solid rgba(20, 20, 28, 0.08);
+  margin-top: 4px;
+  padding: 10px 10px 6px;
+`;
+
+const PushButton = styled.button`
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  border-radius: 10px;
+  border: 0;
+  background: #14141c;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.14s;
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const PushHint = styled.div`
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: rgba(20, 20, 28, 0.55);
+  padding: 4px 4px 2px;
+  text-align: center;
+`;
+
+const PushOk = styled.div`
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #16a34a;
+  text-align: center;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+`;
+
 const WorkspaceWrap = styled.div`
   --t-gray-scale-gray3: #ffffff;
   --t-color-gray3: #ffffff;
@@ -470,6 +526,7 @@ export const BuzzleWorkspaceShell = ({
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
   const { unread, count, markAllRead, markOneRead } = useBuzzleUnreadLeads();
+  const push = useBuzzlePush();
   const [sidebarExpanded, setSidebarExpanded] = useAtomState(
     buzzleSidebarExpandedState,
   );
@@ -545,6 +602,36 @@ export const BuzzleWorkspaceShell = ({
                   ))}
                 </NotifList>
               )}
+              <PushFooter>
+                {push.status === 'granted' ? (
+                  <PushOk>Alertes push activées</PushOk>
+                ) : push.status === 'need-install' ? (
+                  <PushHint>
+                    Ajoutez l'app à l'écran d'accueil (Partager → Sur l'écran
+                    d'accueil) pour activer les alertes de nouveaux leads.
+                  </PushHint>
+                ) : push.status === 'unsupported' ? (
+                  <PushHint>
+                    Les alertes push ne sont pas disponibles sur ce navigateur.
+                  </PushHint>
+                ) : push.status === 'denied' ? (
+                  <PushHint>
+                    Notifications bloquées. Autorisez-les dans les réglages du
+                    navigateur pour recevoir les nouveaux leads.
+                  </PushHint>
+                ) : (
+                  <PushButton
+                    type="button"
+                    disabled={push.busy}
+                    onClick={() => push.enable()}
+                  >
+                    <IconBell size={15} />
+                    {push.busy
+                      ? 'Activation…'
+                      : 'Activer les alertes de nouveaux leads'}
+                  </PushButton>
+                )}
+              </PushFooter>
             </NotifMenu>
           )}
         </NotifWrap>
