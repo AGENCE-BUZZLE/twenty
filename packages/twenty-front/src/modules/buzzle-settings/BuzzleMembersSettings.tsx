@@ -79,7 +79,7 @@ const InkColor = '#14141c';
 const PaperColor = '#efede6';
 const SurfaceColor = '#ffffff';
 const HairlineColor = '#d6d2c7';
-const AccentColor = '#5b4bff';
+const AccentColor = '#12b76a';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 const OkColor = '#187a4a';
 const OkSoft = '#e3f4ea';
@@ -280,14 +280,14 @@ const RoleTag = styled.span<{ tone?: 'super' | 'admin' | 'standard' | 'read' }>`
   font-weight: 500;
   background: ${({ tone }) =>
     tone === 'super'
-      ? 'rgba(126, 55, 254, 0.16)'
+      ? 'rgba(18, 183, 106, 0.16)'
       : tone === 'admin'
         ? 'rgba(20, 20, 28, 0.08)'
         : tone === 'standard'
           ? 'rgba(20, 20, 28, 0.06)'
           : 'rgba(20, 20, 28, 0.04)'};
   color: ${({ tone }) =>
-    tone === 'super' ? '#5b1fd9' : InkColor};
+    tone === 'super' ? '#0e9155' : InkColor};
 `;
 
 const EmptyRow = styled.div`

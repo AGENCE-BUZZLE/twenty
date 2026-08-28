@@ -91,7 +91,7 @@ const NotifCount = styled.span`
   min-width: 20px;
   height: 20px;
   border-radius: 999px;
-  background: #7e37fe;
+  background: #12b76a;
   color: #ffffff;
   font-size: 10.5px;
   font-weight: 700;
@@ -140,7 +140,7 @@ const NotifMenuTitle = styled.div`
 const NotifMenuAction = styled.button`
   background: transparent;
   border: 0;
-  color: #7e37fe;
+  color: #12b76a;
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 500;
@@ -148,7 +148,7 @@ const NotifMenuAction = styled.button`
   padding: 4px 6px;
   border-radius: 6px;
   &:hover:not(:disabled) {
-    background: rgba(126, 55, 254, 0.08);
+    background: rgba(18, 183, 106, 0.08);
   }
   &:disabled {
     color: rgba(20, 20, 28, 0.35);
@@ -186,7 +186,7 @@ const NotifAvatar = styled.span`
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%);
+  background: linear-gradient(135deg, #ec4899 0%, #9d174d 100%);
   color: #ffffff;
   display: inline-grid;
   place-items: center;
@@ -244,7 +244,7 @@ const WorkspaceWrap = styled.div`
 `;
 
 const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)',
+  'linear-gradient(135deg, #ec4899 0%, #9d174d 100%)',
   'linear-gradient(135deg, #16a34a 0%, #065f46 100%)',
   'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
   'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
@@ -330,7 +330,7 @@ export const BuzzleOverviewShellHeader = ({
   return (
     <>
       <LogoBlock aria-label="Buzzle CRM">
-        <LogoImg src="/images/buzzle-crm-white.png" alt="Buzzle CRM" />
+        <LogoImg src="/images/buzzle-crm-white.png?v=green" alt="Buzzle CRM" />
       </LogoBlock>
       <Actions>
         <BuzzlePeriodPicker

@@ -125,9 +125,9 @@ const Pill = styled.button`
 
   &[data-active='true'] {
     background: #ffffff;
-    color: #7e37fe;
-    border-color: rgba(126, 55, 254, 0.35);
-    box-shadow: 0 6px 22px rgba(126, 55, 254, 0.28);
+    color: #12b76a;
+    border-color: rgba(18, 183, 106, 0.35);
+    box-shadow: 0 6px 22px rgba(18, 183, 106, 0.28);
   }
 
   &[data-locked='true'] {
@@ -175,7 +175,7 @@ const Pill = styled.button`
     }
 
     &[data-active='true'] {
-      background: rgba(126, 55, 254, 0.16);
+      background: rgba(18, 183, 106, 0.16);
       color: #ffffff;
       border-color: transparent;
       box-shadow: none;
@@ -199,7 +199,7 @@ const Dot = styled.span`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #7e37fe;
+  background: #12b76a;
   box-shadow: 0 0 0 2px #ffffff;
 `;
 

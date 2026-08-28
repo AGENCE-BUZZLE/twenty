@@ -11,7 +11,7 @@ const InkColor = '#14141c';
 const PaperColor = '#efede6';
 const SurfaceColor = '#ffffff';
 const HairlineColor = '#d6d2c7';
-const AccentColor = '#5b4bff';
+const AccentColor = '#12b76a';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
 
 const Card = styled.div`

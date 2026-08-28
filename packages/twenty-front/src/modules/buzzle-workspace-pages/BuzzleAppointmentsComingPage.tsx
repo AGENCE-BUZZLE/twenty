@@ -28,8 +28,8 @@ const IconFrame = styled.div`
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: rgba(126, 55, 254, 0.12);
-  color: #7e37fe;
+  background: rgba(18, 183, 106, 0.12);
+  color: #12b76a;
   display: inline-flex;
   align-items: center;
   justify-content: center;

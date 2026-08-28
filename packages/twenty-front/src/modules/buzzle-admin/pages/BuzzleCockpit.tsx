@@ -11,7 +11,7 @@ import { useBuzzleWorkspaces } from '@/buzzle-admin/hooks/useBuzzleWorkspaces';
 // stats, template-provisioning status, and quick actions (open + apply).
 //
 // Design language:
-//   - Schemata palette (ink #14141c, paper #efede6, violet accent #5b4bff)
+//   - Schemata palette (ink #14141c, paper #efede6, violet accent #12b76a)
 //   - Inter Tight for display, Inter for body, JetBrains Mono for labels
 //   - Hairlines only (no shadows), radius 6/8px max
 //   - Icons: inline SVG, never emoji or unicode symbols
@@ -20,7 +20,7 @@ const InkColor = '#14141c';
 const PaperColor = '#efede6';
 const SurfaceColor = '#ffffff';
 const HairlineColor = '#d6d2c7';
-const AccentColor = '#5b4bff';
+const AccentColor = '#12b76a';
 const AccentSoft = 'rgba(91, 75, 255, 0.08)';
 const OkColor = '#187a4a';
 const OkSoft = '#e3f4ea';

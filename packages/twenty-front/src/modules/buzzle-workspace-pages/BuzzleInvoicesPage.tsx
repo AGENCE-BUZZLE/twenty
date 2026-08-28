@@ -23,7 +23,7 @@ const InkColor = '#14141c';
 const HairlineColor = '#d6d2c7';
 const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
-const VioletColor = '#7e37fe';
+const VioletColor = '#12b76a';
 
 const MY_WORKSPACE_INVOICES = gql`
   query MyWorkspaceInvoices {
@@ -150,7 +150,7 @@ const Tile = styled.div`
     --tile-badge-color-down: #ffffff;
     --tile-badge-bg-down: rgba(255, 255, 255, 0.16);
 
-    background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
+    background: linear-gradient(160deg, #12b76a 0%, #0e9155 100%);
     color: #ffffff;
     border: none;
     position: relative;

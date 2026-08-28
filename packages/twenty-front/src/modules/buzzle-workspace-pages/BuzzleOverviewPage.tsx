@@ -29,7 +29,7 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 const InkColor = '#14141c';
 const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
-const VioletColor = '#7e37fe';
+const VioletColor = '#12b76a';
 
 type Invoice = {
   id: string;
@@ -828,7 +828,7 @@ const formatShortDate = (raw?: string | null): string => {
 
 // 4-color gradient palette for lead avatars · same as the V9 mockup.
 const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)', // violet
+  'linear-gradient(135deg, #ec4899 0%, #9d174d 100%)', // violet
   'linear-gradient(135deg, #16a34a 0%, #065f46 100%)', // green
   'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)', // orange
   'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', // blue
@@ -1004,7 +1004,7 @@ const Tile = styled.div`
     --tile-badge-color-down: #ffffff;
     --tile-badge-bg-down: rgba(255, 255, 255, 0.16);
 
-    background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
+    background: linear-gradient(160deg, #12b76a 0%, #0e9155 100%);
     color: #ffffff;
     border: none;
     position: relative;

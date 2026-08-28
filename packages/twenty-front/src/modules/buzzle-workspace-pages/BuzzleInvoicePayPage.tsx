@@ -17,7 +17,7 @@ import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient
 const InkColor = '#14141c';
 const SurfaceColor = '#ffffff';
 const MutedColor = 'rgba(20, 20, 28, 0.55)';
-const VioletColor = '#7e37fe';
+const VioletColor = '#12b76a';
 
 const REVOLUT_CHECKOUT_URL =
   'https://checkout.revolut.com/pay/ce10ca1f-757f-419b-99b9-01a8579b98f3';
@@ -242,7 +242,7 @@ const MethodIcon = styled.span`
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(126, 55, 254, 0.14);
+  background: rgba(18, 183, 106, 0.14);
   color: ${VioletColor};
   display: inline-flex;
   align-items: center;
@@ -349,8 +349,8 @@ const NoticeBox = styled.div`
   margin-top: 20px;
   padding: 14px 16px;
   border-radius: 12px;
-  background: rgba(126, 55, 254, 0.08);
-  border: 1px solid rgba(126, 55, 254, 0.24);
+  background: rgba(18, 183, 106, 0.08);
+  border: 1px solid rgba(18, 183, 106, 0.24);
   color: ${InkColor};
   font-size: 13px;
   line-height: 1.55;

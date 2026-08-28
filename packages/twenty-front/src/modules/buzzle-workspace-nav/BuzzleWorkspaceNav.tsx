@@ -95,7 +95,7 @@ const items: NavItem[] = [
 
 const NavBadge = styled.span`
   margin-left: auto;
-  background: #7e37fe;
+  background: #12b76a;
   color: #ffffff;
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;

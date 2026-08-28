@@ -396,7 +396,7 @@ const ActionPlanCard = styled.section`
   border: 1px solid ${HairlineColor};
   border-radius: 18px;
   padding: 24px 28px 28px;
-  background: linear-gradient(160deg, #7e37fe 0%, #5b25c7 100%);
+  background: linear-gradient(160deg, #12b76a 0%, #0e9155 100%);
   color: #ffffff;
   margin-top: 24px;
   position: relative;
@@ -461,7 +461,7 @@ const ActionStep = styled.li`
     height: 28px;
     border-radius: 50%;
     background: #ffffff;
-    color: #5b25c7;
+    color: #0e9155;
     font-family: 'Inter Tight', 'Inter', sans-serif;
     font-weight: 700;
     font-size: 14px;
@@ -788,7 +788,7 @@ export const BuzzleAuditGalaxyGlassPage = () => {
   return (
     <ShellGrid data-sidebar-expanded={sidebarExpanded}>
       <LogoBlock aria-label="Buzzle CRM">
-        <LogoImg src="/images/buzzle-crm-white.png" alt="Buzzle CRM" />
+        <LogoImg src="/images/buzzle-crm-white.png?v=green" alt="Buzzle CRM" />
       </LogoBlock>
       <Actions>
         <NotifChip

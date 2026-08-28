@@ -564,7 +564,7 @@ const displayNotes = (raw: unknown): string => {
 // que le nom aura les mêmes initiales et le même dégradé sur la fiche
 // et sur les listes Formulaires / Appels.
 const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #7e37fe 0%, #4b1fb0 100%)',
+  'linear-gradient(135deg, #ec4899 0%, #9d174d 100%)',
   'linear-gradient(135deg, #16a34a 0%, #065f46 100%)',
   'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
   'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',

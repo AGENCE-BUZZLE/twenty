@@ -36,7 +36,7 @@ const DEFAULT_STATUS_META: Record<string, StatusMeta> = {
     label: 'Devis envoyé',
     bg: '#ede4ff',
     fg: '#4a2fb8',
-    dot: '#5b4bff',
+    dot: '#12b76a',
   },
   WON: {
     label: 'Signé',
