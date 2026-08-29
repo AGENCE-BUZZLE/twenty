@@ -27,14 +27,36 @@ export const useRedirectToWorkspaceDomain = () => {
   ) => {
     if (!isMultiWorkspaceEnabled) return;
 
-    // Buzzle path-based : en mode path (crm.agence-buzzle.com/{slug}), on est
-    // déjà sur l'URL canonique du workspace → ne pas rediriger vers le sous-domaine.
+    // Buzzle path-based : en mode path (crm.agence-buzzle.com/{slug}), on ne
+    // redirige JAMAIS vers le sous-domaine. Deux cas :
+    //  - on est déjà sur le bon path (/{slug}/...) → rien à faire ;
+    //  - sinon (ex. fin de login vers /verify) → redirection SAME-DOMAIN vers
+    //    /{slug}{pathname} (le workspace cible vient de l'URL sous-domaine baseUrl).
     if (
       getIsPathBasedWorkspace({
         frontDomain: domainConfiguration.frontDomain,
         defaultSubdomain: domainConfiguration.defaultSubdomain,
       })
     ) {
+      const targetSlug = new URL(baseUrl).hostname.split('.')[0];
+      const currentPath = pathname ?? '';
+
+      if (currentPath.startsWith(`/${targetSlug}`)) {
+        return;
+      }
+
+      const targetUrl = new URL(
+        `${window.location.origin}/${targetSlug}${currentPath}`,
+      );
+      const allSearchParams = {
+        ...searchParams,
+        ...(await buildSearchParamsFromUrlSyncedStates()),
+      };
+      Object.entries(allSearchParams).forEach(([key, value]) =>
+        targetUrl.searchParams.set(key, value.toString()),
+      );
+
+      redirect(targetUrl.toString(), target);
       return;
     }
 
