@@ -9,6 +9,9 @@ import { AppPath, SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
 
 import { LazyRoute } from '@/app/components/LazyRoute';
+import { domainConfigurationState } from '@/domain-manager/states/domainConfigurationState';
+import { getWorkspaceRouterBasename } from '@/domain-manager/utils/getWorkspaceSlugFromPath';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { BuzzleCockpit } from '@/buzzle-admin/pages/BuzzleCockpit';
 import { BuzzleMembersSettings } from '@/buzzle-settings/BuzzleMembersSettings';
 import { BuzzleProfileSettings } from '@/buzzle-settings/BuzzleProfileSettings';
@@ -143,6 +146,7 @@ const preloadOnboardingPages = () => {
 const createWorkspaceAppRouter = (
   isFunctionSettingsEnabled?: boolean,
   isAdminPageEnabled?: boolean,
+  basename?: string,
 ) =>
   createBrowserRouter(
     createRoutesFromElements(
@@ -367,14 +371,28 @@ const createWorkspaceAppRouter = (
         </Route>
       </Route>,
     ),
+    { basename },
   );
 
 export const useCreateWorkspaceAppRouter = (
   isFunctionSettingsEnabled?: boolean,
   isAdminPageEnabled?: boolean,
-) =>
-  useMemo(
+) => {
+  const domainConfiguration = useAtomStateValue(domainConfigurationState);
+
+  // Buzzle path-based : en mode path, le routeur a un basename /{slug}.
+  const basename = getWorkspaceRouterBasename({
+    frontDomain: domainConfiguration.frontDomain,
+    defaultSubdomain: domainConfiguration.defaultSubdomain,
+  });
+
+  return useMemo(
     () =>
-      createWorkspaceAppRouter(isFunctionSettingsEnabled, isAdminPageEnabled),
-    [isFunctionSettingsEnabled, isAdminPageEnabled],
+      createWorkspaceAppRouter(
+        isFunctionSettingsEnabled,
+        isAdminPageEnabled,
+        basename,
+      ),
+    [isFunctionSettingsEnabled, isAdminPageEnabled, basename],
   );
+};

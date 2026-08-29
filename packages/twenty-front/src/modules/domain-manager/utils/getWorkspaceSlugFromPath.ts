@@ -48,17 +48,36 @@ export const getWorkspaceSlugFromPath = (
   return firstSegment;
 };
 
-// Mode path actif = on est sur le domaine par défaut (pas de sous-domaine) ET
-// un slug valide est présent dans le path.
-export const getIsPathBasedWorkspace = (defaultDomain: string): boolean =>
-  window.location.hostname === defaultDomain &&
-  getWorkspaceSlugFromPath() !== undefined;
+// Mode path actif = on est sur le domaine « racine » (bare frontDomain OU
+// {defaultSubdomain}.{frontDomain}, jamais un sous-domaine de workspace) ET un
+// slug valide est présent dans le path.
+type PathBasedDomainConfig = {
+  frontDomain?: string;
+  defaultSubdomain?: string;
+};
+
+export const getIsPathBasedWorkspace = ({
+  frontDomain,
+  defaultSubdomain,
+}: PathBasedDomainConfig): boolean => {
+  if (frontDomain === undefined || frontDomain === '') {
+    return false;
+  }
+
+  const hostname = window.location.hostname;
+  const isOnRootDomain =
+    hostname === frontDomain ||
+    (defaultSubdomain !== undefined &&
+      hostname === `${defaultSubdomain}.${frontDomain}`);
+
+  return isOnRootDomain && getWorkspaceSlugFromPath() !== undefined;
+};
 
 // Basename React Router en mode path : `/{slug}`, sinon undefined (racine).
 export const getWorkspaceRouterBasename = (
-  defaultDomain: string,
+  config: PathBasedDomainConfig,
 ): string | undefined => {
-  if (!getIsPathBasedWorkspace(defaultDomain)) {
+  if (!getIsPathBasedWorkspace(config)) {
     return undefined;
   }
 
