@@ -1,13 +1,13 @@
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
-import { useReadDefaultDomainFromConfiguration } from '@/domain-manager/hooks/useReadDefaultDomainFromConfiguration';
 import { domainConfigurationState } from '@/domain-manager/states/domainConfigurationState';
-import { getIsPathBasedWorkspace } from '@/domain-manager/utils/getWorkspaceSlugFromPath';
+import {
+  getIsOnRootDomain,
+  getIsPathBasedWorkspace,
+} from '@/domain-manager/utils/getWorkspaceSlugFromPath';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { isDefined } from 'twenty-shared/utils';
 
 export const useIsCurrentLocationOnAWorkspace = () => {
-  const { defaultDomain } = useReadDefaultDomainFromConfiguration();
-
   const isMultiWorkspaceEnabled = useAtomStateValue(
     isMultiWorkspaceEnabledState,
   );
@@ -21,15 +21,16 @@ export const useIsCurrentLocationOnAWorkspace = () => {
     throw new Error('frontDomain and defaultSubdomain are required');
   }
 
-  // Buzzle path-based : un slug en path = on est sur un workspace.
-  const isPathBasedWorkspace = getIsPathBasedWorkspace({
+  const domainConfig = {
     frontDomain: domainConfiguration.frontDomain,
     defaultSubdomain: domainConfiguration.defaultSubdomain,
-  });
+  };
 
+  // Buzzle path-based : on est sur un workspace si on n'est PAS sur le domaine
+  // racine (bare frontDomain OU app.{frontDomain}), OU si un slug est en path.
   const isOnAWorkspace = !isMultiWorkspaceEnabled
     ? true
-    : window.location.hostname !== defaultDomain || isPathBasedWorkspace;
+    : !getIsOnRootDomain(domainConfig) || getIsPathBasedWorkspace(domainConfig);
 
   return {
     isOnAWorkspace,

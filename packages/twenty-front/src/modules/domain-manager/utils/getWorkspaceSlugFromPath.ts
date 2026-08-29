@@ -56,7 +56,10 @@ type PathBasedDomainConfig = {
   defaultSubdomain?: string;
 };
 
-export const getIsPathBasedWorkspace = ({
+// Sur le domaine « racine » : soit le bare frontDomain (crm.agence-buzzle.com),
+// soit {defaultSubdomain}.{frontDomain} (app.crm.agence-buzzle.com). Jamais un
+// sous-domaine de workspace.
+export const getIsOnRootDomain = ({
   frontDomain,
   defaultSubdomain,
 }: PathBasedDomainConfig): boolean => {
@@ -65,13 +68,18 @@ export const getIsPathBasedWorkspace = ({
   }
 
   const hostname = window.location.hostname;
-  const isOnRootDomain =
+
+  return (
     hostname === frontDomain ||
     (defaultSubdomain !== undefined &&
-      hostname === `${defaultSubdomain}.${frontDomain}`);
-
-  return isOnRootDomain && getWorkspaceSlugFromPath() !== undefined;
+      hostname === `${defaultSubdomain}.${frontDomain}`)
+  );
 };
+
+export const getIsPathBasedWorkspace = (
+  config: PathBasedDomainConfig,
+): boolean =>
+  getIsOnRootDomain(config) && getWorkspaceSlugFromPath() !== undefined;
 
 // Basename React Router en mode path : `/{slug}`, sinon undefined (racine).
 export const getWorkspaceRouterBasename = (
