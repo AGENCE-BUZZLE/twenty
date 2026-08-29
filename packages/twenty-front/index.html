@@ -25,11 +25,17 @@
 
     <meta name="theme-color" content="#14141c" />
     <!-- PWA installée : barre de statut sombre cohérente avec le shell
-         Ink sur tous les écrans (login inclus). iOS → black (barre
-         sombre, texte blanc) ; Android → theme-color #14141c. -->
+         Ink sur tous les écrans (login inclus). iOS → black-translucent :
+         le contenu passe DERRIÈRE la barre de statut (le fond Ink #14141c
+         remonte jusque sous l'encoche/heure, aucune bande noir-pur
+         distincte) · le shell décale son contenu via env(safe-area-inset-top).
+         Android → theme-color #14141c. -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="Buzzle CRM" />
     <meta name="description" content="CRM Buzzle — leads Google Ads & Meta Ads" />
     <meta

@@ -21,7 +21,9 @@ const Header = styled.header`
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  // Safe-area iOS : barre de statut translucide (le fond Ink remonte
+  // derrière) · on décale le contenu sous l'encoche/heure.
+  padding: calc(10px + env(safe-area-inset-top)) 14px 10px 14px;
   background: ${InkColor};
   color: #ffffff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
