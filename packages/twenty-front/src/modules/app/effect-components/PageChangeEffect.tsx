@@ -144,8 +144,11 @@ export const PageChangeEffect = () => {
         pageChangeEffectNavigateLocation === AppPath.SignInUp &&
         !isOnAuthOrOnboardingPage
       ) {
+        // Buzzle path-based : utiliser la location react-router (relative au
+        // basename /{slug}) et non window.location (absolu), sinon le slug se
+        // retrouve dupliqué après login (/{slug}/{slug}).
         saveReturnToPath(
-          `${window.location.pathname}${window.location.search}${window.location.hash}`,
+          `${location.pathname}${location.search}${location.hash}`,
         );
       }
 
